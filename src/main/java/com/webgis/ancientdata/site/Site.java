@@ -1,9 +1,13 @@
 package com.webgis.ancientdata.site;
 
+import com.webgis.ancientdata.ancientreference.AncientReference;
+import com.webgis.ancientdata.epigraphicreference.EpigraphicReference;
+import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 @Data
 @Entity
@@ -29,9 +33,9 @@ public class Site implements Serializable {
     @Column(name = "province")
     private String province;
 
-    //type of site (settlement, settlement with stone buildings, juridical city, fort, legionary fortress)
+    //type of site
     @Column(name="type")
-    private String type;
+    private SiteType type;
 
     //to which Assize district a settlement (only cities) belonged
     @Column(name = "conventu_1")
@@ -49,20 +53,41 @@ public class Site implements Serializable {
     @Column(name = "comment")
     private String comment;
 
-    //references, historical or secondary
-//    @Column(name = "refs")
-//    private ArrayList<>
+    //modernreference(s)
+    @Column(name = "modrefs")
+    private ArrayList<ModernReference> modernReferences;
 
-    //constructor
-    public Site (Integer pleiadesId, String name, Point geom, String province, String conventus, String type, String status, String statusReference, String comment){
+    //ancientreference(s)
+    @Column(name = "ancrefs")
+    private ArrayList<AncientReference> ancientReferences;
+
+    //epigraphicreference(s)
+    @Column(name = "eprefs")
+    private ArrayList<EpigraphicReference> epigraphicReferences;
+
+    public Site(Integer pleiadesId,
+                String name,
+                Point geom,
+                String province,
+                SiteType type,
+                String conventus,
+                String status,
+                String statusReference,
+                String comment,
+                ArrayList<ModernReference> modernReferences,
+                ArrayList<AncientReference> ancientReferences,
+                ArrayList<EpigraphicReference> epigraphicReferences) {
         this.pleiadesId = pleiadesId;
         this.name = name;
         this.geom = geom;
         this.province = province;
-        this.conventus = conventus;
         this.type = type;
+        this.conventus = conventus;
         this.status = status;
         this.statusReference = statusReference;
         this.comment = comment;
+        this.modernReferences = modernReferences;
+        this.ancientReferences = ancientReferences;
+        this.epigraphicReferences = epigraphicReferences;
     }
 }
