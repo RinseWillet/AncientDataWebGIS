@@ -10,5 +10,4 @@ public class AncientdataApplication {
 		SpringApplication.run(AncientdataApplication.class, args);
 		System.out.println("Server app running");
 	}
-
 }
