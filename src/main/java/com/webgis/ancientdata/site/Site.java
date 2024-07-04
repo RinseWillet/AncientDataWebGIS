@@ -34,8 +34,8 @@ public class Site implements Serializable {
     private String province;
 
     //type of site
-    @Column(name="type")
-    private SiteType type;
+    @Column(name="sitetype")
+    private SiteType siteType;
 
     //to which Assize district a settlement (only cities) belonged
     @Column(name = "conventu_1")
@@ -69,7 +69,7 @@ public class Site implements Serializable {
                 String name,
                 Point geom,
                 String province,
-                SiteType type,
+                SiteType siteType,
                 String conventus,
                 String status,
                 String statusReference,
@@ -81,7 +81,7 @@ public class Site implements Serializable {
         this.name = name;
         this.geom = geom;
         this.province = province;
-        this.type = type;
+        this.siteType = siteType;
         this.conventus = conventus;
         this.status = status;
         this.statusReference = statusReference;

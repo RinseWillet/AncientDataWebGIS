@@ -2,7 +2,7 @@ package com.webgis.ancientdata.site;
 
 public enum SiteType {
     CITY,
-    SECONDARYAGGLOMERATION,
+    SECONDAGG,
     CASTELLUM,
     PCASTELLUM,
     VILLA,
