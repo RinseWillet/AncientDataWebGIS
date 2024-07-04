@@ -8,6 +8,7 @@ public class AncientdataApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AncientdataApplication.class, args);
+		System.out.println("Server app running");
 	}
 
 }
