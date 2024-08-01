@@ -1,17 +1,15 @@
 package com.webgis.ancientdata.site;
 
-import com.webgis.ancientdata.ancientreference.AncientReference;
-import com.webgis.ancientdata.epigraphicreference.EpigraphicReference;
-import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.locationtech.jts.geom.Point;
+
 import java.io.Serializable;
-import java.util.ArrayList;
+import org.locationtech.jts.geom.Point;
 
 @Data
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Table(name = "arch_sites")
 public class Site implements Serializable {
@@ -20,7 +18,7 @@ public class Site implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name="pleiades_i")
+    @Column(name="pleiadesid")
     private Integer pleiadesId;
 
     @Column(name="name")
@@ -35,59 +33,48 @@ public class Site implements Serializable {
 
     //type of site
     @Column(name="sitetype")
-    private SiteType siteType;
-
-    //to which Assize district a settlement (only cities) belonged
-    @Column(name = "conventu_1")
-    private String conventus;
+    private String siteType;
 
     //juridical status of settlement in 2nd c. CE
     @Column(name="status")
     private String status;
 
     //reference and commentary for juridical status
-    @Column(name = "status_ref")
+    @Column(name = "statusref", length = 800)
     private String statusReference;
 
     //comment
-    @Column(name = "comment")
+    @Column(name = "comment", length = 800)
     private String comment;
 
-    //modernreference(s)
-    @Column(name = "modrefs")
-    private ArrayList<ModernReference> modernReferences;
-
-    //ancientreference(s)
-    @Column(name = "ancrefs")
-    private ArrayList<AncientReference> ancientReferences;
-
-    //epigraphicreference(s)
-    @Column(name = "eprefs")
-    private ArrayList<EpigraphicReference> epigraphicReferences;
+//    //modernreference(s)
+//    @Column(name = "modrefs")
+//    private ArrayList<ModernReference> modernReferences;
+//
+//    //ancientreference(s)
+//    @Column(name = "ancrefs")
+//    private ArrayList<AncientReference> ancientReferences;
+//
+//    //epigraphicreference(s)
+//    @Column(name = "eprefs")
+//    private ArrayList<EpigraphicReference> epigraphicReferences;
 
     public Site(Integer pleiadesId,
                 String name,
                 Point geom,
                 String province,
-                SiteType siteType,
-                String conventus,
+                String siteType,
                 String status,
                 String statusReference,
-                String comment,
-                ArrayList<ModernReference> modernReferences,
-                ArrayList<AncientReference> ancientReferences,
-                ArrayList<EpigraphicReference> epigraphicReferences) {
+                String comment
+                ) {
         this.pleiadesId = pleiadesId;
         this.name = name;
         this.geom = geom;
         this.province = province;
         this.siteType = siteType;
-        this.conventus = conventus;
         this.status = status;
         this.statusReference = statusReference;
         this.comment = comment;
-        this.modernReferences = modernReferences;
-        this.ancientReferences = ancientReferences;
-        this.epigraphicReferences = epigraphicReferences;
     }
 }
