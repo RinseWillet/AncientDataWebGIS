@@ -18,7 +18,7 @@ public class Road {
     private long id;
 
     @Column(name="cat_nr")
-    private long cat_nr;
+    private int cat_nr;
 
     @Column(name="cat_name")
     private String name;
@@ -48,7 +48,7 @@ public class Road {
     private String historicalReferences;
 
     public Road(long id,
-                long cat_nr,
+                int cat_nr,
                 String name,
                 MultiLineString geom,
                 String type,

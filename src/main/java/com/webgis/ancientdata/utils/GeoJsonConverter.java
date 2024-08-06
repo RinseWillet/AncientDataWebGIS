@@ -4,7 +4,9 @@ package com.webgis.ancientdata.utils;
 import com.webgis.ancientdata.road.Road;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Coordinates;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 
 //JSON
@@ -27,8 +29,17 @@ public class GeoJsonConverter {
     //Logging object
     private final Logger logger = LoggerFactory.getLogger(GeoJsonConverter.class);
 
+    //method to convert individual point to geojson
+    public JSONObject convertSite(Optional<Site> siteOptional) {
+        JSONObject features = setUpGeoJSON();
+        Site site = siteOptional.get();
+        JSONObject feature = siteParser(site);
+        features.put("features", feature);
+        return features;
+    }
+
     //method to convert points to geojson
-    public JSONObject convertSite(Iterable<Site> siteIterable) {
+    public JSONObject convertSites(Iterable<Site> siteIterable) {
 
         JSONObject features = setUpGeoJSON();
         features.put("name", "sites");
@@ -42,7 +53,7 @@ public class GeoJsonConverter {
         //lambda function to iterate through the sites
         siteIterator.forEachRemaining(element -> {
 
-            JSONObject feature = sitePropertiesParser(element);
+            JSONObject feature = siteParser(element);
 
             //add to JSON Array
             jsonArray.put(feature);
@@ -56,7 +67,7 @@ public class GeoJsonConverter {
     }
 
     //method to convert multilinestrings to geojson
-    public JSONObject convertRoad(Iterable<Road> roadIterable) {
+    public JSONObject convertRoads(Iterable<Road> roadIterable) {
 
         JSONObject features = setUpGeoJSON();
         features.put("name", "roads");
@@ -70,11 +81,11 @@ public class GeoJsonConverter {
         //lambda function to iterate through the sites
         roadIterator.forEachRemaining(element -> {
             if(element!=null){
-                JSONObject feature = roadPropertiesParser(element);
+                JSONObject feature = roadParser(element);
                 //add to JSON Array
                 jsonArray.put(feature);
             } else {
-                System.out.println("null");
+                logger.info("no elements found in roadsarray");
             }
         });
 
@@ -82,6 +93,14 @@ public class GeoJsonConverter {
         features.put("features", jsonArray);
 
         //returning JSON cf. GeoJSON standard
+        return features;
+    }
+
+    public JSONObject convertRoad(Optional<Road> roadOptional){
+        JSONObject features = setUpGeoJSON();
+        Road road = roadOptional.get();
+        JSONObject feature = roadParser(road);
+        features.put("features", feature);
         return features;
     }
 
@@ -126,7 +145,7 @@ public class GeoJsonConverter {
     }
 
     //method to parse values from Site object to JSON feature
-    private JSONObject sitePropertiesParser (Site site) {
+    private JSONObject siteParser (Site site) throws NullPointerException {
 
         //JSON objects to store the properties, geometry and the complete feature
         JSONObject feature = new JSONObject();
@@ -142,17 +161,24 @@ public class GeoJsonConverter {
         properties.put("id", site.getId());
         properties.put("name", site.getName());
         properties.put("siteType", site.getSiteType());
-        properties.put("comment", site.getComment());
         properties.put("status", site.getStatus());
-        properties.put("statusRef", site.getStatusReference());
+
+//        String [] propertyTypes = {"id", "name", "siteType", "status"};
+//        SitePropertiesParser(site, properties, propertyTypes);
+
 
         //constructing geometry
-        if (site.getGeom() != null){
+        try {
             geometry.put("type", site.getGeom().getGeometryType());
+        } catch (Exception e) {
+            logger.warn("geometry of " + site.getName() + " not found");
+            geometry.put("type", "not_found");
+        }
 
-            //making array of X (latitude) and Y (longitude) coordinates
-            Double [] coords = {site.getGeom().getX(), site.getGeom().getY()};
-            geometry.put("coordinates", coords);
+        Double [] coordinates = pointCoordinates(site);
+
+        if (coordinates != null) {
+            geometry.put("coordinates", coordinates);
         } else {
             geometry.put("coordinates", 1234);
         }
@@ -166,7 +192,46 @@ public class GeoJsonConverter {
         return feature;
     }
 
-    private JSONObject roadPropertiesParser (Road road) {
+//    private JSONObject SitePropertiesParser (Site site, JSONObject properties, String [] propertytypes) throws NullPointerException {
+//
+//
+//        try{
+//
+//            if(Arrays.stream(propertytypes).contains("id")){
+//                properties.put("id", site.getId());
+//            }
+//            if(Arrays.stream(propertytypes).contains("pleiadesId")){
+//                properties.put("pleiadesId", site.getPleiadesId());
+//            }
+//            if(Arrays.stream(propertytypes).contains("name")){
+//                properties.put("name", site.getName());
+//            }
+//            if(Arrays.stream(propertytypes).contains("province")){
+//                properties.put("province", site.getProvince());
+//            }
+//            if(Arrays.stream(propertytypes).contains("siteType")){
+//                properties.put("siteType", site.getSiteType());
+//            }
+//            if(Arrays.stream(propertytypes).contains("status")){
+//                properties.put("status", site.getStatus());;
+//            }
+//            if(Arrays.stream(propertytypes).contains("statusReference")){
+//                properties.put("statusReference", site.getStatusReference());;
+//            }
+//            if(Arrays.stream(propertytypes).contains("comment")){
+//                properties.put("comment", site.getComment());;
+//            }
+//
+//        } catch (Exception E) {
+//            logger.warn("property not found in site " + site.getName());
+//
+//        }
+//        return properties;
+//    }
+
+
+
+    private JSONObject roadParser (Road road) {
 
         //JSON objects to store the properties, geometry and the complete feature
         JSONObject feature = new JSONObject();
@@ -179,10 +244,47 @@ public class GeoJsonConverter {
         setLinkedHashMap(geometry);
 
         //constructing geometry
-        if (road.getGeom() != null) {
-            geometry.put("type", road.getGeom().getGeometryType());
+        geometry.put("type", road.getGeom().getGeometryType());
 
-            //loop over number of geometries (arrays of coordinates of separate line in multilinestring)
+        Double [][][] coordinates = lineCoordinates(road);
+
+        if (coordinates != null) {
+            geometry.put("coordinates", coordinates);
+        } else {
+            geometry.put("coordinates", 1234);
+        }
+
+        //constructing properties
+        properties.put("id", road.getId());
+        properties.put("name", road.getName());
+        properties.put("type", road.getType());
+        properties.put("date", road.getDate());
+
+        //constructing feature
+        feature.put("type", "Feature");
+        feature.put("properties", properties);
+        feature.put("geometry", geometry);
+        return feature;
+    }
+
+
+
+    //constructing coordinates for JSON
+    Double [] pointCoordinates (Site site) {
+
+        if (site.getGeom() != null){
+            //making array of X (latitude) and Y (longitude) coordinates
+            Double [] coordinates = {site.getGeom().getX(), site.getGeom().getY()};
+            return coordinates;
+        } else {
+            return null;
+        }
+    }
+
+    //loop over number of geometries (arrays of coordinates of separate line in multilinestring)
+    Double [][][] lineCoordinates (Road road) {
+        if (road.getGeom() != null) {
+
             int i = 0;
             Double [][][] multiLineCoords = new Double [road.getGeom().getNumGeometries()][][];
 
@@ -200,21 +302,9 @@ public class GeoJsonConverter {
                 multiLineCoords[i] = line;
                 i++;
             }
-            geometry.put("coordinates", multiLineCoords);
+            return multiLineCoords;
         } else {
-            geometry.put("coordinates", 1234);
+            return null;
         }
-
-        //constructing properties
-        properties.put("id", road.getId());
-        properties.put("name", road.getName());
-        properties.put("type", road.getType());
-        properties.put("date", road.getDate());
-
-        //constructing feature
-        feature.put("type", "Feature");
-        feature.put("properties", properties);
-        feature.put("geometry", geometry);
-        return feature;
     }
 }

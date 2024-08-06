@@ -1,19 +1,16 @@
 package com.webgis.ancientdata.site;
 
+import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.json.JSONObject;
-import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import org.locationtech.jts.geom.Point;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Optional;
-
-
-import com.webgis.ancientdata.utils.GeoJsonConverter;
 
 @Service
 public class SiteService {
@@ -33,6 +30,18 @@ public class SiteService {
     public Optional<Site> findById(long id) {
         logger.info("find site id : {}", id);
         return siteRepository.findById(id);
+    }
+
+    public Site findSiteById(long id) {
+        Site site;
+        Optional<Site> siteOptional = findById(id);
+        if (siteOptional.isPresent()) {
+            site = siteOptional.get();
+        } else {
+            site = null;
+        }
+        ;
+        return site;
     }
 
     public Site addSite (Site site){
@@ -70,9 +79,9 @@ public class SiteService {
     public JSONObject findAllGeoJson() {
 
         //create GeoJsonBuilderService object to convert incoming Iterable to GeoJson
-        GeoJsonConverter geoJsonService = new GeoJsonConverter();
+        GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
 
-        return geoJsonService.convertSite(findAll());
+        return geoJsonConverter.convertSites(findAll());
     }
 
     public ArrayList<SiteMapDTO> overviewMapping() {

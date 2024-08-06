@@ -1,6 +1,5 @@
 package com.webgis.ancientdata.road;
 
-import com.webgis.ancientdata.site.Site;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +17,13 @@ public class RoadController {
     //info passed (when present): id, name, type, date, geometrie(s)
     @GetMapping("/geojson")
     public String findAllGeoJson(){
-        return roadService.finaAllGeoJson().toString();
+        return roadService.findAllGeoJson();
+    }
+
+    //find road by id - info passed as geojson String object containing (when present):
+    //id, name, type, typeDescription, location, description, date, references, historical references
+    @GetMapping("/{id}")
+    public String findByIdGeoJson(@PathVariable long id){
+        return roadService.findByIdGeoJson(id);
     }
 }
