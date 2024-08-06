@@ -23,8 +23,8 @@ public class SiteController {
     //find road by id - info passed as Site object (when present):
     //id, name, siteType, comment, status, statusref
     @GetMapping("/{id}")
-    public Site findSiteById(@PathVariable long id){
-        return siteService.findSiteById(id);
+    public String findByIdGeoJson(@PathVariable long id){
+        return siteService.findByIdGeoJson(id);
     }
 }
 
