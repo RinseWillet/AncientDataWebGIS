@@ -62,56 +62,52 @@ public class SiteServiceTests {
         Point geom = new Point(coordinateArraySequence, geometryFactory);
 
         String province = RandomStringUtils.randomAlphabetic(10);
-        SiteType siteType = SiteType.VILLA;
-        String conventus = RandomStringUtils.randomAlphabetic(10);
+        String siteType = RandomStringUtils.randomAlphabetic(10);
+//        String conventus = RandomStringUtils.randomAlphabetic(10);
         String status = RandomStringUtils.randomAlphabetic(10);
         String statusReference = RandomStringUtils.randomAlphabetic(10);
         String comment = RandomStringUtils.randomAlphabetic(10);
 
         //setting up modern reference
-        ModernReference modernReference = new ModernReference(
-                RandomStringUtils.randomAlphabetic(10),
-                RandomUtils.nextInt(),
-                RandomStringUtils.randomAlphabetic(10)
-        );
+//        ModernReference modernReference = new ModernReference(
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomUtils.nextInt(),
+//                RandomStringUtils.randomAlphabetic(10)
+//        );
 
         //setting up ancient reference
-        AncientReference ancientReference = new AncientReference(
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
-                RandomUtils.nextInt()
-        );
+//        AncientReference ancientReference = new AncientReference(
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomUtils.nextInt()
+//        );
 
         //setting up references
-        EpigraphicReference epigraphicReference = new EpigraphicReference(
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
-                RandomUtils.nextInt(),
-                RandomStringUtils.randomAlphabetic(10)
-        );
-
-        ArrayList<ModernReference> modernReferences = new ArrayList<>();
-        ArrayList<AncientReference> ancientReferences = new ArrayList<>();
-        ArrayList<EpigraphicReference> epigraphicReferences = new ArrayList<>();
-        modernReferences.add(modernReference);
-        ancientReferences.add(ancientReference);
-        epigraphicReferences.add(epigraphicReference);
+//        EpigraphicReference epigraphicReference = new EpigraphicReference(
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomStringUtils.randomAlphabetic(10),
+//                RandomUtils.nextInt(),
+//                RandomStringUtils.randomAlphabetic(10)
+//        );
+//
+//        ArrayList<ModernReference> modernReferences = new ArrayList<>();
+//        ArrayList<AncientReference> ancientReferences = new ArrayList<>();
+//        ArrayList<EpigraphicReference> epigraphicReferences = new ArrayList<>();
+//        modernReferences.add(modernReference);
+//        ancientReferences.add(ancientReference);
+//        epigraphicReferences.add(epigraphicReference);
 
         site = new Site(pleiadesId,
                 name,
                 geom,
                 province,
                 siteType,
-                conventus,
                 status,
                 statusReference,
-                comment,
-                modernReferences,
-                ancientReferences,
-                epigraphicReferences);
+                comment);
         siteList.add(site);
     }
 
