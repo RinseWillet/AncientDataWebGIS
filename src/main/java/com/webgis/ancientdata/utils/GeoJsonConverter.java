@@ -230,7 +230,6 @@ public class GeoJsonConverter {
                         break;
                 }
             }
-
         } catch (Exception E) {
             logger.warn("property not found in site " + site.getName());
         }
