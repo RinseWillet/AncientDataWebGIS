@@ -26,4 +26,9 @@ public class RoadController {
     public String findByIdGeoJson(@PathVariable long id){
         return roadService.findByIdGeoJson(id);
     }
+
+    @GetMapping("/all")
+    public Iterable<Road> findAll () {
+        return roadService.findAll();
+    }
 }

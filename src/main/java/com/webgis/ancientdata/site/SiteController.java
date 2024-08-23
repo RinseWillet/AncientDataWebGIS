@@ -26,5 +26,10 @@ public class SiteController {
     public String findByIdGeoJson(@PathVariable long id){
         return siteService.findByIdGeoJson(id);
     }
+
+    @GetMapping("/test")
+    public String testEndpoint(){
+        return "hoi frontend";
+    }
 }
 
