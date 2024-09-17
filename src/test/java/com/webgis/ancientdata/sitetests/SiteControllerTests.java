@@ -148,7 +148,7 @@ public class SiteControllerTests {
     public void shouldFindAllSites() throws Exception {
         when(siteService.findAll()).thenReturn(siteList);
 
-        mockMvc.perform(get("/api/sites")
+        mockMvc.perform(get("/api/sites/all")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.valueOf(siteJSON)))
                 .andExpect(status().isOk())
