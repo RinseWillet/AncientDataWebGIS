@@ -1,0 +1,45 @@
+version: '3.9'
+services:
+  ancientdata:
+    image: git.grosc.com:5050/linw/delphi-back-end:beta9
+    restart: on-failure
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=Asia133BCE!
+      - DATABASE_NAME=webGIS_DB
+      - DATABASE_PORT=2665
+
+  db:
+    container_name: PostGIS
+    image: postgis/postgis
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "webGIS_DB", "-U", "root"]
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: Asia133BCE!
+      POSTGRES_DB: webGIS_DB
+    volumes:
+      - /volume1/docker/postgis_pgadmin_stack/postgis:/var/lib/postgresql/data:rw
+    ports:
+      - 2665:5432
+    restart: on-failure
+
+  pgadmin:
+    container_name: pgAdmin
+    image: dpage/pgadmin4:latest
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5050
+    environment:
+      PGADMIN_DEFAULT_EMAIL: r.willet@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: Asia133BCE!
+      PGADMIN_LISTEN_PORT: 5050
+    ports:
+      - 2660:5050
+    volumes:
+      - /volume1/docker/postgis_pgadmin_stack/postgisadmin:/var/lib/pgadmin:rw
+    restart: on-failure

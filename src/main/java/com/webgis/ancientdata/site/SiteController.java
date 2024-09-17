@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.site;
 
+import com.webgis.ancientdata.road.Road;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,16 @@ public class SiteController {
     @GetMapping("/{id}")
     public String findByIdGeoJson(@PathVariable long id){
         return siteService.findByIdGeoJson(id);
+    }
+
+    @GetMapping("/all")
+    public Iterable<Site> findAll () {
+        return siteService.findAll();
+    }
+
+    @GetMapping("/test")
+    public String testEndpoint(){
+        return "hoi frontend";
     }
 }
 

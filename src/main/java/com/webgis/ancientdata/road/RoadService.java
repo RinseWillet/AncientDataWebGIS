@@ -1,8 +1,6 @@
 package com.webgis.ancientdata.road;
 
-import com.webgis.ancientdata.site.Site;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
