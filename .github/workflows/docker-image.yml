@@ -1,0 +1,16 @@
+name: Build and Publish image to Docker hub
+
+on:
+   [workflow_dispatch]
+jobs:
+  publish_images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: build image
+        run: docker build . -t rinsedev/ancientdata:latest
+      - name: push image to docker hub
+        run: |
+          docker push . -t rinsedev/ancientdata:latest
+
