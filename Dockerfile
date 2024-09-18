@@ -1,8 +1,10 @@
 FROM openjdk:17
-RUN mkdir /ancientdata
-COPY ancientdata.jar /ancientdata/ancientdata.jar
-WORKDIR /ancientdata
+
+RUN mkdir /app
+
+COPY app.jar /app/app.jar
+
+WORKDIR /app
 
 EXPOSE 8080
-
-ENTRYPOINT ["java","-jar","ancientdata.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
