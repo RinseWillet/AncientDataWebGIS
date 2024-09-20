@@ -1,16 +1,38 @@
-name: Build and Publish image to Docker hub
+name: Java CI with Gradle
 
 on:
-   [workflow_dispatch]
+  push:   
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
 jobs:
-  publish_images:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: build image
-        run: docker build . -t rinsedev/ancientdata:latest
-      - name: push image to docker hub
-        run: |
-          docker push . -t rinsedev/ancientdata:latest
-
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew clean build
+    - name: Get the version
+      id: vars
+      run: echo ::set-output name=tag::$(echo ${GITHUB_SHA:10})
+    - name: Docker login
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      run : docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" docker.io
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.REPO_NAME}}:${{steps.vars.outputs.tag}}
+    - name: Publish dockerimage to docker hub
+      run: docker push ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.REPO_NAME}}:${{steps.vars.outputs.tag}}
+    - name: Build Docker image with latest tag
+      run: docker build . --file Dockerfile --tag ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.REPO_NAME}}:latest
+    - name: Publish dockerimage to docker hub
+      run: docker push ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.REPO_NAME}}:latest
