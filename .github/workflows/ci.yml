@@ -14,8 +14,8 @@ on:
     branches: [ "main" ]
 
 permissions:
-      contents: read and write
-
+      contents: read
+      
 jobs:
   # dependency-submission:
 
