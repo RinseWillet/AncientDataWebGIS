@@ -1,8 +1,9 @@
 FROM openjdk:17
 
 RUN mkdir /app
-
-COPY ./build/libs/ancientdata-0.0.1-SNAPSHOT.jar ./app/ancientdata.jar
+WORKDIR /app
+CMD ["./gradlew", "clean", "bootJar"]
+COPY ./build/libs/*.jar ancientdata.jar
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/ancientdata"]
+ENTRYPOINT ["java", "-jar", "/ancientdata.jar"]
