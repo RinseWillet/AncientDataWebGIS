@@ -1,6 +1,7 @@
 package com.webgis.ancientdata.road;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -9,6 +10,7 @@ import org.locationtech.jts.geom.MultiLineString;
 @Data
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Table(name = "roads")
 public class Road {
@@ -47,8 +49,7 @@ public class Road {
     @Column(name = "cat_hist_ref", length=800)
     private String historicalReferences;
 
-    public Road(long id,
-                int cat_nr,
+    public Road(int cat_nr,
                 String name,
                 MultiLineString geom,
                 String type,
@@ -58,7 +59,6 @@ public class Road {
                 String date,
                 String references,
                 String historicalReferences) {
-        this.id = id;
         this.cat_nr = cat_nr;
         this.name = name;
         this.geom = geom;
@@ -70,4 +70,5 @@ public class Road {
         this.references = references;
         this.historicalReferences = historicalReferences;
     }
+
 }
