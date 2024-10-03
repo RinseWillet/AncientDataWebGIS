@@ -8,35 +8,32 @@ import com.webgis.ancientdata.road.RoadService;
 //Java
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONObject;
 import org.json.JSONException;
 import org.locationtech.jts.geom.*;
-
-//Spring
-import org.junit.jupiter.api.BeforeEach;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.springframework.beans.factory.annotation.Autowired;
-
-//Test boilerplate libraries
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
+//Testing libraries
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.json.JSONObject;
 
 @ExtendWith(MockitoExtension.class)
 public class RoadControllerTests {
@@ -96,7 +93,7 @@ public class RoadControllerTests {
         String references = RandomStringUtils.randomAlphabetic(50);
         String historicalReferences = RandomStringUtils.randomAlphabetic(50);
 
-      road = new Road(cat_nr,
+        road = new Road(cat_nr,
                 name,
                 geom,
                 type,
@@ -119,7 +116,6 @@ public class RoadControllerTests {
         roadJSON.put("date", date);
         roadJSON.put("references", references);
         roadJSON.put("historicalReferences", historicalReferences);
-
     }
 
     @AfterEach
@@ -153,5 +149,18 @@ public class RoadControllerTests {
                 .andDo(MockMvcResultHandlers.print());
 
         verify(roadService, times(1)).findByIdGeoJson(road.getId());
+    }
+
+    @Test
+    public void shouldFindAllRoadsGeoJSON() throws Exception {
+        when(roadService.findAllGeoJson()).thenReturn(String.valueOf(roadJSON));
+
+        mockMvc.perform(get("/api/roads/geojson")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(roadJSON)))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(roadService, times(1)).findAllGeoJson();
     }
 }

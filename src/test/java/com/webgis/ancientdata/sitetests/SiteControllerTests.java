@@ -1,9 +1,6 @@
 package com.webgis.ancientdata.sitetests;
 
 //MVC
-import com.webgis.ancientdata.ancientreference.AncientReference;
-import com.webgis.ancientdata.epigraphicreference.EpigraphicReference;
-import com.webgis.ancientdata.modernreference.ModernReference;
 import com.webgis.ancientdata.site.Site;
 import com.webgis.ancientdata.site.SiteController;
 import com.webgis.ancientdata.site.SiteService;
@@ -11,38 +8,32 @@ import com.webgis.ancientdata.site.SiteService;
 //Java
 import java.util.ArrayList;
 import java.util.List;
-
-import com.webgis.ancientdata.site.SiteType;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONObject;
 import org.json.JSONException;
 import org.locationtech.jts.geom.*;
-
-//Spring
-import org.junit.jupiter.api.BeforeEach;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.springframework.beans.factory.annotation.Autowired;
-
-//Test boilerplate libraries
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
+//Testing libraries
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.servlet.MockMvcBuilder;
+
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.json.JSONObject;
 
 @ExtendWith(MockitoExtension.class)
 public class SiteControllerTests {

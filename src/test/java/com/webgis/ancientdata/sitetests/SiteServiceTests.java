@@ -148,8 +148,6 @@ public class SiteServiceTests {
         sitesGeoJSON.put("type", "FeatureCollection");
         sitesGeoJSON.put("name", "sites");
         sitesGeoJSON.put("features", features);
-        System.out.println("hoi");
-        System.out.println(sitesGeoJSON);
     }
 
     @AfterEach
@@ -203,8 +201,6 @@ public class SiteServiceTests {
         when(siteRepository.findAll()).thenReturn(siteList);
 
         JSONObject fetchedSitesGeoJSON = siteService.findAllGeoJson();
-        System.out.println("eerdere test");
-        System.out.println(fetchedSitesGeoJSON);
 
         assertEquals(String.valueOf(fetchedSitesGeoJSON), String.valueOf(sitesGeoJSON));
 
