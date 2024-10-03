@@ -125,20 +125,9 @@ public class GeoJsonConverter {
         //main object in which all features are stored, object in which projection (crs) information is stored, object
         //in which projection properties are stored;
         JSONObject features = new JSONObject();
-//        JSONObject crs = new JSONObject();
-//        JSONObject crsProperties = new JSONObject();
 
         //setting HashMap to linked HashMap to keep order in JSON objects
         setLinkedHashMap(features);
-//        setLinkedHashMap(crs);
-//        setLinkedHashMap(crsProperties);
-
-        //setting projection properties - standard WGS 84 projection
-//        crsProperties.put("name", "urn:ogc:def:crs:OGC:1.3:CRS84");
-//
-//        //setting projection
-//        crs.put("type", "name");
-//        crs.put("properties", crsProperties);
 
         //setting mainobject
         features.put("type", "FeatureCollection");

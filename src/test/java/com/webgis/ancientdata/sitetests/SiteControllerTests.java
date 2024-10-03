@@ -156,4 +156,17 @@ public class SiteControllerTests {
 
         verify(siteService, times(1)).findAll();
     }
+
+    @Test
+    public void shouldFindSiteByIdGeoJSON() throws Exception {
+        when(siteService.findByIdGeoJson(site.getId())).thenReturn(String.valueOf(siteJSON));
+
+        mockMvc.perform(get("/api/sites/" + site.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(siteJSON)))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(siteService, times(1)).findByIdGeoJson(site.getId());
+    }
 }

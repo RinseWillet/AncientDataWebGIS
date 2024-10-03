@@ -2,14 +2,10 @@ package com.webgis.ancientdata.site;
 
 import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.json.JSONObject;
-import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -43,7 +39,15 @@ public class SiteService {
         }
     }
 
-//    public Site addSite (Site site){
+    public JSONObject findAllGeoJson() {
+
+        //create GeoJsonBuilderService object to convert incoming Iterable to GeoJson
+        GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
+
+        return geoJsonConverter.convertSites(findAll());
+    }
+
+    //    public Site addSite (Site site){
 //        try {
 //            logger.info("new site registered : {}", site.getName());
 //            return siteRepository.save(site);
@@ -74,14 +78,6 @@ public class SiteService {
 //            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
 //        }
 //    }
-
-    public JSONObject findAllGeoJson() {
-
-        //create GeoJsonBuilderService object to convert incoming Iterable to GeoJson
-        GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
-
-        return geoJsonConverter.convertSites(findAll());
-    }
 
 //    public ArrayList<SiteMapDTO> overviewMapping() {
 //        ArrayList<SiteMapDTO> siteMapDTOArrayList = new ArrayList<>();
