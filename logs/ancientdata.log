@@ -1,192 +1,48 @@
-2024-10-01T16:12:02.790+02:00  INFO 32828 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 32828 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
-2024-10-01T16:12:02.802+02:00  INFO 32828 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
-2024-10-01T16:12:03.501+02:00  INFO 32828 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-10-01T16:12:03.574+02:00  INFO 32828 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 62 ms. Found 2 JPA repository interfaces.
-2024-10-01T16:12:04.296+02:00  INFO 32828 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2024-10-01T16:12:04.311+02:00  INFO 32828 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-10-01T16:12:04.312+02:00  INFO 32828 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
-2024-10-01T16:12:04.418+02:00  INFO 32828 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-10-01T16:12:04.419+02:00  INFO 32828 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1560 ms
-2024-10-01T16:12:04.801+02:00  INFO 32828 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-10-01T16:12:04.984+02:00  INFO 32828 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-10-01T16:12:04.998+02:00  INFO 32828 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
-2024-10-01T16:12:05.032+02:00  INFO 32828 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-10-01T16:12:05.168+02:00  INFO 32828 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-10-01T16:12:05.723+02:00  INFO 32828 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1e3f86d5
-2024-10-01T16:12:05.724+02:00  INFO 32828 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-10-01T16:12:05.779+02:00  WARN 32828 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-10-01T16:12:05.850+02:00  INFO 32828 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:12:06.075+02:00  INFO 32828 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-10-01T16:12:06.101+02:00  INFO 32828 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:12:06.401+02:00  INFO 32828 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:12:06.924+02:00  INFO 32828 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-10-01T16:12:07.114+02:00  INFO 32828 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:12:07.385+02:00  WARN 32828 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-10-01T16:12:07.413+02:00  INFO 32828 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2024-10-01T16:12:07.994+02:00  INFO 32828 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2024-10-01T16:12:08.009+02:00  INFO 32828 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.661 seconds (process running for 6.057)
-2024-10-01T16:12:34.934+02:00  WARN 23788 --- [ancientdata] [Test worker] ory$DuplicateJsonObjectContextCustomizer : 
-
-Found multiple occurrences of org.json.JSONObject on the class path:
-
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/org.json/json/20211205/47032dcf2f69880f07dab3dc60b4b0ad97318308/json-20211205.jar!/org/json/JSONObject.class
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/com.vaadin.external.google/android-json/0.0.20131108.vaadin1/fa26d351fe62a6a17f5cda1287c1c6110dec413f/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
-
-You may wish to exclude one of them to ensure predictable runtime behavior
-
-2024-10-01T16:12:34.946+02:00  INFO 23788 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Starting AncientdataApplicationTests using Java 17.0.5 with PID 23788 (started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
-2024-10-01T16:12:34.947+02:00  INFO 23788 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2024-10-01T16:12:35.554+02:00  INFO 23788 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-10-01T16:12:35.616+02:00  INFO 23788 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 52 ms. Found 2 JPA repository interfaces.
-2024-10-01T16:12:36.085+02:00  INFO 23788 --- [ancientdata] [Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-10-01T16:12:36.167+02:00  INFO 23788 --- [ancientdata] [Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-10-01T16:12:36.180+02:00  INFO 23788 --- [ancientdata] [Test worker] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
-2024-10-01T16:12:36.208+02:00  INFO 23788 --- [ancientdata] [Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-10-01T16:12:36.330+02:00  INFO 23788 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-10-01T16:12:36.727+02:00  INFO 23788 --- [ancientdata] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4e50ae56
-2024-10-01T16:12:36.729+02:00  INFO 23788 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-10-01T16:12:36.783+02:00  WARN 23788 --- [ancientdata] [Test worker] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-10-01T16:12:36.855+02:00  INFO 23788 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:12:37.115+02:00  INFO 23788 --- [ancientdata] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-10-01T16:12:37.141+02:00  INFO 23788 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:12:37.434+02:00  INFO 23788 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:12:37.954+02:00  INFO 23788 --- [ancientdata] [Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-10-01T16:12:38.166+02:00  INFO 23788 --- [ancientdata] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:12:38.625+02:00  WARN 23788 --- [ancientdata] [Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-10-01T16:12:38.661+02:00  INFO 23788 --- [ancientdata] [Test worker] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2024-10-01T16:12:39.302+02:00  INFO 23788 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Started AncientdataApplicationTests in 4.584 seconds (process running for 5.708)
-2024-10-01T16:12:39.864+02:00  INFO 23788 --- [ancientdata] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:12:39.866+02:00  INFO 23788 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2024-10-01T16:12:39.871+02:00  INFO 23788 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2024-10-01T16:13:07.558+02:00  WARN 23476 --- [ancientdata] [Test worker] ory$DuplicateJsonObjectContextCustomizer : 
-
-Found multiple occurrences of org.json.JSONObject on the class path:
-
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/org.json/json/20211205/47032dcf2f69880f07dab3dc60b4b0ad97318308/json-20211205.jar!/org/json/JSONObject.class
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/com.vaadin.external.google/android-json/0.0.20131108.vaadin1/fa26d351fe62a6a17f5cda1287c1c6110dec413f/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
-
-You may wish to exclude one of them to ensure predictable runtime behavior
-
-2024-10-01T16:13:07.570+02:00  INFO 23476 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Starting AncientdataApplicationTests using Java 17.0.5 with PID 23476 (started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
-2024-10-01T16:13:07.571+02:00  INFO 23476 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2024-10-01T16:13:08.151+02:00  INFO 23476 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-10-01T16:13:08.210+02:00  INFO 23476 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 51 ms. Found 2 JPA repository interfaces.
-2024-10-01T16:13:08.650+02:00  INFO 23476 --- [ancientdata] [Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-10-01T16:13:08.757+02:00  INFO 23476 --- [ancientdata] [Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-10-01T16:13:08.769+02:00  INFO 23476 --- [ancientdata] [Test worker] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
-2024-10-01T16:13:08.803+02:00  INFO 23476 --- [ancientdata] [Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-10-01T16:13:08.924+02:00  INFO 23476 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-10-01T16:13:09.290+02:00  INFO 23476 --- [ancientdata] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@76e6c070
-2024-10-01T16:13:09.292+02:00  INFO 23476 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-10-01T16:13:09.347+02:00  WARN 23476 --- [ancientdata] [Test worker] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-10-01T16:13:09.414+02:00  INFO 23476 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:13:09.647+02:00  INFO 23476 --- [ancientdata] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-10-01T16:13:09.670+02:00  INFO 23476 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:13:09.960+02:00  INFO 23476 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:13:10.481+02:00  INFO 23476 --- [ancientdata] [Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-10-01T16:13:10.657+02:00  INFO 23476 --- [ancientdata] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:13:11.128+02:00  WARN 23476 --- [ancientdata] [Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-10-01T16:13:11.152+02:00  INFO 23476 --- [ancientdata] [Test worker] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2024-10-01T16:13:11.855+02:00  INFO 23476 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Started AncientdataApplicationTests in 4.508 seconds (process running for 5.601)
-2024-10-01T16:13:12.377+02:00  INFO 23476 --- [ancientdata] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:13:12.379+02:00  INFO 23476 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2024-10-01T16:13:12.381+02:00  INFO 23476 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2024-10-01T16:27:57.639+02:00  WARN 43616 --- [ancientdata] [Test worker] ory$DuplicateJsonObjectContextCustomizer : 
-
-Found multiple occurrences of org.json.JSONObject on the class path:
-
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/org.json/json/20211205/47032dcf2f69880f07dab3dc60b4b0ad97318308/json-20211205.jar!/org/json/JSONObject.class
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/com.vaadin.external.google/android-json/0.0.20131108.vaadin1/fa26d351fe62a6a17f5cda1287c1c6110dec413f/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
-
-You may wish to exclude one of them to ensure predictable runtime behavior
-
-2024-10-01T16:27:57.650+02:00  INFO 43616 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Starting AncientdataApplicationTests using Java 17.0.5 with PID 43616 (started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
-2024-10-01T16:27:57.651+02:00  INFO 43616 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2024-10-01T16:27:58.217+02:00  INFO 43616 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-10-01T16:27:58.274+02:00  INFO 43616 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 2 JPA repository interfaces.
-2024-10-01T16:27:58.724+02:00  INFO 43616 --- [ancientdata] [Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-10-01T16:27:58.804+02:00  INFO 43616 --- [ancientdata] [Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-10-01T16:27:58.816+02:00  INFO 43616 --- [ancientdata] [Test worker] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
-2024-10-01T16:27:58.847+02:00  INFO 43616 --- [ancientdata] [Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-10-01T16:27:58.973+02:00  INFO 43616 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-10-01T16:27:59.340+02:00  INFO 43616 --- [ancientdata] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6a7a1a0d
-2024-10-01T16:27:59.342+02:00  INFO 43616 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-10-01T16:27:59.407+02:00  WARN 43616 --- [ancientdata] [Test worker] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-10-01T16:27:59.488+02:00  INFO 43616 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:27:59.733+02:00  INFO 43616 --- [ancientdata] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-10-01T16:27:59.753+02:00  INFO 43616 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:28:00.010+02:00  INFO 43616 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:28:00.529+02:00  INFO 43616 --- [ancientdata] [Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-10-01T16:28:00.717+02:00  INFO 43616 --- [ancientdata] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:28:01.164+02:00  WARN 43616 --- [ancientdata] [Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-10-01T16:28:01.202+02:00  INFO 43616 --- [ancientdata] [Test worker] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2024-10-01T16:28:01.881+02:00  INFO 43616 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Started AncientdataApplicationTests in 4.449 seconds (process running for 5.53)
-2024-10-01T16:28:02.411+02:00  INFO 43616 --- [ancientdata] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:28:02.413+02:00  INFO 43616 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2024-10-01T16:28:02.415+02:00  INFO 43616 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2024-10-01T16:45:18.370+02:00  WARN 2176 --- [ancientdata] [Test worker] ory$DuplicateJsonObjectContextCustomizer : 
-
-Found multiple occurrences of org.json.JSONObject on the class path:
-
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/org.json/json/20211205/47032dcf2f69880f07dab3dc60b4b0ad97318308/json-20211205.jar!/org/json/JSONObject.class
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/com.vaadin.external.google/android-json/0.0.20131108.vaadin1/fa26d351fe62a6a17f5cda1287c1c6110dec413f/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
-
-You may wish to exclude one of them to ensure predictable runtime behavior
-
-2024-10-01T16:45:18.384+02:00  INFO 2176 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Starting AncientdataApplicationTests using Java 17.0.5 with PID 2176 (started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
-2024-10-01T16:45:18.385+02:00  INFO 2176 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2024-10-01T16:45:19.044+02:00  INFO 2176 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-10-01T16:45:19.110+02:00  INFO 2176 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 54 ms. Found 2 JPA repository interfaces.
-2024-10-01T16:45:19.606+02:00  INFO 2176 --- [ancientdata] [Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-10-01T16:45:19.679+02:00  INFO 2176 --- [ancientdata] [Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-10-01T16:45:19.690+02:00  INFO 2176 --- [ancientdata] [Test worker] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
-2024-10-01T16:45:19.719+02:00  INFO 2176 --- [ancientdata] [Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-10-01T16:45:19.825+02:00  INFO 2176 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-10-01T16:45:20.174+02:00  INFO 2176 --- [ancientdata] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@46d0f89c
-2024-10-01T16:45:20.175+02:00  INFO 2176 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-10-01T16:45:20.236+02:00  WARN 2176 --- [ancientdata] [Test worker] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-10-01T16:45:20.307+02:00  INFO 2176 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:45:20.535+02:00  INFO 2176 --- [ancientdata] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-10-01T16:45:20.557+02:00  INFO 2176 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:45:20.807+02:00  INFO 2176 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T16:45:21.328+02:00  INFO 2176 --- [ancientdata] [Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-10-01T16:45:21.550+02:00  INFO 2176 --- [ancientdata] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:45:22.059+02:00  WARN 2176 --- [ancientdata] [Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-10-01T16:45:22.079+02:00  INFO 2176 --- [ancientdata] [Test worker] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2024-10-01T16:45:22.732+02:00  INFO 2176 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Started AncientdataApplicationTests in 4.569 seconds (process running for 5.74)
-2024-10-01T16:45:23.236+02:00  INFO 2176 --- [ancientdata] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T16:45:23.238+02:00  INFO 2176 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2024-10-01T16:45:23.241+02:00  INFO 2176 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2024-10-01T17:00:57.687+02:00  WARN 38968 --- [ancientdata] [Test worker] ory$DuplicateJsonObjectContextCustomizer : 
-
-Found multiple occurrences of org.json.JSONObject on the class path:
-
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/org.json/json/20211205/47032dcf2f69880f07dab3dc60b4b0ad97318308/json-20211205.jar!/org/json/JSONObject.class
-	jar:file:/C:/Users/Rinse%20Willet/.gradle/caches/modules-2/files-2.1/com.vaadin.external.google/android-json/0.0.20131108.vaadin1/fa26d351fe62a6a17f5cda1287c1c6110dec413f/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
-
-You may wish to exclude one of them to ensure predictable runtime behavior
-
-2024-10-01T17:00:57.700+02:00  INFO 38968 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Starting AncientdataApplicationTests using Java 17.0.5 with PID 38968 (started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
-2024-10-01T17:00:57.701+02:00  INFO 38968 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : No active profile set, falling back to 1 default profile: "default"
-2024-10-01T17:00:58.459+02:00  INFO 38968 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-10-01T17:00:58.524+02:00  INFO 38968 --- [ancientdata] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 52 ms. Found 2 JPA repository interfaces.
-2024-10-01T17:00:59.073+02:00  INFO 38968 --- [ancientdata] [Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-10-01T17:00:59.148+02:00  INFO 38968 --- [ancientdata] [Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-10-01T17:00:59.162+02:00  INFO 38968 --- [ancientdata] [Test worker] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
-2024-10-01T17:00:59.193+02:00  INFO 38968 --- [ancientdata] [Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-10-01T17:00:59.323+02:00  INFO 38968 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-10-01T17:00:59.692+02:00  INFO 38968 --- [ancientdata] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1c6e3ff9
-2024-10-01T17:00:59.694+02:00  INFO 38968 --- [ancientdata] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-10-01T17:00:59.755+02:00  WARN 38968 --- [ancientdata] [Test worker] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-10-01T17:00:59.824+02:00  INFO 38968 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T17:01:00.108+02:00  INFO 38968 --- [ancientdata] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-10-01T17:01:00.136+02:00  INFO 38968 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T17:01:00.400+02:00  INFO 38968 --- [ancientdata] [Test worker] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-01T17:01:00.954+02:00  INFO 38968 --- [ancientdata] [Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-10-01T17:01:01.142+02:00  INFO 38968 --- [ancientdata] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T17:01:01.685+02:00  WARN 38968 --- [ancientdata] [Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-10-01T17:01:01.711+02:00  INFO 38968 --- [ancientdata] [Test worker] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2024-10-01T17:01:02.244+02:00  INFO 38968 --- [ancientdata] [Test worker] c.w.a.AncientdataApplicationTests        : Started AncientdataApplicationTests in 4.78 seconds (process running for 6.13)
-2024-10-01T17:01:02.722+02:00  INFO 38968 --- [ancientdata] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2024-10-01T17:01:02.724+02:00  INFO 38968 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2024-10-01T17:01:02.726+02:00  INFO 38968 --- [ancientdata] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2024-10-09T08:55:48.426+02:00  INFO 9964 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 9964 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
+2024-10-09T08:55:48.434+02:00  INFO 9964 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-10-09T08:55:49.138+02:00  INFO 9964 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-10-09T08:55:49.204+02:00  INFO 9964 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 54 ms. Found 2 JPA repository interfaces.
+2024-10-09T08:55:49.887+02:00  INFO 9964 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-09T08:55:49.901+02:00  INFO 9964 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-09T08:55:49.901+02:00  INFO 9964 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-10-09T08:55:49.975+02:00  INFO 9964 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-09T08:55:49.976+02:00  INFO 9964 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1472 ms
+2024-10-09T08:55:50.275+02:00  INFO 9964 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-10-09T08:55:50.418+02:00  INFO 9964 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-09T08:55:50.432+02:00  INFO 9964 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
+2024-10-09T08:55:50.468+02:00  INFO 9964 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-09T08:55:50.590+02:00  INFO 9964 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-09T08:55:51.018+02:00  INFO 9964 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@41e9f86
+2024-10-09T08:55:51.019+02:00  INFO 9964 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-09T08:55:51.071+02:00  WARN 9964 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-09T08:55:51.148+02:00  INFO 9964 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-09T08:55:51.365+02:00  INFO 9964 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-10-09T08:55:51.391+02:00  INFO 9964 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-09T08:55:51.695+02:00  INFO 9964 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-09T08:55:52.199+02:00  INFO 9964 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-09T08:55:52.414+02:00  INFO 9964 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-10-09T08:55:52.678+02:00  WARN 9964 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-10-09T08:55:52.700+02:00  INFO 9964 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-10-09T08:55:53.265+02:00  INFO 9964 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-09T08:55:53.278+02:00  INFO 9964 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.281 seconds (process running for 5.674)
+2024-10-09T08:56:08.746+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-09T08:56:08.746+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-09T08:56:08.747+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-09T08:56:16.284+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-09T08:56:16.284+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-09T08:56:21.286+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 229
+2024-10-09T08:56:28.292+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 106
+2024-10-09T08:56:32.544+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 106
+2024-10-09T08:56:37.481+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 106
+2024-10-09T08:56:37.622+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 130
+2024-10-09T08:57:10.457+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-09T08:57:12.089+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 148
+2024-10-09T08:57:14.034+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-09T08:57:14.034+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-09T08:57:17.654+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-09T08:57:18.920+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-09T08:57:20.107+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 123
+2024-10-09T08:57:22.035+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-09T08:57:22.035+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-09T08:57:41.452+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-09T08:57:41.452+02:00  INFO 9964 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
