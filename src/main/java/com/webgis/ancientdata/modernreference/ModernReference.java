@@ -15,21 +15,21 @@ public class ModernReference {
     private long id;
 
     //abbreviation, e.g. Johnson 1980
-    @Column(name="name")
-    private String name;
+    @Column(name="short_ref")
+    private String shortRef;
 
     //pagenumber
-    @Column(name="page")
-    private Integer page;
+    @Column(name="full_ref")
+    private String fullRef;
 
     //full title, e.g. J. Johnson 1980 "The history of Johnsons", in A. Alan and G. George (eds.), Overview of histories of names, Oxford, pp. 12-34
-    @Column(name="title")
-    private String title;
+    @Column(name="URL")
+    private String URL;
 
     //constructor
-    public ModernReference(String name, Integer page, String title){
-        this.name = name;
-        this.page = page;
-        this.title=title;
+    public ModernReference(String shortRef, String fullRef, String URL){
+        this.shortRef = shortRef;
+        this.fullRef = fullRef;
+        this.URL=URL;
     }
 }
