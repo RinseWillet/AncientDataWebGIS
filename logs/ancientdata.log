@@ -326,3 +326,283 @@ Caused by: org.hibernate.tool.schema.spi.SchemaManagementException: Schema-valid
 2024-10-11T09:49:25.722+02:00  INFO 21360 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
 2024-10-11T09:49:26.331+02:00  INFO 21360 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
 2024-10-11T09:49:26.348+02:00  INFO 21360 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.305 seconds (process running for 5.722)
+2024-10-11T10:24:26.958+02:00  INFO 13284 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 13284 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
+2024-10-11T10:24:26.962+02:00  INFO 13284 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-10-11T10:24:27.749+02:00  INFO 13284 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-10-11T10:24:27.824+02:00  INFO 13284 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 59 ms. Found 2 JPA repository interfaces.
+2024-10-11T10:24:28.622+02:00  INFO 13284 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-11T10:24:28.634+02:00  INFO 13284 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-11T10:24:28.635+02:00  INFO 13284 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-10-11T10:24:28.744+02:00  INFO 13284 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-11T10:24:28.744+02:00  INFO 13284 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1720 ms
+2024-10-11T10:24:29.184+02:00  INFO 13284 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-10-11T10:24:29.379+02:00  INFO 13284 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-11T10:24:29.393+02:00  INFO 13284 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
+2024-10-11T10:24:29.422+02:00  INFO 13284 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-11T10:24:29.546+02:00  INFO 13284 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-11T10:24:29.911+02:00  INFO 13284 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5c4cc644
+2024-10-11T10:24:29.913+02:00  INFO 13284 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-11T10:24:29.964+02:00  WARN 13284 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-11T10:24:30.044+02:00  INFO 13284 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T10:24:30.337+02:00  INFO 13284 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-10-11T10:24:30.360+02:00  INFO 13284 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T10:24:30.730+02:00  INFO 13284 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T10:24:31.268+02:00  INFO 13284 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-11T10:24:31.439+02:00  INFO 13284 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-10-11T10:24:31.687+02:00  WARN 13284 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-10-11T10:24:31.719+02:00  INFO 13284 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-10-11T10:24:32.418+02:00  INFO 13284 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-11T10:24:32.431+02:00  INFO 13284 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.985 seconds (process running for 6.376)
+2024-10-11T10:25:49.450+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-11T10:25:49.450+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-11T10:25:49.451+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-11T10:26:25.867+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T10:26:26.674+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Ignoring exception, response committed already: org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: Document nesting depth (1001) exceeds the maximum allowed (1000, from `StreamWriteConstraints.getMaxNestingDepth()`)
+2024-10-11T10:26:26.675+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: Document nesting depth (1001) exceeds the maximum allowed (1000, from `StreamWriteConstraints.getMaxNestingDepth()`)]
+2024-10-11T10:26:41.476+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 5000
+2024-10-11T10:26:41.574+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : road 5000 not found 
+2024-10-11T10:27:42.157+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 400
+2024-10-11T10:27:42.230+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : road 400 not found 
+2024-10-11T10:28:19.024+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T10:28:52.507+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 260
+2024-10-11T10:28:52.580+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : road 260 not found 
+2024-10-11T10:28:56.196+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 250
+2024-10-11T10:28:59.707+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 270
+2024-10-11T10:28:59.777+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : road 270 not found 
+2024-10-11T10:29:03.620+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 400
+2024-10-11T10:29:03.690+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : road 400 not found 
+2024-10-11T10:29:23.106+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 300
+2024-10-11T10:29:27.226+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 400
+2024-10-11T10:29:27.293+02:00  WARN 13284 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : road 400 not found 
+2024-10-11T10:30:05.502+02:00  INFO 13284 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 400
+2024-10-11T11:07:07.858+02:00  INFO 29288 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 29288 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
+2024-10-11T11:07:07.861+02:00  INFO 29288 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-10-11T11:07:08.634+02:00  INFO 29288 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-10-11T11:07:08.706+02:00  INFO 29288 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 54 ms. Found 2 JPA repository interfaces.
+2024-10-11T11:07:09.357+02:00  INFO 29288 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-11T11:07:09.369+02:00  INFO 29288 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-11T11:07:09.370+02:00  INFO 29288 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-10-11T11:07:09.463+02:00  INFO 29288 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-11T11:07:09.463+02:00  INFO 29288 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1549 ms
+2024-10-11T11:07:09.900+02:00  INFO 29288 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-10-11T11:07:10.094+02:00  INFO 29288 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-11T11:07:10.108+02:00  INFO 29288 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
+2024-10-11T11:07:10.139+02:00  INFO 29288 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-11T11:07:10.275+02:00  INFO 29288 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-11T11:07:10.615+02:00  INFO 29288 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@75eaba95
+2024-10-11T11:07:10.617+02:00  INFO 29288 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-11T11:07:10.668+02:00  WARN 29288 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-11T11:07:10.752+02:00  INFO 29288 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:07:11.008+02:00  INFO 29288 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-10-11T11:07:11.040+02:00  INFO 29288 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:07:11.383+02:00  INFO 29288 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:07:11.950+02:00  INFO 29288 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-11T11:07:12.128+02:00  INFO 29288 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-10-11T11:07:12.438+02:00  WARN 29288 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-10-11T11:07:12.469+02:00  INFO 29288 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-10-11T11:07:13.104+02:00  INFO 29288 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-11T11:07:13.117+02:00  INFO 29288 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.721 seconds (process running for 6.129)
+2024-10-11T11:08:06.905+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-11T11:08:06.905+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-11T11:08:06.906+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-11T11:08:06.944+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 400
+2024-10-11T11:08:07.062+02:00  WARN 29288 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : road 400 not found 
+2024-10-11T11:08:13.116+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:08:13.117+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:09:10.043+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:09:10.043+02:00  INFO 29288 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:00.286+02:00  INFO 31672 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 31672 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
+2024-10-11T11:12:00.289+02:00  INFO 31672 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-10-11T11:12:01.019+02:00  INFO 31672 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-10-11T11:12:01.090+02:00  INFO 31672 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 56 ms. Found 2 JPA repository interfaces.
+2024-10-11T11:12:01.715+02:00  INFO 31672 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-11T11:12:01.728+02:00  INFO 31672 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-11T11:12:01.728+02:00  INFO 31672 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-10-11T11:12:01.829+02:00  INFO 31672 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-11T11:12:01.829+02:00  INFO 31672 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1490 ms
+2024-10-11T11:12:02.236+02:00  INFO 31672 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-10-11T11:12:02.422+02:00  INFO 31672 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-11T11:12:02.437+02:00  INFO 31672 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
+2024-10-11T11:12:02.471+02:00  INFO 31672 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-11T11:12:02.595+02:00  INFO 31672 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-11T11:12:02.949+02:00  INFO 31672 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6e9a0bea
+2024-10-11T11:12:02.951+02:00  INFO 31672 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-11T11:12:03.007+02:00  WARN 31672 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-11T11:12:03.078+02:00  INFO 31672 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:12:03.341+02:00  INFO 31672 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-10-11T11:12:03.363+02:00  INFO 31672 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:12:03.717+02:00  INFO 31672 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:12:04.260+02:00  INFO 31672 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-11T11:12:04.432+02:00  INFO 31672 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-10-11T11:12:04.700+02:00  WARN 31672 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-10-11T11:12:04.722+02:00  INFO 31672 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-10-11T11:12:05.297+02:00  INFO 31672 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-11T11:12:05.309+02:00  INFO 31672 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.45 seconds (process running for 5.858)
+2024-10-11T11:12:22.750+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-11T11:12:22.750+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-11T11:12:22.751+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-11T11:12:22.799+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:22.799+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:22.799+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:22.799+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:25.178+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:25.179+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:25.180+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:25.178+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:29.147+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:29.147+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:31.263+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 3
+2024-10-11T11:12:31.263+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 3
+2024-10-11T11:12:45.680+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:45.680+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:47.317+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:47.317+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:47.317+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:47.317+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:51.079+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:51.079+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:51.079+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:51.079+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:51.798+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:51.799+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:58.900+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:58.900+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:12:58.900+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:12:58.900+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:13:16.861+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:16.861+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:17.943+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:17.943+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:17.943+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:13:17.943+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:13:29.347+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:13:29.347+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:13:29.347+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:29.348+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:54.430+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:54.430+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:56.017+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:56.017+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:13:56.017+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:13:56.018+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:14:03.438+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:14:03.438+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:14:03.438+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:14:03.438+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:18:09.354+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:18:09.354+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:18:09.354+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:18:09.354+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:20:06.223+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:20:06.223+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:20:06.223+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:20:06.223+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:20:09.906+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:20:09.906+02:00  INFO 31672 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:23:23.462+02:00  INFO 35392 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 35392 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
+2024-10-11T11:23:23.466+02:00  INFO 35392 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-10-11T11:23:24.187+02:00  INFO 35392 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-10-11T11:23:24.259+02:00  INFO 35392 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 57 ms. Found 2 JPA repository interfaces.
+2024-10-11T11:23:24.915+02:00  INFO 35392 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-11T11:23:24.926+02:00  INFO 35392 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-11T11:23:24.927+02:00  INFO 35392 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-10-11T11:23:25.006+02:00  INFO 35392 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-11T11:23:25.007+02:00  INFO 35392 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1485 ms
+2024-10-11T11:23:25.386+02:00  INFO 35392 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-10-11T11:23:25.550+02:00  INFO 35392 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-11T11:23:25.567+02:00  INFO 35392 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
+2024-10-11T11:23:25.599+02:00  INFO 35392 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-11T11:23:25.715+02:00  INFO 35392 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-11T11:23:26.046+02:00  INFO 35392 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@28fc1132
+2024-10-11T11:23:26.048+02:00  INFO 35392 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-11T11:23:26.100+02:00  WARN 35392 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-11T11:23:26.176+02:00  INFO 35392 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:23:26.392+02:00  INFO 35392 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-10-11T11:23:26.416+02:00  INFO 35392 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:23:26.763+02:00  INFO 35392 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:23:27.294+02:00  INFO 35392 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-11T11:23:27.474+02:00  INFO 35392 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-10-11T11:23:27.743+02:00  WARN 35392 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-10-11T11:23:27.764+02:00  INFO 35392 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-10-11T11:23:28.269+02:00  INFO 35392 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-11T11:23:28.283+02:00  INFO 35392 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.251 seconds (process running for 5.632)
+2024-10-11T11:23:34.509+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-11T11:23:34.509+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-11T11:23:34.510+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-11T11:23:34.555+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 400
+2024-10-11T11:23:34.697+02:00  WARN 35392 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : road 400 not found 
+2024-10-11T11:23:38.930+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 5000
+2024-10-11T11:23:39.000+02:00  WARN 35392 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : road 5000 not found 
+2024-10-11T11:23:43.651+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 50
+2024-10-11T11:23:50.031+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:23:50.032+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:24:50.350+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:24:50.350+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:24:50.505+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:24:50.594+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:24:52.327+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:24:52.328+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:24:52.473+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:24:52.580+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:24:55.327+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:24:55.554+02:00  INFO 35392 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:27:47.889+02:00  INFO 33868 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 33868 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
+2024-10-11T11:27:47.901+02:00  INFO 33868 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-10-11T11:27:48.618+02:00  INFO 33868 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-10-11T11:27:48.698+02:00  INFO 33868 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 61 ms. Found 2 JPA repository interfaces.
+2024-10-11T11:27:49.386+02:00  INFO 33868 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-11T11:27:49.399+02:00  INFO 33868 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-11T11:27:49.400+02:00  INFO 33868 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-10-11T11:27:49.495+02:00  INFO 33868 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-11T11:27:49.495+02:00  INFO 33868 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1548 ms
+2024-10-11T11:27:49.856+02:00  INFO 33868 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-10-11T11:27:50.033+02:00  INFO 33868 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-11T11:27:50.046+02:00  INFO 33868 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
+2024-10-11T11:27:50.083+02:00  INFO 33868 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-11T11:27:50.194+02:00  INFO 33868 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-11T11:27:50.544+02:00  INFO 33868 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@284bdeed
+2024-10-11T11:27:50.546+02:00  INFO 33868 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-11T11:27:50.600+02:00  WARN 33868 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-11T11:27:50.672+02:00  INFO 33868 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:27:50.938+02:00  INFO 33868 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-10-11T11:27:50.962+02:00  INFO 33868 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:27:51.282+02:00  INFO 33868 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-11T11:27:51.809+02:00  INFO 33868 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-11T11:27:51.978+02:00  INFO 33868 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-10-11T11:27:52.230+02:00  WARN 33868 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-10-11T11:27:52.261+02:00  INFO 33868 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-10-11T11:27:52.698+02:00  INFO 33868 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-11T11:27:52.711+02:00  INFO 33868 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.243 seconds (process running for 5.631)
+2024-10-11T11:28:10.497+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-11T11:28:10.498+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-11T11:28:10.499+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-11T11:28:33.668+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:28:33.668+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:28:35.671+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:28:35.671+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:28:44.729+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:30:47.468+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:30:47.468+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:30:47.603+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:30:47.735+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:17.568+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:31:17.569+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:20.313+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:29.835+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:32.755+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:36.543+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:38.086+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:46.753+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:54.560+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:55.517+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:55.517+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:31:58.615+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:31:58.615+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:31:59.651+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:32:00.745+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-11T11:32:02.051+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:32:02.051+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:32:06.751+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-11T11:32:06.751+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:32:09.879+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-11T11:32:09.879+02:00  INFO 33868 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
