@@ -1,11 +1,14 @@
 package com.webgis.ancientdata.road;
 
+import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.locationtech.jts.geom.MultiLineString;
+
+import java.util.Set;
 
 @Data
 @Entity
@@ -49,6 +52,17 @@ public class Road {
     @Column(name = "cat_hist_ref", length=800)
     private String historicalReferences;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade =
+                                    {
+                                            CascadeType.PERSIST,
+                                            CascadeType.MERGE,
+                                            CascadeType.DETACH,
+                                            CascadeType.REFRESH}
+    )
+    @JoinTable( name = "roads_modernref", joinColumns = @JoinColumn(name= "roads_fid"),
+    inverseJoinColumns = @JoinColumn(name= "modernref_fid"))
+    private Set<ModernReference> modernReferenceSet;
+
     public Road(int cat_nr,
                 String name,
                 MultiLineString geom,
@@ -70,5 +84,4 @@ public class Road {
         this.references = references;
         this.historicalReferences = historicalReferences;
     }
-
 }
