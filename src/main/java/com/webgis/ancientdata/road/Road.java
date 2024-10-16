@@ -1,13 +1,17 @@
 package com.webgis.ancientdata.road;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 import org.locationtech.jts.geom.MultiLineString;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -20,6 +24,7 @@ public class Road {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
     @Column(name="cat_nr")
@@ -52,16 +57,12 @@ public class Road {
     @Column(name = "cat_hist_ref", length=800)
     private String historicalReferences;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade =
-                                    {
-                                            CascadeType.PERSIST,
-                                            CascadeType.MERGE,
-                                            CascadeType.DETACH,
-                                            CascadeType.REFRESH}
-    )
-    @JoinTable( name = "roads_modernref", joinColumns = @JoinColumn(name= "roads_fid"),
-    inverseJoinColumns = @JoinColumn(name= "modernref_fid"))
-    private Set<ModernReference> modernReferenceSet;
+    //parent
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @JoinTable(name = "modernrefs_roads_mapping",
+    joinColumns = @JoinColumn(name="road_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "modernref_id", referencedColumnName = "id"))
+    private List<ModernReference> modernReferenceSet;
 
     public Road(int cat_nr,
                 String name,
@@ -83,5 +84,17 @@ public class Road {
         this.date = date;
         this.references = references;
         this.historicalReferences = historicalReferences;
+    }
+
+    public List<ModernReference> getModernReferences(){
+        return modernReferenceSet;
+    }
+
+    public void setModernReferences(List<ModernReference> modernReferenceSet) {
+        this.modernReferenceSet = modernReferenceSet;
+    }
+
+    public void addModernReference(ModernReference modernReference) {
+        this.modernReferenceSet.add(modernReference);
     }
 }
