@@ -7,7 +7,7 @@ import lombok.*;
 @Entity
 @NoArgsConstructor
 @ToString
-@Table(name = "ancientref")
+@Table(name = "ancientrefs")
 public class AncientReference {
 
     @Id

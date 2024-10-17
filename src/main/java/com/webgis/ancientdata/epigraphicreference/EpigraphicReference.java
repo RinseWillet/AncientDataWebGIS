@@ -7,7 +7,7 @@ import lombok.*;
 @Entity
 @NoArgsConstructor
 @ToString
-@Table(name = "epref")
+@Table(name = "eprefs")
 public class EpigraphicReference {
 
     @Id

@@ -1,12 +1,11 @@
-package com.webgis.ancientdata.roadtests;
+package com.webgis.ancientdata.modernreferencetests;
 
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
 import com.webgis.ancientdata.modernreference.ModernReference;
+import com.webgis.ancientdata.modernreference.ModernReferenceRepository;
+import com.webgis.ancientdata.modernreference.ModernReferenceService;
 import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.road.RoadRepository;
-import com.webgis.ancientdata.road.RoadService;
-
 import com.webgis.ancientdata.utils.GeoJsonConverter;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONObject;
@@ -22,15 +21,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class RoadServiceTests {
+public class ModernReferenceServiceTests {
 
+    private ModernReference modernReference;
+    private List<ModernReference> modernReferenceList;
+    private JSONObject modernReferenceJSON;
     private Road road;
     private List<Road> roadList;
     private JSONObject roadGeoJSON;
@@ -41,10 +46,6 @@ public class RoadServiceTests {
     private JSONObject properties;
     private JSONObject properties_2;
     private JSONObject geometry;
-    private ModernReference modernReference;
-    private List<ModernReference> modernReferenceList;
-    private ModernReferenceDTO modernReferenceDTO;
-    private List<ModernReferenceDTO> modernReferenceDTOList;
 
     private void setLinkedHashMap(JSONObject jsonObject) {
         try {
@@ -58,18 +59,31 @@ public class RoadServiceTests {
     }
 
     @Mock
-    private RoadRepository roadRepository;
+    private ModernReferenceRepository modernReferenceRepository;
 
     @Mock
     private GeoJsonConverter geoJsonConverter;
 
     @Autowired
     @InjectMocks
-    private RoadService roadService;
+    private ModernReferenceService modernReferenceService;
+
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
 
+        String shortRef = RandomStringUtils.randomAlphabetic(100);
+        String fullRef = RandomStringUtils.randomAlphabetic(100);
+        String URL = RandomStringUtils.randomAlphabetic(100);
+
+        modernReference = new ModernReference(shortRef, fullRef, URL);
+
+        modernReferenceJSON = new JSONObject();
+        modernReferenceJSON.put("shortRef", shortRef);
+        modernReferenceJSON.put("fullRef", fullRef);
+        modernReferenceJSON.put("URL", URL);
+
+        //roads
         roadList = new ArrayList<>();
         int cat_nr = RandomUtils.nextInt();
         String name = RandomStringUtils.randomAlphabetic(10);
@@ -196,28 +210,18 @@ public class RoadServiceTests {
         roadsGeoJSON.put("type", "FeatureCollection");
         roadsGeoJSON.put("name", "roads");
         roadsGeoJSON.put("features", features);
-
-        modernReferenceDTOList = new ArrayList<>();
         modernReferenceList = new ArrayList<>();
-
-        Long id = RandomUtils.nextLong();
-        String shortRef = RandomStringUtils.randomAlphabetic(100);
-        String fullRef = RandomStringUtils.randomAlphabetic(100);
-        String URL = RandomStringUtils.randomAlphabetic(100);
-
-        modernReference = new ModernReference(shortRef, fullRef, URL);
-        modernReference.setId(id);
+        modernReference.setRoads(roadList);
         modernReferenceList.add(modernReference);
-        modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, URL);
-        modernReferenceDTOList.add(modernReferenceDTO);
-
-        road.setModernReferenceList(modernReferenceList);
     }
 
     @AfterEach
     public void tearDown() {
-        road = null;
-        roadList = null;
+        modernReference = null;
+        modernReferenceList = null;;
+        modernReferenceJSON = null;;
+        road = null;;
+        roadList = null;;
         roadGeoJSON = null;
         roadsGeoJSON = null;
         feature = null;
@@ -226,112 +230,36 @@ public class RoadServiceTests {
         properties = null;
         properties_2 = null;
         geometry = null;
-        modernReference = null;
-        modernReferenceList = null;
-        modernReferenceDTO = null;
-        modernReferenceDTOList = null;
     }
 
     @Test
-    public void shouldListAllRoads() {
-        when(roadRepository.findAll()).thenReturn(roadList);
+    public void shouldFindAllModernReferences(){
+        when(modernReferenceRepository.findAll()).thenReturn(modernReferenceList);
 
-        List<Road> fetchedRoads = (List<Road>) roadService.findAll();
-        assertEquals(fetchedRoads, roadList);
+        List<ModernReference> fetchedModernReferences = (List<ModernReference>) modernReferenceService.findAll();
 
-        verify(roadRepository, times(1)).findAll();
+        assertEquals(fetchedModernReferences, modernReferenceList);
+
+        verify(modernReferenceRepository, times(1)).findAll();
     }
 
     @Test
-    public void shouldFindRoadById(){
-        when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
+    public void shouldFindModernReferenceById(){
+        when(modernReferenceRepository.findById(modernReference.getId())).thenReturn(Optional.ofNullable(modernReference));
 
-        Optional<Road> optionalRoad = roadService.findById(road.getId());
+        Optional<ModernReference> modernReferenceOptional = modernReferenceService.findById(road.getId());
 
-        optionalRoad.ifPresent(value -> assertThat(optionalRoad.get()).isEqualTo(road));
+        modernReferenceOptional.ifPresent(value -> assertThat(modernReferenceOptional.get()).isEqualTo(modernReference));
 
-        verify(roadRepository, times(1)).findById(any());
+        verify(modernReferenceRepository, times(1)).findById(modernReference.getId());
     }
 
     @Test
-    public void shouldFindRoadByIdGeoJSON(){
-        when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
+    public void shouldFindRoadsByModernReferenceIdAsGeoJSON(){
+        when(modernReferenceRepository.findById(modernReference.getId())).thenReturn(Optional.ofNullable(modernReference));
 
-        String fetchedRoad = roadService.findByIdGeoJson(road.getId());
+        assertEquals(modernReferenceService.findRoadsByModernReferenceIdAsGeoJSON(modernReference.getId()), String.valueOf(roadsGeoJSON));
 
-        assertEquals(fetchedRoad, String.valueOf(roadGeoJSON));
-
-        verify(roadRepository, times(1)).findById(any());
-    }
-
-    @Test
-    public void shouldListAllRoadsGeoJSON(){
-        when(roadRepository.findAll()).thenReturn(roadList);
-
-        String fetchedRoadsGeoJSON = roadService.findAllGeoJson();
-
-        assertEquals(String.valueOf(fetchedRoadsGeoJSON), String.valueOf(roadsGeoJSON));
-
-        verify(roadRepository, times(1)).findAll();
-    }
-
-    @Test
-    public void shouldConvertRoadtoGeoJSON(){
-        when(geoJsonConverter.convertRoad(Optional.of(road))).thenReturn(roadGeoJSON);
-
-        JSONObject fetchedroadGeoJSON = geoJsonConverter.convertRoad(Optional.of(road));
-        assertEquals(fetchedroadGeoJSON, roadGeoJSON);
-
-        verify(geoJsonConverter, times(1)).convertRoad(any());
-    }
-
-    @Test
-    public void shouldConvertRoadstoGeoJSON(){
-        when(geoJsonConverter.convertRoads(roadList)).thenReturn(roadsGeoJSON);
-
-        JSONObject fetchedRoadsGeoJSON = geoJsonConverter.convertRoads(roadList);
-        assertEquals(fetchedRoadsGeoJSON, roadsGeoJSON);
-
-        verify(geoJsonConverter, times(1)).convertRoads(any());
-    }
-
-    @Test
-    public void shouldSaveRoad(){
-        when(roadRepository.save(any())).thenReturn(road);
-
-        assertEquals(roadService.save(road), road);
-
-        verify(roadRepository, times(1)).save(any());
-    }
-
-    @Test
-    public void shouldUpdateRoad(){
-        when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
-        when(roadRepository.save(any())).thenReturn(road);
-
-        assertEquals(roadService.update(road.getId(), road), road);
-
-        verify(roadRepository, times(1)).save(road);
-        verify(roadRepository, times(1)).findById(road.getId());
-    }
-
-    @Test
-    public void shouldFindModernReferencesByRoadId() {
-        when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
-
-        assertEquals(roadService.findModernReferencesByRoadId(road.getId()), modernReferenceDTOList);
-
-        verify(roadRepository, times(1)).findById(road.getId());
-    }
-
-    @Test
-    public void shouldAddModernReferenceToRoad(){
-        when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
-        when(roadRepository.save(road)).thenReturn(road);
-
-        assertEquals(roadService.addModernReferenceToRoad(road.getId(), modernReferenceDTO), road);
-
-        verify(roadRepository, times(1)).findById(road.getId());
-        verify(roadRepository, times(1)).save(road);
+        verify(modernReferenceRepository, times(1)).findById(modernReference.getId());
     }
 }

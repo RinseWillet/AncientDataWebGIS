@@ -1,6 +1,11 @@
 package com.webgis.ancientdata.road;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RoadRepository extends CrudRepository <Road, Long> {
+@Repository
+public interface RoadRepository extends JpaRepository<Road, Long> {
+
 }

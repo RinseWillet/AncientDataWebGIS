@@ -1,65 +1,74 @@
-package com.webgis.ancientdata.roadtests;
+package com.webgis.ancientdata.modernreferencetests;
 
-//MVC
-
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
+import com.webgis.ancientdata.modernreference.ModernReference;
+import com.webgis.ancientdata.modernreference.ModernReferenceController;
+import com.webgis.ancientdata.modernreference.ModernReferenceService;
 import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.road.RoadController;
-import com.webgis.ancientdata.road.RoadService;
-
-//Java
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.json.JSONObject;
+import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-
-//Testing libraries
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
-public class RoadControllerTests {
 
+@ExtendWith(MockitoExtension.class)
+public class ModernReferenceControllerTests {
+
+    private ModernReference modernReference;
+    private List<ModernReference> modernReferenceList;
+    private JSONObject modernReferenceJSON;
     private Road road;
     private List<Road> roadList;
     private JSONObject roadJSON;
-    private ModernReferenceDTO modernReferenceDTO;
-    private List<ModernReferenceDTO> modernReferenceDTOList;
 
     @Mock
-    private RoadService roadService;
+    private ModernReferenceService modernReferenceService;
 
     @InjectMocks
-    private RoadController roadController;
+    private ModernReferenceController modernReferenceController;
 
     @Autowired
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws JSONException {
-        mockMvc = MockMvcBuilders.standaloneSetup(roadController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(modernReferenceController).build();
 
+        String shortRef = RandomStringUtils.randomAlphabetic(100);
+        String fullRef = RandomStringUtils.randomAlphabetic(100);
+        String URL = RandomStringUtils.randomAlphabetic(100);
+
+        modernReference = new ModernReference(shortRef, fullRef, URL);
+        modernReferenceList = new ArrayList<>();
+        modernReferenceList.add(modernReference);
+
+        modernReferenceJSON = new JSONObject();
+        modernReferenceJSON.put("shortRef", shortRef);
+        modernReferenceJSON.put("fullRef", fullRef);
+        modernReferenceJSON.put("URL", URL);
+
+        //roads
         roadList = new ArrayList<>();
         int cat_nr = RandomUtils.nextInt();
         String name = RandomStringUtils.randomAlphabetic(10);
@@ -111,73 +120,58 @@ public class RoadControllerTests {
         roadList.add(road);
 
         roadJSON = new JSONObject();
-        roadJSON.put("cat_nr", cat_nr);
+        roadJSON.put("id", cat_nr);
         roadJSON.put("name", name);
-        roadJSON.put("geom", geom);
         roadJSON.put("type", type);
-        roadJSON.put("typeDescription", typeDescription);
-        roadJSON.put("location", location);
-        roadJSON.put("description", description);
-        roadJSON.put("date", date);
-        roadJSON.put("references", references);
-        roadJSON.put("historicalReferences", historicalReferences);
-
-        modernReferenceDTOList = new ArrayList<>();
-
-        Long id = RandomUtils.nextLong();
-        String shortRef = RandomStringUtils.randomAlphabetic(100);
-        String fullRef = RandomStringUtils.randomAlphabetic(100);
-        String URL = RandomStringUtils.randomAlphabetic(100);
-
-        modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, URL);
-        modernReferenceDTOList.add(modernReferenceDTO);
+        roadJSON.put("geom", geom);
     }
 
     @AfterEach
     void tearDown() {
+        modernReference = null;
+        modernReferenceList = null;
+        modernReferenceJSON = null;
         road = null;
         roadList = null;
         roadJSON = null;
-        modernReferenceDTO = null;
-        modernReferenceDTOList = null;
     }
 
     @Test
-    public void shouldFindRoadByIdGeoJSON() throws Exception {
-        when(roadService.findByIdGeoJson(road.getId())).thenReturn(String.valueOf(roadJSON));
+    public void shouldFindModernReferenceById() throws Exception {
+        when(modernReferenceService.findById(modernReference.getId())).thenReturn(Optional.ofNullable(modernReference));
 
-        mockMvc.perform(get("/api/roads/" + road.getId())
+        mockMvc.perform(get("/api/modernreferences/" + modernReference.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.valueOf(roadJSON)))
+                        .content(String.valueOf(modernReferenceJSON)))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).findByIdGeoJson(road.getId());
+        verify(modernReferenceService, times(1)).findById(modernReference.getId());
     }
 
     @Test
-    public void shouldFindAllRoadsGeoJSON() throws Exception {
-        when(roadService.findAllGeoJson()).thenReturn(String.valueOf(roadJSON));
+    public void shouldFindAllModernReferences() throws Exception {
+        when(modernReferenceService.findAll()).thenReturn(modernReferenceList);
 
-        mockMvc.perform(get("/api/roads/all")
+        mockMvc.perform(get("/api/modernreferences/all")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.valueOf(roadJSON)))
+                        .content(String.valueOf(modernReferenceJSON)))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).findAllGeoJson();
+        verify(modernReferenceService, times(1)).findAll();
     }
 
     @Test
-    public void shouldFindModernReferencesByRoadId() throws Exception {
-        when(roadService.findModernReferencesByRoadId(road.getId())).thenReturn(modernReferenceDTOList);
+    public void shouldFindRoadsByModernReferenceId() throws Exception {
+        when(modernReferenceService.findRoadsByModernReferenceIdAsGeoJSON(modernReference.getId())).thenReturn(roadJSON.toString());
 
-        mockMvc.perform(get("/api/roads/modref/" + road.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(modernReferenceDTOList.toString()))
+        mockMvc.perform(get("/api/modernreferences/road/" + modernReference.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(roadJSON.toString()))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).findModernReferencesByRoadId(road.getId());
+        verify(modernReferenceService, times(1)).findRoadsByModernReferenceIdAsGeoJSON(modernReference.getId());
     }
 }
