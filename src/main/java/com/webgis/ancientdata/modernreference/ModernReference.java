@@ -1,13 +1,10 @@
 package com.webgis.ancientdata.modernreference;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.webgis.ancientdata.road.Road;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -37,8 +34,8 @@ public class ModernReference {
 //    @JoinTable(name = "roads_modernref", joinColumns = @JoinColumn(name="modernref_fid"), inverseJoinColumns = @JoinColumn(name="roads_fid"))
 
     //child
-    @ManyToMany(mappedBy = "modernReferenceSet", fetch = FetchType.LAZY)
-    private List<Road> roadSet;
+    @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)
+    private List<Road> roadList;
 
     //constructor
     public ModernReference(String shortRef, String fullRef, String URL) {
@@ -48,15 +45,15 @@ public class ModernReference {
     }
 
     public List<Road> getRoads(){
-        return roadSet;
+        return roadList;
     }
 
     public void setRoads(List<Road> roadSet){
-        this.roadSet = roadSet;
+        this.roadList = roadSet;
     }
 
     public void addRoad(Road road) {
-        this.roadSet.add(road);
+        this.roadList.add(road);
     }
 }
 

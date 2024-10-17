@@ -1,18 +1,23 @@
 package com.webgis.ancientdata.modernreference;
 
 import com.webgis.ancientdata.road.Road;
+import com.webgis.ancientdata.utils.GeoJsonConverter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 public class ModernReferenceService {
 
-//    private final ModernReferenceRepository modernReferenceRepository;
     @Autowired
     private final ModernReferenceRepository modernReferenceRepository;
 
@@ -27,18 +32,30 @@ public class ModernReferenceService {
         return modernReferenceRepository.findAll();
     }
 
-    public Optional<ModernReference> findById(long id){
+    public Optional<ModernReference> findById(long id) throws NoSuchElementException{
         logger.info("find modern reference id : {}", id);
-        return modernReferenceRepository.findById(id);
+
+        Optional<ModernReference> modernReferenceOptional = modernReferenceRepository.findById(id);
+        if(modernReferenceOptional.isEmpty()) {
+            logger.warn("modern reference with id: {} not found", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("modern reference with id " + id + "not found"));
+        }
+        return modernReferenceOptional;
     }
 
-    public Iterable<Road> findRoadsByModernReferenceId(long id) throws NoSuchElementException {
+    public String findRoadsByModernReferenceIdAsGeoJSON(long id)  {
         logger.info("finding all roads connected to modern reference id : {}", id);
         try{
-            return modernReferenceRepository.findById(id).get().getRoads();
+            ModernReference modernReference = findById(id).get();
+
+            List<Road> roadList = modernReference.getRoadList();
+
+            GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
+            return geoJsonConverter.convertRoads(roadList).toString();
         } catch (Exception e) {
-            logger.warn("road " + id + " not found ");
-            return null;
+            logger.warn("finding roads for modern reference {} failed", id);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
         }
     }
 }

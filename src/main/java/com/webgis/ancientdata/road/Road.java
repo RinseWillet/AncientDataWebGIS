@@ -62,7 +62,7 @@ public class Road {
     @JoinTable(name = "modernrefs_roads_mapping",
     joinColumns = @JoinColumn(name="road_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "modernref_id", referencedColumnName = "id"))
-    private List<ModernReference> modernReferenceSet;
+    private List<ModernReference> modernReferenceList;
 
     public Road(int cat_nr,
                 String name,
@@ -87,14 +87,14 @@ public class Road {
     }
 
     public List<ModernReference> getModernReferences(){
-        return modernReferenceSet;
+        return modernReferenceList;
     }
 
     public void setModernReferences(List<ModernReference> modernReferenceSet) {
-        this.modernReferenceSet = modernReferenceSet;
+        this.modernReferenceList = modernReferenceSet;
     }
 
     public void addModernReference(ModernReference modernReference) {
-        this.modernReferenceSet.add(modernReference);
+        this.modernReferenceList.add(modernReference);
     }
 }
