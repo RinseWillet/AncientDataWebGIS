@@ -1,9 +1,12 @@
 package com.webgis.ancientdata.site;
 
+import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
+
 import org.locationtech.jts.geom.Point;
 
 @Data
@@ -47,10 +50,6 @@ public class Site implements Serializable {
     @Column(name = "comment", length = 800)
     private String comment;
 
-//    //modernreference(s)
-//    @Column(name = "modrefs")
-//    private ArrayList<ModernReference> modernReferences;
-//
 //    //ancientreference(s)
 //    @Column(name = "ancrefs")
 //    private ArrayList<AncientReference> ancientReferences;
@@ -58,6 +57,13 @@ public class Site implements Serializable {
 //    //epigraphicreference(s)
 //    @Column(name = "eprefs")
 //    private ArrayList<EpigraphicReference> epigraphicReferences;
+
+    //parent
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @JoinTable(name = "modernrefs_sites_mapping",
+            joinColumns = @JoinColumn(name="site_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "modernref_id", referencedColumnName = "id"))
+    private List<ModernReference> modernReferenceList;
 
     public Site(Integer pleiadesId,
                 String name,
@@ -76,5 +82,17 @@ public class Site implements Serializable {
         this.status = status;
         this.statusReference = statusReference;
         this.comment = comment;
+    }
+
+    public List<ModernReference> getModernReferences(){
+        return modernReferenceList;
+    }
+
+    public void setModernReferences(List<ModernReference> modernReferenceSet) {
+        this.modernReferenceList = modernReferenceSet;
+    }
+
+    public void addModernReference(ModernReference modernReference) {
+        this.modernReferenceList.add(modernReference);
     }
 }

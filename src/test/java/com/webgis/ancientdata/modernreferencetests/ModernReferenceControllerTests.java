@@ -1,36 +1,49 @@
 package com.webgis.ancientdata.modernreferencetests;
 
+//MVC
+import com.webgis.ancientdata.RandomRoadGenerator;
+import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.modernreference.ModernReference;
 import com.webgis.ancientdata.modernreference.ModernReferenceController;
 import com.webgis.ancientdata.modernreference.ModernReferenceService;
 import com.webgis.ancientdata.road.Road;
+import com.webgis.ancientdata.site.Site;
+
+//Java
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+
+//Testing libraries
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+//static
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @ExtendWith(MockitoExtension.class)
 public class ModernReferenceControllerTests {
@@ -38,9 +51,17 @@ public class ModernReferenceControllerTests {
     private ModernReference modernReference;
     private List<ModernReference> modernReferenceList;
     private JSONObject modernReferenceJSON;
+
+    private RandomRoadGenerator randomRoadGenerator;
     private Road road;
     private List<Road> roadList;
     private JSONObject roadJSON;
+
+    private RandomSiteGenerator randomSiteGenerator;
+    private Site site;
+    private List<Site> siteList;
+    private JSONObject siteJSON;
+
 
     @Mock
     private ModernReferenceService modernReferenceService;
@@ -69,61 +90,22 @@ public class ModernReferenceControllerTests {
         modernReferenceJSON.put("URL", URL);
 
         //roads
+        randomRoadGenerator = new RandomRoadGenerator();
         roadList = new ArrayList<>();
-        int cat_nr = RandomUtils.nextInt();
-        String name = RandomStringUtils.randomAlphabetic(10);
 
-        //creating random points and line
-        Integer randomAmountLines = RandomUtils.nextInt(2, 500);
-        LineString[] lineStringArray = new LineString[randomAmountLines];
-
-        for (int i = 0; i < randomAmountLines; i++) {
-            Integer randomlinepoints = RandomUtils.nextInt(2, 10);
-
-            Coordinate[] points = new Coordinate[randomlinepoints];
-
-            for (int j = 0; j < randomlinepoints; j++) {
-                Double x = RandomUtils.nextDouble(0, 180);
-                Double y = RandomUtils.nextDouble(0, 90);
-                Double z = RandomUtils.nextDouble(0, 3000);
-                Coordinate coordinate = new Coordinate(x, y, z);
-                points[j] = coordinate;
-            }
-
-            CoordinateSequence coordinateArraySequence = new CoordinateArraySequence(points);
-            GeometryFactory geometryFactory_lineString = new GeometryFactory();
-            LineString lineString = new LineString(coordinateArraySequence, geometryFactory_lineString);
-            lineStringArray[i] = lineString;
-        }
-
-        GeometryFactory geometryFactory_multiLineString = new GeometryFactory();
-        MultiLineString geom = new MultiLineString(lineStringArray, geometryFactory_multiLineString);
-
-        String type = RandomStringUtils.randomAlphabetic(10);
-        String typeDescription = RandomStringUtils.randomAlphabetic(15);
-        String location = RandomStringUtils.randomAlphabetic(100);
-        String description = RandomStringUtils.randomAlphabetic(100);
-        String date = RandomStringUtils.randomAlphabetic(10);
-        String references = RandomStringUtils.randomAlphabetic(50);
-        String historicalReferences = RandomStringUtils.randomAlphabetic(50);
-
-        road = new Road(cat_nr,
-                name,
-                geom,
-                type,
-                typeDescription,
-                location,
-                description,
-                date,
-                references,
-                historicalReferences);
+        road = randomRoadGenerator.generateRandomRoad();
         roadList.add(road);
 
-        roadJSON = new JSONObject();
-        roadJSON.put("id", cat_nr);
-        roadJSON.put("name", name);
-        roadJSON.put("type", type);
-        roadJSON.put("geom", geom);
+        roadJSON = randomRoadGenerator.generateRandomRoadJSON(road);
+
+        // sites
+        randomSiteGenerator = new RandomSiteGenerator();
+        siteList = new ArrayList<>();
+
+        site = randomSiteGenerator.generateRandomSite();
+        siteList.add(site);
+
+        siteJSON = randomSiteGenerator.generateRandomSiteJSON(site);
     }
 
     @AfterEach
@@ -131,9 +113,13 @@ public class ModernReferenceControllerTests {
         modernReference = null;
         modernReferenceList = null;
         modernReferenceJSON = null;
+        randomRoadGenerator = null;
         road = null;
         roadList = null;
         roadJSON = null;
+        site = null;
+        siteList = null;
+        siteJSON = null;
     }
 
     @Test
@@ -173,5 +159,18 @@ public class ModernReferenceControllerTests {
                 .andDo(MockMvcResultHandlers.print());
 
         verify(modernReferenceService, times(1)).findRoadsByModernReferenceIdAsGeoJSON(modernReference.getId());
+    }
+
+    @Test
+    public void shouldFindSitesByModernReferenceId() throws Exception {
+        when(modernReferenceService.findSitesByModernReferenceIdAsGeoJSON(modernReference.getId())).thenReturn(siteJSON.toString());
+
+        mockMvc.perform(get("/api/modernreferences/site/" + modernReference.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(siteJSON.toString()))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(modernReferenceService, times(1)).findSitesByModernReferenceIdAsGeoJSON(modernReference.getId());
     }
 }

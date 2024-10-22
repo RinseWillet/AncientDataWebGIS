@@ -1,6 +1,7 @@
 package com.webgis.ancientdata.modernreference;
 
 import com.webgis.ancientdata.road.Road;
+import com.webgis.ancientdata.site.Site;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,6 +38,10 @@ public class ModernReference {
     @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)
     private List<Road> roadList;
 
+    //child
+    @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)
+    private List<Site> siteList;
+
     //constructor
     public ModernReference(String shortRef, String fullRef, String URL) {
         this.shortRef = shortRef;
@@ -54,6 +59,18 @@ public class ModernReference {
 
     public void addRoad(Road road) {
         this.roadList.add(road);
+    }
+
+    public List<Site> getSites(){
+        return siteList;
+    }
+
+    public void setSites(List<Site> siteSet){
+        this.siteList = siteSet;
+    }
+
+    public void addSite(Site site) {
+        this.siteList.add(site);
     }
 }
 
