@@ -1,6 +1,9 @@
 package com.webgis.ancientdata.sitetests;
 
 //Model
+import com.webgis.ancientdata.RandomSiteGenerator;
+import com.webgis.ancientdata.modernreference.ModernReference;
+import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
 import com.webgis.ancientdata.site.*;
 
 //Java
@@ -32,6 +35,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SiteServiceTests {
+
+    private RandomSiteGenerator randomSiteGenerator;
     private Site site;
     private List<Site> siteList;
     private Iterable<Site> siteIterable;
@@ -43,6 +48,10 @@ public class SiteServiceTests {
     private JSONObject properties;
     private JSONObject properties_2;
     private JSONObject geometry;
+    private ModernReference modernReference;
+    private List<ModernReference> modernReferenceList;
+    private ModernReferenceDTO modernReferenceDTO;
+    private List<ModernReferenceDTO> modernReferenceDTOList;
 
     private void setLinkedHashMap(JSONObject jsonObject) {
         try {
@@ -67,87 +76,29 @@ public class SiteServiceTests {
 
     @BeforeEach
     public void setUp(){
+
+        randomSiteGenerator = new RandomSiteGenerator();
         siteList = new ArrayList<>();
-
-        //generating values for fields
-        Integer pleiadesId = RandomUtils.nextInt();
-        String name = RandomStringUtils.randomAlphabetic(10);
-        String province = RandomStringUtils.randomAlphabetic(10);
-        String siteType = RandomStringUtils.randomAlphabetic(10);
-        String status = RandomStringUtils.randomAlphabetic(10);
-        String statusReference = RandomStringUtils.randomAlphabetic(10);
-        String comment = RandomStringUtils.randomAlphabetic(10);
-
-        //creating random point
-        Double x = RandomUtils.nextDouble(0, 180);
-        Double y = RandomUtils.nextDouble(0, 90);
-        Double z = RandomUtils.nextDouble(0, 3000);
-        Coordinate coordinate = new Coordinate(x,y,z);
-        Coordinate [] coordinates = new Coordinate[]{coordinate};
-        CoordinateArraySequence coordinateArraySequence = new CoordinateArraySequence(coordinates);
-        GeometryFactory geometryFactory = new GeometryFactory();
-        Point geom = new Point(coordinateArraySequence, geometryFactory);
-
-        //setting up site object
-        site = new Site(pleiadesId,
-                name,
-                geom,
-                province,
-                siteType,
-                status,
-                statusReference,
-                comment);
+        site = randomSiteGenerator.generateRandomSite();
         siteList.add(site);
+        siteGeoJSON = randomSiteGenerator.generateRandomSiteGeoJSON(site);
+        sitesGeoJSON = randomSiteGenerator.generateRandomSitesGeoJSON(site);
 
-        //setting up site GeoJSON
-        geometry = new JSONObject();
-        setLinkedHashMap(geometry);
-        geometry.put("type", "Point");
-        Double [] coordsGeoJSON = {site.getGeom().getX(), site.getGeom().getY()};
-        geometry.put("coordinates", coordsGeoJSON);
-        properties = new JSONObject();
-        setLinkedHashMap(properties);
-        properties.put("id", site.getId());
-        properties.put("pleiadesId", pleiadesId);
-        properties.put("name", name);
-        properties.put("province", province);
-        properties.put("siteType", siteType);
-        properties.put("status", status);
-        properties.put("statusReference", statusReference);
-        properties.put("comment", comment);
+        modernReferenceDTOList = new ArrayList<>();
+        modernReferenceList = new ArrayList<>();
 
-        feature = new JSONObject();
-        setLinkedHashMap(feature);
-        feature.put("type", "Feature");
-        feature.put("properties", properties);
-        feature.put("geometry", geometry);
+        Long id = RandomUtils.nextLong();
+        String shortRef = RandomStringUtils.randomAlphabetic(100);
+        String fullRef = RandomStringUtils.randomAlphabetic(100);
+        String URL = RandomStringUtils.randomAlphabetic(100);
 
-        siteGeoJSON = new JSONObject();
-        setLinkedHashMap(siteGeoJSON);
-        siteGeoJSON.put("type", "FeatureCollection");
-        siteGeoJSON.put("features", feature);
+        modernReference = new ModernReference(shortRef, fullRef, URL);
+        modernReference.setId(id);
+        modernReferenceList.add(modernReference);
+        modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, URL);
+        modernReferenceDTOList.add(modernReferenceDTO);
 
-        //setting up sites GeoJSON
-        properties_2 = new JSONObject();
-        setLinkedHashMap(properties_2);
-        properties_2.put("id", site.getId());
-        properties_2.put("name", name);
-        properties_2.put("siteType", siteType);
-        properties_2.put("status", status);
-
-        feature_2 = new JSONObject();
-        setLinkedHashMap(feature_2);
-        feature_2.put("type", "Feature");
-        feature_2.put("properties", properties_2);
-        feature_2.put("geometry", geometry);
-
-        features = new JSONObject[]{feature_2};
-
-        sitesGeoJSON = new JSONObject();
-        setLinkedHashMap(sitesGeoJSON);
-        sitesGeoJSON.put("type", "FeatureCollection");
-        sitesGeoJSON.put("name", "sites");
-        sitesGeoJSON.put("features", features);
+        site.setModernReferenceList(modernReferenceList);
     }
 
     @AfterEach
@@ -190,6 +141,7 @@ public class SiteServiceTests {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.ofNullable(site));
 
         String fetchedSite = siteService.findByIdGeoJson(site.getId());
+
         assertEquals(fetchedSite, String.valueOf(siteGeoJSON));
 
         verify(siteRepository, times(1)).findById(any());
@@ -202,6 +154,10 @@ public class SiteServiceTests {
 
         JSONObject fetchedSitesGeoJSON = siteService.findAllGeoJson();
 
+        System.out.println("fetched");
+        System.out.println(fetchedSitesGeoJSON);
+        System.out.println("random");
+        System.out.println(sitesGeoJSON);
         assertEquals(String.valueOf(fetchedSitesGeoJSON), String.valueOf(sitesGeoJSON));
 
         verify(siteRepository, times(1)).findAll();
@@ -227,5 +183,45 @@ public class SiteServiceTests {
         assertEquals(fetchedSitesGeoJSON, sitesGeoJSON);
 
         verify(geoJsonConverter, times(1)).convertSites(any());
+    }
+
+    @Test
+    public void shouldSaveSite(){
+        when(siteRepository.save(any())).thenReturn(site);
+
+        assertEquals(siteService.save(site), site);
+
+        verify(siteRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void shouldUpdateSite(){
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.ofNullable(site));
+        when(siteRepository.save(any())).thenReturn(site);
+
+        assertEquals(siteService.update(site.getId(), site), site);
+
+        verify(siteRepository, times(1)).save(site);
+        verify(siteRepository, times(1)).findById(site.getId());
+    }
+
+    @Test
+    public void shouldFindModernReferencesBySiteId() {
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.ofNullable(site));
+
+        assertEquals(siteService.findModernReferencesBySiteId(site.getId()), modernReferenceDTOList);
+
+        verify(siteRepository, times(1)).findById(site.getId());
+    }
+
+    @Test
+    public void shouldAddModernReferenceToRoad(){
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.ofNullable(site));
+        when(siteRepository.save(site)).thenReturn(site);
+
+        assertEquals(siteService.addModernReferenceToSite(site.getId(), modernReferenceDTO), site);
+
+        verify(siteRepository, times(1)).findById(site.getId());
+        verify(siteRepository, times(1)).save(site);
     }
 }

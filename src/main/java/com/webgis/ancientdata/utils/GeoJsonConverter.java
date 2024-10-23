@@ -37,7 +37,7 @@ public class GeoJsonConverter {
 
         String [] propertyTypes = {
                 "id", "pleiadesId", "name", "province",
-                "siteType", "status", "statusReference", "comment"};
+                "siteType", "status", "references", "description"};
 
         JSONObject feature = siteParser(site, propertyTypes);
         features.put("features", feature);
@@ -211,11 +211,11 @@ public class GeoJsonConverter {
                     case "status":
                         properties.put(propertytypes[i], site.getStatus());
                         break;
-                    case "statusReference":
-                        properties.put(propertytypes[i], site.getStatusReference());
+                    case "references":
+                        properties.put(propertytypes[i], site.getReferences());
                         break;
-                    case "comment":
-                        properties.put(propertytypes[i], site.getComment());
+                    case "description":
+                        properties.put(propertytypes[i], site.getDescription());
                         break;
                 }
             }

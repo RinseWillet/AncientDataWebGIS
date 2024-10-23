@@ -1,6 +1,7 @@
 package com.webgis.ancientdata.modernreference;
 
 import com.webgis.ancientdata.road.Road;
+import com.webgis.ancientdata.site.Site;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
 
 import org.slf4j.Logger;
@@ -55,6 +56,21 @@ public class ModernReferenceService {
             return geoJsonConverter.convertRoads(roadList).toString();
         } catch (Exception e) {
             logger.warn("finding roads for modern reference {} failed", id);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
+        }
+    }
+
+    public String findSitesByModernReferenceIdAsGeoJSON(long id)  {
+        logger.info("finding all sites connected to modern reference id : {}", id);
+        try{
+            ModernReference modernReference = findById(id).get();
+
+            List<Site> siteList = modernReference.getSiteList();
+
+            GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
+            return geoJsonConverter.convertSites(siteList).toString();
+        } catch (Exception e) {
+            logger.warn("finding sites for modern reference {} failed", id);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
         }
     }

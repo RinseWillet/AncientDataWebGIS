@@ -1,10 +1,11 @@
 package com.webgis.ancientdata.site;
 
-import com.webgis.ancientdata.road.Road;
+import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
+
 
 @RestController
 @CrossOrigin
@@ -16,26 +17,21 @@ public class SiteController {
 
     //endpoint to find all sites and return GeoJSON String for mapping in the front-end
     //info passed (when present): id, name, siteType, status
-    @GetMapping("/geojson")
+    @GetMapping("/all")
     public String findAllGeoJson() {
         return siteService.findAllGeoJson().toString();
     }
 
     //find road by id - info passed as Site object (when present):
-    //id, name, siteType, comment, status, statusref
+    //id, name, siteType, description, status, reference
     @GetMapping("/{id}")
     public String findByIdGeoJson(@PathVariable long id){
         return siteService.findByIdGeoJson(id);
     }
 
-    @GetMapping("/all")
-    public Iterable<Site> findAll () {
-        return siteService.findAll();
-    }
-
-    @GetMapping("/test")
-    public String testEndpoint(){
-        return "hoi frontend";
+    @GetMapping("/modref/{id}")
+    public List<ModernReferenceDTO> findModernReferencesByRoadId(@PathVariable long id) {
+        return siteService.findModernReferencesBySiteId(id);
     }
 }
 

@@ -28,4 +28,9 @@ public class ModernReferenceController {
     public String findRoadsByModernReferenceId(@PathVariable long id){
         return modernReferenceService.findRoadsByModernReferenceIdAsGeoJSON(id);
     }
+
+    @GetMapping("/site/{id}")
+    public String findSitesByModernReferenceId(@PathVariable long id){
+        return modernReferenceService.findSitesByModernReferenceIdAsGeoJSON(id);
+    }
 }

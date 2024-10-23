@@ -1,9 +1,12 @@
 package com.webgis.ancientdata.site;
 
+import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
+
 import org.locationtech.jts.geom.Point;
 
 @Data
@@ -39,18 +42,14 @@ public class Site implements Serializable {
     @Column(name="status")
     private String status;
 
-    //reference and commentary for juridical status
-    @Column(name = "statusref", length = 800)
-    private String statusReference;
+    //modern reference
+    @Column(name = "ref", length = 800)
+    private String references;
 
-    //comment
-    @Column(name = "comment", length = 800)
-    private String comment;
+    //description
+    @Column(name = "description", length=5000)
+    private String description;
 
-//    //modernreference(s)
-//    @Column(name = "modrefs")
-//    private ArrayList<ModernReference> modernReferences;
-//
 //    //ancientreference(s)
 //    @Column(name = "ancrefs")
 //    private ArrayList<AncientReference> ancientReferences;
@@ -59,14 +58,21 @@ public class Site implements Serializable {
 //    @Column(name = "eprefs")
 //    private ArrayList<EpigraphicReference> epigraphicReferences;
 
+    //parent
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @JoinTable(name = "modernrefs_sites_mapping",
+            joinColumns = @JoinColumn(name="site_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "modernref_id", referencedColumnName = "id"))
+    private List<ModernReference> modernReferenceList;
+
     public Site(Integer pleiadesId,
                 String name,
                 Point geom,
                 String province,
                 String siteType,
                 String status,
-                String statusReference,
-                String comment
+                String references,
+                String description
                 ) {
         this.pleiadesId = pleiadesId;
         this.name = name;
@@ -74,7 +80,19 @@ public class Site implements Serializable {
         this.province = province;
         this.siteType = siteType;
         this.status = status;
-        this.statusReference = statusReference;
-        this.comment = comment;
+        this.references = references;
+        this.description = description;
+    }
+
+    public List<ModernReference> getModernReferences(){
+        return modernReferenceList;
+    }
+
+    public void setModernReferences(List<ModernReference> modernReferenceSet) {
+        this.modernReferenceList = modernReferenceSet;
+    }
+
+    public void addModernReference(ModernReference modernReference) {
+        this.modernReferenceList.add(modernReference);
     }
 }
