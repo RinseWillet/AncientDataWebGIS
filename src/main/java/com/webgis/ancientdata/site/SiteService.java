@@ -84,8 +84,8 @@ public class SiteService {
             site.setGeom(siteupdate.getGeom());
             site.setSiteType(siteupdate.getSiteType());
             site.setStatus(siteupdate.getStatus());
-            site.setStatusReference(siteupdate.getStatusReference());
-            site.setComment(siteupdate.getComment());
+            site.setReferences(siteupdate.getReferences());
+            site.setDescription(siteupdate.getDescription());
             return save(site);
         } catch (Exception e) {
             logger.warn("updating site failed: {}", String.valueOf(e));

@@ -42,13 +42,13 @@ public class Site implements Serializable {
     @Column(name="status")
     private String status;
 
-    //reference and commentary for juridical status
-    @Column(name = "statusref", length = 800)
-    private String statusReference;
+    //modern reference
+    @Column(name = "ref", length = 800)
+    private String references;
 
-    //comment
-    @Column(name = "comment", length = 800)
-    private String comment;
+    //description
+    @Column(name = "description", length=5000)
+    private String description;
 
 //    //ancientreference(s)
 //    @Column(name = "ancrefs")
@@ -71,8 +71,8 @@ public class Site implements Serializable {
                 String province,
                 String siteType,
                 String status,
-                String statusReference,
-                String comment
+                String references,
+                String description
                 ) {
         this.pleiadesId = pleiadesId;
         this.name = name;
@@ -80,8 +80,8 @@ public class Site implements Serializable {
         this.province = province;
         this.siteType = siteType;
         this.status = status;
-        this.statusReference = statusReference;
-        this.comment = comment;
+        this.references = references;
+        this.description = description;
     }
 
     public List<ModernReference> getModernReferences(){

@@ -42,8 +42,8 @@ public class RandomSiteGenerator {
         String province = RandomStringUtils.randomAlphabetic(10);
         String siteType = RandomStringUtils.randomAlphabetic(10);
         String status = RandomStringUtils.randomAlphabetic(10);
-        String statusReference = RandomStringUtils.randomAlphabetic(10);
-        String comment = RandomStringUtils.randomAlphabetic(10);
+        String references = RandomStringUtils.randomAlphabetic(10);
+        String description = RandomStringUtils.randomAlphabetic(10);
 
         return new Site(pleiadesId,
                 name,
@@ -51,8 +51,8 @@ public class RandomSiteGenerator {
                 province,
                 siteType,
                 status,
-                statusReference,
-                comment);
+                references,
+                description);
     }
 
     public JSONObject generateRandomSiteJSON (Site site){
@@ -63,8 +63,8 @@ public class RandomSiteGenerator {
         siteJSON.put("province", site.getProvince());
         siteJSON.put("siteType", site.getSiteType());
         siteJSON.put("status", site.getStatus());
-        siteJSON.put("statusReference", site.getStatusReference());
-        siteJSON.put("comment", site.getComment());
+        siteJSON.put("references", site.getReferences());
+        siteJSON.put("description", site.getDescription());
 
         return siteJSON;
     }
@@ -78,8 +78,8 @@ public class RandomSiteGenerator {
         properties.put("province", site.getProvince());
         properties.put("siteType", site.getSiteType());
         properties.put("status", site.getStatus());
-        properties.put("statusReference", site.getStatusReference());
-        properties.put("comment", site.getComment());
+        properties.put("references", site.getReferences());
+        properties.put("description", site.getDescription());
         return properties;
     }
 

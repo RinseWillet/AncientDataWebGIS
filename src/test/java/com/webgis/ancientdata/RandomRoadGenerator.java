@@ -83,7 +83,7 @@ public class RandomRoadGenerator {
         roadJSON.put("name", road.getName());
         roadJSON.put("geom", road.getGeom());
         roadJSON.put("type", road.getType());
-        roadJSON.put("typeDescription", road.getDescription());
+        roadJSON.put("typeDescription", road.getTypeDescription());
         roadJSON.put("location", road.getLocation());
         roadJSON.put("description", road.getDescription());
         roadJSON.put("date", road.getDate());
