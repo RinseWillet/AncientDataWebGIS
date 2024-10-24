@@ -1,608 +1,294 @@
-2024-10-18T09:34:37.038+02:00  INFO 14528 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 14528 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
-2024-10-18T09:34:37.048+02:00  INFO 14528 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
-2024-10-18T09:34:37.817+02:00  INFO 14528 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2024-10-18T09:34:37.895+02:00  INFO 14528 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 62 ms. Found 3 JPA repository interfaces.
-2024-10-18T09:34:38.651+02:00  INFO 14528 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2024-10-18T09:34:38.665+02:00  INFO 14528 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-10-18T09:34:38.665+02:00  INFO 14528 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
-2024-10-18T09:34:38.760+02:00  INFO 14528 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-10-18T09:34:38.760+02:00  INFO 14528 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1656 ms
-2024-10-18T09:34:39.166+02:00  INFO 14528 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2024-10-18T09:34:39.264+02:00  INFO 14528 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
-2024-10-18T09:34:39.276+02:00  INFO 14528 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
-2024-10-18T09:34:39.312+02:00  INFO 14528 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2024-10-18T09:34:39.448+02:00  INFO 14528 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2024-10-18T09:34:40.185+02:00  INFO 14528 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6d5f4900
-2024-10-18T09:34:40.186+02:00  INFO 14528 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2024-10-18T09:34:40.292+02:00  WARN 14528 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2024-10-18T09:34:40.498+02:00  INFO 14528 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-18T09:34:40.823+02:00  INFO 14528 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2024-10-18T09:34:40.852+02:00  INFO 14528 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-18T09:34:41.251+02:00  INFO 14528 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
-2024-10-18T09:34:41.892+02:00  INFO 14528 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2024-10-18T09:34:42.276+02:00  INFO 14528 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2024-10-18T09:34:42.676+02:00  WARN 14528 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2024-10-18T09:34:42.710+02:00  INFO 14528 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2024-10-18T09:34:43.390+02:00  INFO 14528 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2024-10-18T09:34:43.403+02:00  INFO 14528 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 6.837 seconds (process running for 7.301)
-2024-10-18T09:43:14.161+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2024-10-18T09:43:14.162+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2024-10-18T09:43:14.163+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2024-10-18T09:43:14.204+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T09:43:15.188+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T09:59:44.224+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T09:59:44.224+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:15.293+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:15.293+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:15.293+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:00:15.294+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:00:21.453+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:21.453+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:29.302+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:29.302+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:30.982+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:30.982+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:00:30.982+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:00:30.982+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:40.553+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:40.553+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:43.546+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:43.547+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:45.385+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:00:45.385+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:45.385+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:00:45.385+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:05:32.132+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:05:32.132+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:05:32.132+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:05:32.132+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:05:50.064+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:05:50.064+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:05:50.064+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:05:50.064+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:07:54.220+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:07:54.220+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:07:54.220+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:07:54.220+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:07:58.114+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:07:58.114+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:07:58.114+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:07:58.114+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:09:37.740+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:09:37.740+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:09:40.557+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:09:40.557+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:09:40.558+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:09:40.558+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:20:54.454+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:20:54.454+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:20:54.454+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:20:54.454+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:21:09.397+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:21:09.397+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:21:09.398+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:21:09.398+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:24:10.666+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:24:10.666+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:24:11.255+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:24:11.255+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:24:11.256+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:24:11.256+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:26:19.118+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:26:19.118+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:26:42.528+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:26:42.530+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:29:33.629+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:29:33.629+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:29:33.629+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:29:33.629+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:29:40.230+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:29:40.230+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:37:09.567+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:37:09.567+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:37:09.567+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:37:09.567+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:40:53.909+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:40:53.909+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:40:53.909+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:40:53.909+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:41:01.247+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 279
-2024-10-18T10:41:01.255+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : find site id : 279
-2024-10-18T10:41:01.402+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 279
-2024-10-18T10:42:31.306+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:31.306+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:31.306+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:31.306+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:34.136+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:34.136+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:34.136+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:34.136+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:47.934+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:47.934+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:49.302+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:49.302+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:49.302+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:49.302+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:50.698+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:50.698+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:52.887+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:52.887+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:52.886+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:52.886+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T10:42:54.839+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T10:42:54.839+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:01:44.240+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:01:44.240+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:01:44.240+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:01:44.240+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:03:14.987+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:03:14.987+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:03:14.987+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:03:14.987+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:03:26.922+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:03:26.922+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:03:26.922+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:03:26.923+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:04:38.440+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:04:38.440+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:06:19.691+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 212
-2024-10-18T11:06:19.691+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 212
-2024-10-18T11:06:19.691+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 212
-2024-10-18T11:06:19.692+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 212
-2024-10-18T11:09:20.507+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:09:20.507+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:12:38.383+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:12:38.383+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:12:40.371+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:12:41.449+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:12:42.171+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:12:43.028+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:13:03.510+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:13:03.512+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:13:03.512+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:13:03.512+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:16:40.671+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:16:40.671+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:21:49.103+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:21:49.103+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:21:49.103+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:21:49.103+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:25:20.642+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:25:20.644+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:25:20.644+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:25:20.644+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:43:16.083+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:43:16.083+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:43:16.083+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:43:16.083+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:46:36.330+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : find site id : 188
-2024-10-18T11:46:36.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : find site id : 188
-2024-10-18T11:46:41.555+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 188
-2024-10-18T11:46:41.578+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : find site id : 188
-2024-10-18T11:46:41.798+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 163
-2024-10-18T11:48:41.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T11:48:41.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:48:41.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T11:48:41.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:44:17.935+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:44:17.935+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:44:20.658+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T13:44:20.658+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T13:44:20.659+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T13:44:20.659+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T13:44:23.257+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T13:44:23.257+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:44:23.257+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T13:44:23.257+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:47:17.522+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:47:17.522+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T13:47:17.523+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T13:47:17.523+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:56:05.120+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:56:05.120+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:12.144+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:12.144+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:16.233+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:16.233+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T13:59:16.233+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T13:59:16.233+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:35.603+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:35.603+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:40.806+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:40.806+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T13:59:40.806+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T13:59:40.806+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:00:52.384+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:00:52.384+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:05:33.463+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:05:33.463+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:05:33.463+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:05:33.463+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:05:36.572+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:05:36.573+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:05:44.268+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:05:44.268+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:05:44.268+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:05:44.268+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:10:18.228+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:10:18.228+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:10:51.122+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:10:51.122+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:10:51.123+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:10:51.123+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:10:54.480+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:10:54.480+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:10:55.503+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:10:55.503+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:10:55.503+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:10:55.503+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:15:47.309+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:15:47.309+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:15:47.916+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:15:47.916+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:15:47.917+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:15:47.917+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:36:12.998+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:36:12.998+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:36:12.998+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:36:12.998+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:39:42.729+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : find site id : 134
-2024-10-18T14:39:42.749+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : find site id : 134
-2024-10-18T14:39:56.504+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 234
-2024-10-18T14:39:56.524+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 234
-2024-10-18T14:48:12.247+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:12.247+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:19.824+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:48:19.824+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:19.824+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:48:19.824+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:21.663+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:21.663+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:26.763+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:48:28.347+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:28.892+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:48:29.405+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:30.420+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:48:30.867+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:48:31.754+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:48:32.783+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:50:28.993+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:50:28.993+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:51:11.978+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:51:11.978+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:51:18.648+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:51:19.467+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:51:21.160+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:51:22.116+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:51:39.388+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:51:40.314+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:51:41.781+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:52:48.768+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:52:51.166+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:52:53.118+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:52:55.839+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:52:57.748+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:55:36.849+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:55:37.865+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:55:40.060+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T14:55:43.260+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:55:56.645+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T14:55:56.646+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:05:33.842+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:05:33.842+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:05:36.307+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:05:37.026+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:11:11.539+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:11:11.539+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:13:40.059+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:13:40.059+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:13:46.848+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:13:48.005+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:15:13.779+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:15:13.779+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:15:58.865+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:15:58.865+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:37:34.342+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:37:34.342+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:37:36.423+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:37:38.246+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:37:40.241+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:37:41.017+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:37:59.611+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:37:59.611+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:37:59.611+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:37:59.611+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:38:02.926+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 24
-2024-10-18T15:38:02.953+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : find site id : 24
-2024-10-18T15:39:45.939+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 119
-2024-10-18T15:40:35.250+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 158
-2024-10-18T15:41:43.871+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 175
-2024-10-18T15:41:51.630+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 225
-2024-10-18T15:41:58.976+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 225
-2024-10-18T15:41:59.003+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 225
-2024-10-18T15:41:59.228+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 225
-2024-10-18T15:42:42.848+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : find site id : 120
-2024-10-18T15:42:50.473+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : find site id : 120
-2024-10-18T15:42:50.503+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 120
-2024-10-18T15:43:08.891+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 120
-2024-10-18T15:43:08.916+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 120
-2024-10-18T15:43:09.123+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 218
-2024-10-18T15:44:10.563+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:44:10.563+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:44:14.055+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:44:14.681+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:44:15.767+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:44:16.775+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:44:17.800+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:44:18.470+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:50:20.552+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:50:20.552+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:50:20.552+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T15:50:20.552+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T15:50:23.714+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 256
-2024-10-18T15:50:23.744+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 256
-2024-10-18T15:50:56.178+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 91
-2024-10-18T15:50:56.208+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : find site id : 91
-2024-10-18T15:50:59.333+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 256
-2024-10-18T15:50:59.361+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : find site id : 256
-2024-10-18T15:51:05.173+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : find site id : 256
-2024-10-18T15:51:05.202+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : find site id : 256
-2024-10-18T15:51:06.784+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : find site id : 255
-2024-10-18T15:51:09.288+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : find site id : 258
-2024-10-18T15:51:16.036+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 1
-2024-10-18T16:00:55.652+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 1
-2024-10-18T16:01:22.636+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 1
-2024-10-18T16:01:26.647+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 1
-2024-10-18T16:01:32.463+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:01:32.464+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:01:32.464+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:01:32.464+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:01:36.886+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 119
-2024-10-18T16:01:48.140+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 119
-2024-10-18T16:01:48.162+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 119
-2024-10-18T16:01:48.340+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 119
-2024-10-18T16:02:14.562+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:02:14.562+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:02:14.563+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:02:14.564+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:02:20.677+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:02:20.677+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:02:20.677+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:02:20.678+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:02:26.765+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 119
-2024-10-18T16:03:47.749+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:03:47.749+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:03:47.749+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:03:47.749+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:03:52.845+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:05:00.541+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:05:00.541+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:05:21.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:05:21.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:05:21.354+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:05:21.354+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:05:37.145+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:05:37.145+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:05:47.276+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:05:47.276+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:05:47.276+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:05:47.276+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:05:49.821+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:05:49.821+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:05:51.066+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:05:51.066+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:05:51.066+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:05:51.066+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:06:09.138+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 72
-2024-10-18T16:06:09.176+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : find site id : 72
-2024-10-18T16:06:14.175+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:15.877+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:15.877+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:15.877+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:15.877+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:18.027+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:06:18.027+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:06:18.027+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:06:18.028+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:06:21.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:21.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:21.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:21.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 111
-2024-10-18T16:06:22.843+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:06:22.843+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:11:39.211+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:11:39.211+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:11:39.211+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:11:39.211+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:11:42.427+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 103
-2024-10-18T16:11:47.853+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 300
-2024-10-18T16:12:10.820+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 163
-2024-10-18T16:13:16.890+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 163
-2024-10-18T16:13:23.441+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 163
-2024-10-18T16:13:23.470+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 163
-2024-10-18T16:13:23.686+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 26
-2024-10-18T16:13:34.257+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 219
-2024-10-18T16:13:50.949+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 219
-2024-10-18T16:13:53.770+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 217
-2024-10-18T16:15:25.626+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:15:25.626+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:15:25.626+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:15:25.626+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:15:30.423+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:15:30.423+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:15:30.423+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:15:30.423+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:15:34.353+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 218
-2024-10-18T16:15:37.432+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 138
-2024-10-18T16:15:45.893+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 198
-2024-10-18T16:15:53.054+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 175
-2024-10-18T16:16:00.504+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 307
-2024-10-18T16:16:06.898+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : find site id : 307
-2024-10-18T16:16:06.925+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 307
-2024-10-18T16:16:07.075+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 155
-2024-10-18T16:16:13.774+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 155
-2024-10-18T16:16:13.799+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 155
-2024-10-18T16:16:13.952+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 97
-2024-10-18T16:16:24.142+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 97
-2024-10-18T16:16:24.168+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 97
-2024-10-18T16:16:24.317+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 97
-2024-10-18T16:16:32.565+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 288
-2024-10-18T16:16:32.591+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : find site id : 288
-2024-10-18T16:16:37.474+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 279
-2024-10-18T16:16:37.499+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : find site id : 279
-2024-10-18T16:16:55.143+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : find site id : 279
-2024-10-18T16:16:55.168+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 279
-2024-10-18T16:16:55.318+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 226
-2024-10-18T16:18:23.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:18:23.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:18:23.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:18:23.491+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:18:51.751+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : find site id : 134
-2024-10-18T16:18:51.772+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : find site id : 134
-2024-10-18T16:19:13.977+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 200
-2024-10-18T16:19:35.033+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : find site id : 252
-2024-10-18T16:19:43.866+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : find site id : 40
-2024-10-18T16:19:43.890+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : find site id : 40
-2024-10-18T16:19:49.442+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 39
-2024-10-18T16:19:49.464+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 39
-2024-10-18T16:22:08.734+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 39
-2024-10-18T16:22:08.757+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : find site id : 39
-2024-10-18T16:22:08.968+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 180
-2024-10-18T16:28:00.502+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:28:00.502+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:28:05.145+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:05.145+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:05.146+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:05.146+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:46.741+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:46.741+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:48.581+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:48.581+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:48.583+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:28:48.583+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:29:07.448+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:29:07.448+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 64
-2024-10-18T16:29:52.537+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:29:52.537+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:29:54.660+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:29:54.661+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:29:54.661+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:29:54.662+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:29:58.266+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:29:58.266+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:04.194+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 27
-2024-10-18T16:30:04.194+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 27
-2024-10-18T16:30:04.195+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 27
-2024-10-18T16:30:04.195+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 27
-2024-10-18T16:30:07.241+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:07.241+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:11.779+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:11.779+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:11.779+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:11.779+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:14.690+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:14.690+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:30:14.690+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:30:14.690+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:16.964+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:16.964+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:16.965+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:16.966+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 104
-2024-10-18T16:30:18.625+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:18.626+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:22.705+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 187
-2024-10-18T16:30:22.705+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 187
-2024-10-18T16:30:22.705+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 187
-2024-10-18T16:30:22.705+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 187
-2024-10-18T16:30:24.485+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:30:24.485+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:14.343+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:14.343+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:18.173+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:36:18.173+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:36:18.173+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:36:18.173+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 95
-2024-10-18T16:36:20.660+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:20.661+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:22.156+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:36:22.156+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:36:22.156+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:36:22.156+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:36:23.525+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:23.525+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:30.727+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 15
-2024-10-18T16:36:30.727+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 15
-2024-10-18T16:36:30.727+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 15
-2024-10-18T16:36:30.727+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 15
-2024-10-18T16:36:33.721+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:36:33.721+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:37.995+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:37.995+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:39.763+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:39:39.763+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:39:39.763+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:39:39.764+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:39:41.735+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:41.735+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:39:41.735+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:39:41.735+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:44.859+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:44.859+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:47.614+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 40
-2024-10-18T16:39:47.614+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 40
-2024-10-18T16:39:47.615+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 40
-2024-10-18T16:39:47.615+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 40
-2024-10-18T16:39:50.202+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:50.202+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:51.844+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:39:51.844+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:51.844+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:39:51.845+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:39:57.290+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 1
-2024-10-18T16:40:05.339+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:40:05.339+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:40:14.295+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:40:14.295+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:40:14.295+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:40:14.295+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:41:04.980+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:41:04.980+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:41:30.134+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:41:30.134+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:41:38.113+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:41:38.113+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:42:02.945+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:42:02.945+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:42:56.409+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:42:56.409+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:44:17.645+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:44:17.645+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 94
-2024-10-18T16:44:33.662+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:44:33.662+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:44:36.625+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:44:36.625+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:44:36.625+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:44:36.626+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:45:45.586+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:45:45.586+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 246
-2024-10-18T16:45:50.765+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:45:50.765+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:45:55.379+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:45:55.380+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:45:55.380+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:45:55.380+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:46:20.386+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:46:20.386+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 3
-2024-10-18T16:46:21.543+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:46:21.543+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:46:24.879+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T16:46:25.951+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 165
-2024-10-18T16:46:25.951+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : find site id : 165
-2024-10-18T16:46:27.246+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T16:46:27.246+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T17:04:45.209+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T17:04:45.209+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T17:04:47.280+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T17:04:47.280+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
-2024-10-18T17:04:47.281+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
-2024-10-18T17:04:47.281+02:00  INFO 14528 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:48:07.962+02:00  INFO 28532 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Starting AncientdataApplication using Java 17.0.5 with PID 28532 (C:\Users\Rinse Willet\Desktop\WEBGISdev\build\classes\java\main started by Rinse Willet in C:\Users\Rinse Willet\Desktop\WEBGISdev)
+2024-10-24T09:48:07.974+02:00  INFO 28532 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-10-24T09:48:08.682+02:00  INFO 28532 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-10-24T09:48:08.758+02:00  INFO 28532 --- [ancientdata] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 65 ms. Found 3 JPA repository interfaces.
+2024-10-24T09:48:09.496+02:00  INFO 28532 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-10-24T09:48:09.519+02:00  INFO 28532 --- [ancientdata] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-10-24T09:48:09.519+02:00  INFO 28532 --- [ancientdata] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.25]
+2024-10-24T09:48:09.620+02:00  INFO 28532 --- [ancientdata] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-10-24T09:48:09.621+02:00  INFO 28532 --- [ancientdata] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1591 ms
+2024-10-24T09:48:09.949+02:00  INFO 28532 --- [ancientdata] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-10-24T09:48:10.076+02:00  INFO 28532 --- [ancientdata] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2024-10-24T09:48:10.089+02:00  INFO 28532 --- [ancientdata] [main] o.h.spatial.integration.SpatialService   : HHH80000001: hibernate-spatial integration enabled : true
+2024-10-24T09:48:10.144+02:00  INFO 28532 --- [ancientdata] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-10-24T09:48:10.295+02:00  INFO 28532 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-10-24T09:48:10.666+02:00  INFO 28532 --- [ancientdata] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@2bab618
+2024-10-24T09:48:10.667+02:00  INFO 28532 --- [ancientdata] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-10-24T09:48:10.725+02:00  WARN 28532 --- [ancientdata] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-10-24T09:48:10.804+02:00  INFO 28532 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-24T09:48:11.072+02:00  INFO 28532 --- [ancientdata] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-10-24T09:48:11.108+02:00  INFO 28532 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000003: hibernate-spatial adding type contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-24T09:48:11.434+02:00  INFO 28532 --- [ancientdata] [main] org.hibernate.spatial                    : HHH80000004: hibernate-spatial adding function contributions from : org.hibernate.spatial.dialect.postgis.PostgisDialectContributor
+2024-10-24T09:48:12.008+02:00  INFO 28532 --- [ancientdata] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-10-24T09:48:12.192+02:00  INFO 28532 --- [ancientdata] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-10-24T09:48:12.528+02:00  WARN 28532 --- [ancientdata] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-10-24T09:48:12.558+02:00  INFO 28532 --- [ancientdata] [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2024-10-24T09:48:13.122+02:00  INFO 28532 --- [ancientdata] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-10-24T09:48:13.136+02:00  INFO 28532 --- [ancientdata] [main] c.w.ancientdata.AncientdataApplication   : Started AncientdataApplication in 5.601 seconds (process running for 5.959)
+2024-10-24T09:48:43.106+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-10-24T09:48:43.106+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-10-24T09:48:43.107+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-10-24T09:48:43.153+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:48:43.849+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:48:45.953+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:48:48.058+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:48:49.120+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:51:11.171+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:51:12.699+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:54:46.066+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:54:46.316+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:55:02.804+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:55:03.146+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:55:55.377+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:55:55.377+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:55:55.525+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:55:55.643+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:56:08.498+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:56:08.789+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:56:10.460+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:56:11.431+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T09:56:13.405+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T09:56:16.287+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T09:56:16.287+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T09:56:16.378+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T09:56:16.419+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T09:58:58.019+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T09:58:58.019+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T09:58:58.100+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T09:58:58.121+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T10:00:04.189+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T10:00:04.190+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T10:00:04.264+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T10:00:04.315+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : find site id : 8
+2024-10-24T10:02:51.370+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:02:51.615+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:02:52.448+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:02:52.448+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:02:52.525+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:02:52.546+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:02:54.198+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:02:54.198+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:02:54.342+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:02:54.460+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:04:05.924+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:04:05.924+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:04:05.925+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:04:05.924+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:04:08.055+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:04:08.055+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:04:09.310+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:04:09.310+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:04:09.310+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:04:09.310+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:04:10.743+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:04:10.743+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:04:10.743+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:04:10.743+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:05:02.180+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:05:02.180+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:05:04.693+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:05:04.693+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:05:04.693+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:05:04.693+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:05:08.464+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:05:08.464+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:05:08.464+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:05:08.464+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:08:47.218+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:08:47.218+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:08:47.218+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:08:47.218+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:08:52.290+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:08:52.290+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:08:53.811+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:08:53.811+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:08:53.811+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:08:53.811+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 95
+2024-10-24T10:08:56.350+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:08:56.350+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:08:56.350+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:08:56.350+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:09:20.755+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:09:20.755+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:09:20.755+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:09:20.756+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:09:24.078+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:09:24.078+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:09:28.057+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:09:28.057+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:09:28.057+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:09:28.057+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:09:29.586+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:09:29.586+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:09:29.586+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:09:29.586+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:10.167+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:10:10.167+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:10:10.167+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:10.167+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:13.597+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:13.597+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:15.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:15.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:15.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:15.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:16.341+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:16.341+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:10:16.341+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:16.341+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:10:32.727+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:32.727+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:32.727+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:32.727+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:10:34.589+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:10:34.589+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:10:34.589+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:10:34.589+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:00.807+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:00.807+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:02.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:11:02.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:11:02.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:11:02.024+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:11:03.106+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:11:03.106+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:03.106+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:03.106+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:11:31.543+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:31.543+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:32.830+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:11:32.830+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:11:32.830+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:11:32.830+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:11:34.220+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:34.220+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:11:34.220+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:11:34.220+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:12:22.206+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:12:22.206+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:12:24.809+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:12:24.809+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:12:24.809+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:12:24.809+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:12:26.368+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:12:26.368+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:12:26.368+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:12:26.368+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:13:35.771+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:13:35.771+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:13:35.771+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:13:35.771+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:13:38.088+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:13:38.088+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:13:39.716+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:13:39.716+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:13:39.716+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:13:39.716+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:13:41.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:13:41.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:13:41.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:13:41.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:14:49.695+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : find site id : 321
+2024-10-24T10:14:49.728+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : find site id : 321
+2024-10-24T10:14:57.665+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.site.SiteService    : find site id : 126
+2024-10-24T10:14:57.697+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : find site id : 126
+2024-10-24T10:14:59.921+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : find site id : 125
+2024-10-24T10:14:59.952+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : find site id : 125
+2024-10-24T10:18:43.000+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:18:43.000+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:18:43.000+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:18:43.000+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:14.189+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:14.189+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:16.003+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 15
+2024-10-24T10:19:16.003+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 15
+2024-10-24T10:19:16.003+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 15
+2024-10-24T10:19:16.003+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 15
+2024-10-24T10:19:17.161+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:19:17.161+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:19:17.161+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:17.161+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:27.307+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:27.307+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:28.760+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 56
+2024-10-24T10:19:28.760+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 56
+2024-10-24T10:19:28.760+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 56
+2024-10-24T10:19:28.760+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 56
+2024-10-24T10:19:30.357+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:19:30.357+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:30.357+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:19:30.357+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:54.555+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:54.555+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:56.583+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:19:56.583+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:19:56.583+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:19:56.583+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:19:58.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:58.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:19:58.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:19:58.074+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:10.615+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:10.615+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:10.615+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:10.615+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:35.948+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:35.948+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:35.948+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:35.948+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:42.448+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:42.448+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:42.448+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:42.448+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:49.963+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:49.963+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:51.151+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:23:51.151+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:23:51.151+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:23:51.151+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 12
+2024-10-24T10:23:52.320+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:23:52.320+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:52.320+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:23:52.320+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:24:32.529+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:24:32.529+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:24:34.027+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:24:34.027+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:24:34.027+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:24:34.027+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 246
+2024-10-24T10:24:35.496+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:24:35.496+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:24:35.496+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:24:35.496+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:24:59.852+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:24:59.852+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:25:00.924+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:25:00.924+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:25:00.924+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:25:00.924+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:25:02.170+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:25:02.170+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:25:02.171+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:25:02.171+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:25:59.769+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:25:59.769+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:25:59.769+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:25:59.769+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:26:02.703+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:26:02.703+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:26:05.209+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-1] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:26:05.209+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:26:05.209+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-4] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:26:05.209+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.road.RoadService    : find road id : 143
+2024-10-24T10:26:06.416+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:26:06.416+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:26:06.416+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:26:06.416+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:28:03.321+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-9] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:28:03.321+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-3] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:28:03.321+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-6] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:28:03.321+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-8] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:28:13.298+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-2] c.webgis.ancientdata.site.SiteService    : Finding all sites
+2024-10-24T10:28:13.298+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-10] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:28:13.298+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-7] c.webgis.ancientdata.road.RoadService    : Finding all roads
+2024-10-24T10:28:13.298+02:00  INFO 28532 --- [ancientdata] [http-nio-8080-exec-5] c.webgis.ancientdata.site.SiteService    : Finding all sites
