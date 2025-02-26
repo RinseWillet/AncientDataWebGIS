@@ -1,37 +1,32 @@
 package com.webgis.ancientdata.roadtests;
 
 //MVC
+
 import com.webgis.ancientdata.RandomRoadGenerator;
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
-import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.road.RoadController;
-import com.webgis.ancientdata.road.RoadService;
-
-//Java
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang3.RandomUtils;
+import com.webgis.ancientdata.application.service.RoadService;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.web.controller.RoadController;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.json.JSONObject;
+import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-
-//Testing libraries
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-//static
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

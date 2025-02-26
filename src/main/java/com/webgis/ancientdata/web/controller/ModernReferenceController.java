@@ -1,7 +1,8 @@
-package com.webgis.ancientdata.modernreference;
+package com.webgis.ancientdata.web.controller;
 
+import com.webgis.ancientdata.application.service.ModernReferenceService;
+import com.webgis.ancientdata.domain.model.ModernReference;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;

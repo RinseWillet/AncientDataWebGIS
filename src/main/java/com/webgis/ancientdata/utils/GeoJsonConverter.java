@@ -1,27 +1,20 @@
 package com.webgis.ancientdata.utils;
 
 //Spring
-import com.webgis.ancientdata.road.Road;
+
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.model.Site;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Coordinates;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.springframework.http.converter.json.GsonBuilderUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-//JSON
-import org.json.*;
-
-//Logging
-import org.slf4j.*;
-
-//Java
 import java.lang.reflect.Field;
-import java.util.*;
-
-//project components
-import com.webgis.ancientdata.site.Site;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Optional;
 
 //class to convert JSON object from repository to GeoJSON
 @Service
@@ -33,15 +26,19 @@ public class GeoJsonConverter {
     //method to convert individual point to geojson
     public JSONObject convertSite(Optional<Site> siteOptional) {
         JSONObject features = setUpGeoJSON();
-        Site site = siteOptional.get();
+        if(siteOptional.isPresent()) {
+            Site site = siteOptional.get();
 
-        String [] propertyTypes = {
-                "id", "pleiadesId", "name", "province",
-                "siteType", "status", "references", "description"};
+            String [] propertyTypes = {
+                    "id", "pleiadesId", "name", "province",
+                    "siteType", "status", "references", "description"};
 
-        JSONObject feature = siteParser(site, propertyTypes);
-        features.put("features", feature);
-        return features;
+            JSONObject feature = siteParser(site, propertyTypes);
+            features.put("features", feature);
+            return features;
+        } else {
+            return null;
+        }
     }
 
     //method to convert points to geojson
@@ -108,16 +105,20 @@ public class GeoJsonConverter {
 
     public JSONObject convertRoad(Optional<Road> roadOptional){
         JSONObject features = setUpGeoJSON();
-        Road road = roadOptional.get();
+        if(roadOptional.isPresent()){
+            Road road = roadOptional.get();
 
-        String [] propertyTypes = {
-                "id", "cat_nr", "name", "type", "typeDescription",
-                "location", "description", "date", "references",
-                "historicalReferences"};
+            String [] propertyTypes = {
+                    "id", "cat_nr", "name", "type", "typeDescription",
+                    "location", "description", "date", "references",
+                    "historicalReferences"};
 
-        JSONObject feature = roadParser(road, propertyTypes);
-        features.put("features", feature);
-        return features;
+            JSONObject feature = roadParser(road, propertyTypes);
+            features.put("features", feature);
+            return features;
+        } else {
+            return null;
+        }
     }
 
     private JSONObject setUpGeoJSON () {
@@ -191,31 +192,31 @@ public class GeoJsonConverter {
 
     private JSONObject SitePropertiesParser (Site site, JSONObject properties, String [] propertytypes) throws NullPointerException {
         try{
-            for (int i = 0; i < propertytypes.length; i++) {
-                switch (propertytypes[i]) {
+            for (String propertytype : propertytypes) {
+                switch (propertytype) {
                     case "id":
-                        properties.put(propertytypes[i], site.getId());
+                        properties.put(propertytype, site.getId());
                         break;
                     case "pleiadesId":
-                        properties.put(propertytypes[i], site.getPleiadesId());
+                        properties.put(propertytype, site.getPleiadesId());
                         break;
                     case "name":
-                        properties.put(propertytypes[i], site.getName());
+                        properties.put(propertytype, site.getName());
                         break;
                     case "province":
-                        properties.put(propertytypes[i], site.getProvince());
+                        properties.put(propertytype, site.getProvince());
                         break;
                     case "siteType":
-                        properties.put(propertytypes[i], site.getSiteType());
+                        properties.put(propertytype, site.getSiteType());
                         break;
                     case "status":
-                        properties.put(propertytypes[i], site.getStatus());
+                        properties.put(propertytype, site.getStatus());
                         break;
                     case "references":
-                        properties.put(propertytypes[i], site.getReferences());
+                        properties.put(propertytype, site.getReferences());
                         break;
                     case "description":
-                        properties.put(propertytypes[i], site.getDescription());
+                        properties.put(propertytype, site.getDescription());
                         break;
                 }
             }
@@ -264,37 +265,37 @@ public class GeoJsonConverter {
 
     private JSONObject RoadPropertiesParser (Road road, JSONObject properties, String [] propertytypes) throws NullPointerException {
         try{
-            for (int i = 0; i < propertytypes.length; i++) {
-                switch (propertytypes[i]) {
+            for (String propertytype : propertytypes) {
+                switch (propertytype) {
                     case "id":
-                        properties.put(propertytypes[i], road.getId());
+                        properties.put(propertytype, road.getId());
                         break;
                     case "cat_nr":
-                        properties.put(propertytypes[i], road.getCat_nr());
+                        properties.put(propertytype, road.getCat_nr());
                         break;
                     case "name":
-                        properties.put(propertytypes[i], road.getName());
+                        properties.put(propertytype, road.getName());
                         break;
                     case "type":
-                        properties.put(propertytypes[i], road.getType());
+                        properties.put(propertytype, road.getType());
                         break;
                     case "typeDescription":
-                        properties.put(propertytypes[i], road.getTypeDescription());
+                        properties.put(propertytype, road.getTypeDescription());
                         break;
                     case "location":
-                        properties.put(propertytypes[i], road.getLocation());
+                        properties.put(propertytype, road.getLocation());
                         break;
                     case "description":
-                        properties.put(propertytypes[i], road.getDescription());
+                        properties.put(propertytype, road.getDescription());
                         break;
                     case "date":
-                        properties.put(propertytypes[i], road.getDate());
+                        properties.put(propertytype, road.getDate());
                         break;
                     case "references":
-                        properties.put(propertytypes[i], road.getReferences());
+                        properties.put(propertytype, road.getReferences());
                         break;
                     case "historicalReferences":
-                        properties.put(propertytypes[i], road.getHistoricalReferences());
+                        properties.put(propertytype, road.getHistoricalReferences());
                         break;
                 }
             }
@@ -310,8 +311,7 @@ public class GeoJsonConverter {
 
         if (site.getGeom() != null){
             //making array of X (latitude) and Y (longitude) coordinates
-            Double [] coordinates = {site.getGeom().getX(), site.getGeom().getY()};
-            return coordinates;
+            return new Double[]{site.getGeom().getX(), site.getGeom().getY()};
         } else {
             return null;
         }

@@ -1,9 +1,9 @@
-package com.webgis.ancientdata.modernreference;
+package com.webgis.ancientdata.domain.model;
 
-import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.site.Site;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -30,9 +30,6 @@ public class ModernReference {
     //full title, e.g. J. Johnson 1980 "The history of Johnsons", in A. Alan and G. George (eds.), Overview of histories of names, Oxford, pp. 12-34
     @Column(name = "url")
     private String URL;
-
-    //    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-//    @JoinTable(name = "roads_modernref", joinColumns = @JoinColumn(name="modernref_fid"), inverseJoinColumns = @JoinColumn(name="roads_fid"))
 
     //child
     @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)

@@ -1,18 +1,20 @@
-package com.webgis.ancientdata.road;
+package com.webgis.ancientdata.application.service;
 
-import com.webgis.ancientdata.modernreference.ModernReference;
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.model.ModernReference;
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.repository.RoadRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.StreamSupport;
 
 
 @Service
@@ -22,6 +24,12 @@ public class RoadService {
     private final RoadRepository roadRepository;
 
     private final Logger logger = LoggerFactory.getLogger(RoadService.class);
+
+    private static final String ROAD = "road";
+    private static final String POS_ROAD = "possible road";
+    private static final String HYP_ROUTE = "hypothetical route";
+    private static final String HIST_REC = "hist_rec";
+    private static final String OTHER = "other";
 
     public RoadService(RoadRepository roadRepository) {
         this.roadRepository = roadRepository;
@@ -37,7 +45,7 @@ public class RoadService {
         return geoJsonConverter.convertRoads(findAll()).toString();
     }
 
-      public Optional<Road> findById(long id) {
+    public Optional<Road> findById(long id) {
         logger.info("find road id : {}", id);
 
         Optional<Road> roadOptional = roadRepository.findById(id);
@@ -82,18 +90,24 @@ public class RoadService {
 
     public Road update(long roadId, Road roadupdate) throws ResponseStatusException {
         try {
-            Road road = findById(roadId).get();
-        
-            road.setName(roadupdate.getName());
-            road.setGeom(roadupdate.getGeom());
-            road.setType(roadupdate.getType());
-            road.setTypeDescription(roadupdate.getTypeDescription());
-            road.setLocation(roadupdate.getLocation());
-            road.setDescription(roadupdate.getDescription());
-            road.setDate(roadupdate.getDate());
-            road.setReferences(roadupdate.getReferences());
-            road.setHistoricalReferences(roadupdate.getHistoricalReferences());
-            return save(road);
+
+            Optional<Road> roadOptional = findById(roadId);
+            if (roadOptional.isPresent()) {
+                Road road = roadOptional.get();
+                road.setName(roadupdate.getName());
+                road.setGeom(roadupdate.getGeom());
+                road.setType(roadupdate.getType());
+                road.setTypeDescription(roadupdate.getTypeDescription());
+                road.setLocation(roadupdate.getLocation());
+                road.setDescription(roadupdate.getDescription());
+                road.setDate(roadupdate.getDate());
+                road.setReferences(roadupdate.getReferences());
+                road.setHistoricalReferences(roadupdate.getHistoricalReferences());
+                return save(road);
+            } else {
+                logger.warn("updating road failed");
+                return null;
+            }
         } catch (Exception e) {
             logger.warn("updating road failed: {}", String.valueOf(e));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
@@ -102,36 +116,84 @@ public class RoadService {
 
     public Road addModernReferenceToRoad(long roadId, ModernReferenceDTO modernReferenceDTO) {
         try {
-            Road road = findById(roadId).get();
+            Optional<Road> roadOptional = findById(roadId);
 
-            ModernReference modernReference = new ModernReference(
-                    modernReferenceDTO.getShortRef(),
-                    modernReferenceDTO.getFullRef(),
-                    modernReferenceDTO.getURL());
-            road.addModernReference(modernReference);
-            return roadRepository.save(road);            
+            if (roadOptional.isPresent()) {
+                Road road = roadOptional.get();
+
+                ModernReference modernReference = new ModernReference(
+                        modernReferenceDTO.getShortRef(),
+                        modernReferenceDTO.getFullRef(),
+                        modernReferenceDTO.getURL());
+                road.addModernReference(modernReference);
+                return roadRepository.save(road);
+            } else {
+                logger.warn("updating road failed");
+                return null;
+            }
         } catch (Exception e) {
             logger.warn("adding Modern Reference to road failed: {}", String.valueOf(e));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }        
+        }
     }
 
     //Parsing into DTO to prevent infinite regressing due to bidirectional many-to-many relationship
     //roads and modernrefs
     public List<ModernReferenceDTO> findModernReferencesByRoadId(long roadId) {
         try {
-            Road road = findById(roadId).get();
 
-            List<ModernReference> modernReferenceList = road.getModernReferenceList();
+            Optional<Road> roadOptional = findById(roadId);
 
-            return getModernReferenceDTOList(modernReferenceList);
+            if (roadOptional.isPresent()) {
+                Road road = roadOptional.get();
+
+                List<ModernReference> modernReferenceList = road.getModernReferenceList();
+
+                return getModernReferenceDTOList(modernReferenceList);
+            } else {
+                logger.warn("updating road failed");
+                return null;
+            }
         } catch (Exception e) {
             logger.warn("finding Modern References for road with id " + roadId + "failed because {}", String.valueOf(e));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }        
+        }
     }
 
-    private List<ModernReferenceDTO> getModernReferenceDTOList (List<ModernReference> modernReferenceList) {
+    public LinkedHashMap getDashBoardData() throws NullPointerException {
+        Iterable<Road> roadIterable = findAll();
+
+        //count the amount of roads in total and per type in the DB
+        long total = 0;
+        AtomicInteger roadno = new AtomicInteger();
+        AtomicInteger possibleno = new AtomicInteger();
+        AtomicInteger hypotheticalno = new AtomicInteger();
+        AtomicInteger otherno = new AtomicInteger();
+        AtomicInteger hist_recno = new AtomicInteger();
+
+        total = StreamSupport.stream(roadIterable.spliterator(), false).count();
+        StreamSupport.stream(roadIterable.spliterator(), false).forEach(road -> {
+            switch (road.getType().toString()) {
+                case ROAD -> roadno.getAndIncrement();
+                case POS_ROAD -> possibleno.getAndIncrement();
+                case HYP_ROUTE -> hypotheticalno.getAndIncrement();
+                case HIST_REC -> hist_recno.getAndIncrement();
+                case OTHER -> otherno.getAndIncrement();
+            }
+        });
+
+        LinkedHashMap hashMap = new LinkedHashMap();
+        hashMap.put("total amount of roads", total);
+        hashMap.put("roads", roadno);
+        hashMap.put("possible roads", possibleno);
+        hashMap.put("hypothetical routes", hypotheticalno);
+        hashMap.put("hist_rec", hist_recno);
+        hashMap.put("others", otherno);
+
+        return hashMap;
+    }
+
+    private List<ModernReferenceDTO> getModernReferenceDTOList(List<ModernReference> modernReferenceList) {
 
         List<ModernReferenceDTO> modernReferenceDTOList = new ArrayList<>();
 

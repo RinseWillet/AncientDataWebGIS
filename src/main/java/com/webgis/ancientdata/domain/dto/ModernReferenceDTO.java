@@ -1,4 +1,4 @@
-package com.webgis.ancientdata.modernreference;
+package com.webgis.ancientdata.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

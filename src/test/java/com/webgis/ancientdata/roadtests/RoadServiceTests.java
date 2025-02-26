@@ -1,25 +1,17 @@
 package com.webgis.ancientdata.roadtests;
 
 //MVC
-import com.webgis.ancientdata.RandomRoadGenerator;
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
-import com.webgis.ancientdata.modernreference.ModernReference;
-import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.road.RoadRepository;
-import com.webgis.ancientdata.road.RoadService;
-import com.webgis.ancientdata.utils.GeoJsonConverter;
 
-//Java
+import com.webgis.ancientdata.RandomRoadGenerator;
+import com.webgis.ancientdata.application.service.RoadService;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.model.ModernReference;
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.repository.RoadRepository;
+import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
-
 import org.json.JSONObject;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
-
-//Testing libraries
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +19,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
-//static
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;

@@ -1,35 +1,29 @@
 package com.webgis.ancientdata.modernreferencetests;
 
 //MVC
+
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.RandomSiteGenerator;
-import com.webgis.ancientdata.modernreference.ModernReference;
-import com.webgis.ancientdata.modernreference.ModernReferenceRepository;
-import com.webgis.ancientdata.modernreference.ModernReferenceService;
-import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.site.Site;
-
-//Java
+import com.webgis.ancientdata.application.service.ModernReferenceService;
+import com.webgis.ancientdata.domain.model.ModernReference;
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//Testing libraries
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-//static
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
