@@ -71,7 +71,7 @@ public class ModernReferenceService {
         try{
             Optional<ModernReference> modernReferenceOptional = findById(id);
             if(modernReferenceOptional.isPresent()) {
-                ModernReference modernReference = findById(id).get();
+                ModernReference modernReference = modernReferenceOptional.get();
 
                 List<Site> siteList = modernReference.getSiteList();
 
