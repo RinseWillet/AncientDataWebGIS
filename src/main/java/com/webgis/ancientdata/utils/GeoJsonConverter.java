@@ -26,15 +26,19 @@ public class GeoJsonConverter {
     //method to convert individual point to geojson
     public JSONObject convertSite(Optional<Site> siteOptional) {
         JSONObject features = setUpGeoJSON();
-        Site site = siteOptional.get();
+        if(siteOptional.isPresent()) {
+            Site site = siteOptional.get();
 
-        String [] propertyTypes = {
-                "id", "pleiadesId", "name", "province",
-                "siteType", "status", "references", "description"};
+            String [] propertyTypes = {
+                    "id", "pleiadesId", "name", "province",
+                    "siteType", "status", "references", "description"};
 
-        JSONObject feature = siteParser(site, propertyTypes);
-        features.put("features", feature);
-        return features;
+            JSONObject feature = siteParser(site, propertyTypes);
+            features.put("features", feature);
+            return features;
+        } else {
+            return null;
+        }
     }
 
     //method to convert points to geojson
