@@ -192,31 +192,31 @@ public class GeoJsonConverter {
 
     private JSONObject SitePropertiesParser (Site site, JSONObject properties, String [] propertytypes) throws NullPointerException {
         try{
-            for (int i = 0; i < propertytypes.length; i++) {
-                switch (propertytypes[i]) {
+            for (String propertytype : propertytypes) {
+                switch (propertytype) {
                     case "id":
-                        properties.put(propertytypes[i], site.getId());
+                        properties.put(propertytype, site.getId());
                         break;
                     case "pleiadesId":
-                        properties.put(propertytypes[i], site.getPleiadesId());
+                        properties.put(propertytype, site.getPleiadesId());
                         break;
                     case "name":
-                        properties.put(propertytypes[i], site.getName());
+                        properties.put(propertytype, site.getName());
                         break;
                     case "province":
-                        properties.put(propertytypes[i], site.getProvince());
+                        properties.put(propertytype, site.getProvince());
                         break;
                     case "siteType":
-                        properties.put(propertytypes[i], site.getSiteType());
+                        properties.put(propertytype, site.getSiteType());
                         break;
                     case "status":
-                        properties.put(propertytypes[i], site.getStatus());
+                        properties.put(propertytype, site.getStatus());
                         break;
                     case "references":
-                        properties.put(propertytypes[i], site.getReferences());
+                        properties.put(propertytype, site.getReferences());
                         break;
                     case "description":
-                        properties.put(propertytypes[i], site.getDescription());
+                        properties.put(propertytype, site.getDescription());
                         break;
                 }
             }
@@ -265,37 +265,37 @@ public class GeoJsonConverter {
 
     private JSONObject RoadPropertiesParser (Road road, JSONObject properties, String [] propertytypes) throws NullPointerException {
         try{
-            for (int i = 0; i < propertytypes.length; i++) {
-                switch (propertytypes[i]) {
+            for (String propertytype : propertytypes) {
+                switch (propertytype) {
                     case "id":
-                        properties.put(propertytypes[i], road.getId());
+                        properties.put(propertytype, road.getId());
                         break;
                     case "cat_nr":
-                        properties.put(propertytypes[i], road.getCat_nr());
+                        properties.put(propertytype, road.getCat_nr());
                         break;
                     case "name":
-                        properties.put(propertytypes[i], road.getName());
+                        properties.put(propertytype, road.getName());
                         break;
                     case "type":
-                        properties.put(propertytypes[i], road.getType());
+                        properties.put(propertytype, road.getType());
                         break;
                     case "typeDescription":
-                        properties.put(propertytypes[i], road.getTypeDescription());
+                        properties.put(propertytype, road.getTypeDescription());
                         break;
                     case "location":
-                        properties.put(propertytypes[i], road.getLocation());
+                        properties.put(propertytype, road.getLocation());
                         break;
                     case "description":
-                        properties.put(propertytypes[i], road.getDescription());
+                        properties.put(propertytype, road.getDescription());
                         break;
                     case "date":
-                        properties.put(propertytypes[i], road.getDate());
+                        properties.put(propertytype, road.getDate());
                         break;
                     case "references":
-                        properties.put(propertytypes[i], road.getReferences());
+                        properties.put(propertytype, road.getReferences());
                         break;
                     case "historicalReferences":
-                        properties.put(propertytypes[i], road.getHistoricalReferences());
+                        properties.put(propertytype, road.getHistoricalReferences());
                         break;
                 }
             }
@@ -311,8 +311,7 @@ public class GeoJsonConverter {
 
         if (site.getGeom() != null){
             //making array of X (latitude) and Y (longitude) coordinates
-            Double [] coordinates = {site.getGeom().getX(), site.getGeom().getY()};
-            return coordinates;
+            return new Double[]{site.getGeom().getX(), site.getGeom().getY()};
         } else {
             return null;
         }
