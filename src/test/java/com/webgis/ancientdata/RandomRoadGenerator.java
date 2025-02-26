@@ -1,7 +1,6 @@
 package com.webgis.ancientdata;
 
-import com.webgis.ancientdata.road.Road;
-
+import com.webgis.ancientdata.domain.model.Road;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONObject;

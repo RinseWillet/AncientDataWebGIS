@@ -1,6 +1,6 @@
 package com.webgis.ancientdata;
 
-import com.webgis.ancientdata.site.Site;
+import com.webgis.ancientdata.domain.model.Site;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONObject;

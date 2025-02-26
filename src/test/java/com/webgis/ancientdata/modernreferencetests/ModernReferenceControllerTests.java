@@ -1,46 +1,34 @@
 package com.webgis.ancientdata.modernreferencetests;
 
 //MVC
+
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.RandomSiteGenerator;
-import com.webgis.ancientdata.modernreference.ModernReference;
-import com.webgis.ancientdata.modernreference.ModernReferenceController;
-import com.webgis.ancientdata.modernreference.ModernReferenceService;
-import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.site.Site;
-
-//Java
+import com.webgis.ancientdata.application.service.ModernReferenceService;
+import com.webgis.ancientdata.domain.model.ModernReference;
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.web.controller.ModernReferenceController;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-
-//Testing libraries
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-//static
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

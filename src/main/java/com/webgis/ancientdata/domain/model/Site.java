@@ -1,13 +1,14 @@
-package com.webgis.ancientdata.site;
+package com.webgis.ancientdata.domain.model;
 
-import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.locationtech.jts.geom.Point;
 
 import java.io.Serializable;
 import java.util.List;
-
-import org.locationtech.jts.geom.Point;
 
 @Data
 @Entity

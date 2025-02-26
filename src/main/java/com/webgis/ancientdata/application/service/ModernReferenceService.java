@@ -1,12 +1,12 @@
-package com.webgis.ancientdata.modernreference;
+package com.webgis.ancientdata.application.service;
 
-import com.webgis.ancientdata.road.Road;
-import com.webgis.ancientdata.site.Site;
+import com.webgis.ancientdata.domain.model.ModernReference;
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

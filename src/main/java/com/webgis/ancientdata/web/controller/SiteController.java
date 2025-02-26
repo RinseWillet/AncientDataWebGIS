@@ -1,6 +1,7 @@
-package com.webgis.ancientdata.site;
+package com.webgis.ancientdata.web.controller;
 
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
+import com.webgis.ancientdata.application.service.SiteService;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class SiteController {
     }
 
     @GetMapping("/modref/{id}")
-    public List<ModernReferenceDTO> findModernReferencesByRoadId(@PathVariable long id) {
+    public List<ModernReferenceDTO> findModernReferencesBySiteId(@PathVariable long id) {
         return siteService.findModernReferencesBySiteId(id);
     }
 }

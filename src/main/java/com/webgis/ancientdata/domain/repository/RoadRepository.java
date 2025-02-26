@@ -1,8 +1,7 @@
-package com.webgis.ancientdata.road;
+package com.webgis.ancientdata.domain.repository;
 
+import com.webgis.ancientdata.domain.model.Road;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

@@ -1,7 +1,9 @@
-package com.webgis.ancientdata.epigraphicreference;
+package com.webgis.ancientdata.domain.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Entity

@@ -1,11 +1,11 @@
-package com.webgis.ancientdata.site;
+package com.webgis.ancientdata.application.service;
 
-import com.webgis.ancientdata.modernreference.ModernReference;
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
-
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.model.ModernReference;
+import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.domain.repository.SiteRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.json.JSONObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

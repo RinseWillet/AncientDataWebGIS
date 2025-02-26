@@ -1,18 +1,17 @@
-package com.webgis.ancientdata.road;
+package com.webgis.ancientdata.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.webgis.ancientdata.modernreference.ModernReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 import org.locationtech.jts.geom.MultiLineString;
 
-import java.util.HashSet;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -27,33 +26,44 @@ public class Road {
     @Column(name = "id")
     private long id;
 
+    @Min(value = 1, message = "Catalog number must be greater than 0")
     @Column(name="cat_nr")
     private int cat_nr;
 
+    @NotBlank(message= "Name cannot be empty")
+    @Size(max=255, message = " Name must be less than 255 characters")
     @Column(name="cat_name")
     private String name;
 
+    @NotNull(message = "Geometry data (geom) is required")
     @Column(name = "geom")
     private MultiLineString geom;
 
+    @NotBlank(message = "Type cannot be empty")
+    @Size(max = 255, message = "Type must be less than 255 characters")
     @Column(name = "type")
     private String type;
 
+    @Size(max = 1000, message = "Type description must be less than 1000 characters")
     @Column(name = "cat_type_descr")
     private String typeDescription;
 
+    @Size(max = 1500, message = "Location details must be less than 1500 characters")
     @Column(name = "cat_location", length=1500)
     private String location;
 
+    @Size(max = 5000, message = "Description must be less than 5000 characters")
     @Column(name = "cat_description", length=5000)
     private String description;
 
     @Column(name = "cat_date")
     private String date;
 
+    @Size(max = 800, message = "References must be less than 800 characters")
     @Column(name = "cat_ref", length=800)
     private String references;
 
+    @Size(max = 800, message = "Historical references must be less than 800 characters")
     @Column(name = "cat_hist_ref", length=800)
     private String historicalReferences;
 

@@ -1,27 +1,20 @@
 package com.webgis.ancientdata.utils;
 
 //Spring
-import com.webgis.ancientdata.road.Road;
+
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.model.Site;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Coordinates;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-import org.springframework.http.converter.json.GsonBuilderUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-//JSON
-import org.json.*;
-
-//Logging
-import org.slf4j.*;
-
-//Java
 import java.lang.reflect.Field;
-import java.util.*;
-
-//project components
-import com.webgis.ancientdata.site.Site;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Optional;
 
 //class to convert JSON object from repository to GeoJSON
 @Service
@@ -108,16 +101,20 @@ public class GeoJsonConverter {
 
     public JSONObject convertRoad(Optional<Road> roadOptional){
         JSONObject features = setUpGeoJSON();
-        Road road = roadOptional.get();
+        if(roadOptional.isPresent()){
+            Road road = roadOptional.get();
 
-        String [] propertyTypes = {
-                "id", "cat_nr", "name", "type", "typeDescription",
-                "location", "description", "date", "references",
-                "historicalReferences"};
+            String [] propertyTypes = {
+                    "id", "cat_nr", "name", "type", "typeDescription",
+                    "location", "description", "date", "references",
+                    "historicalReferences"};
 
-        JSONObject feature = roadParser(road, propertyTypes);
-        features.put("features", feature);
-        return features;
+            JSONObject feature = roadParser(road, propertyTypes);
+            features.put("features", feature);
+            return features;
+        } else {
+            return null;
+        }
     }
 
     private JSONObject setUpGeoJSON () {

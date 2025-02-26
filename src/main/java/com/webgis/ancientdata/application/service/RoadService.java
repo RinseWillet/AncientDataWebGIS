@@ -1,18 +1,20 @@
-package com.webgis.ancientdata.road;
+package com.webgis.ancientdata.application.service;
 
-import com.webgis.ancientdata.modernreference.ModernReference;
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.model.ModernReference;
+import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.repository.RoadRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.StreamSupport;
 
 
 @Service
@@ -129,6 +131,43 @@ public class RoadService {
             logger.warn("finding Modern References for road with id " + roadId + "failed because {}", String.valueOf(e));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
         }        
+    }
+
+    public LinkedHashMap getDashBoardData() throws NullPointerException{
+        Iterable<Road> roadIterable = findAll();
+
+        //count the amount of roads in total and per type in the DB
+        long total = 0;
+        AtomicInteger roadno = new AtomicInteger();
+        AtomicInteger possibleno = new AtomicInteger();
+        AtomicInteger hypotheticalno = new AtomicInteger();
+        AtomicInteger otherno = new AtomicInteger();
+        AtomicInteger hist_recno = new AtomicInteger();
+
+        total = StreamSupport.stream(roadIterable.spliterator(), false).count();
+        StreamSupport.stream(roadIterable.spliterator(), false).forEach(road -> {
+            if(road.getType().toString().equals("road")) {
+                roadno.getAndIncrement();
+            } else if (road.getType().toString().equals("possible road")){
+                possibleno.getAndIncrement();
+            } else if (road.getType().toString().equals("hypothetical route")){
+                hypotheticalno.getAndIncrement();
+            } else if (road.getType().toString().equals("hist_rec")){
+                hist_recno.getAndIncrement();
+            } else if (road.getType().toString().equals("other")){
+                otherno.getAndIncrement();
+            }
+        });
+
+        LinkedHashMap hashMap = new LinkedHashMap();
+        hashMap.put("total amount of roads", total);
+        hashMap.put("roads", roadno);
+        hashMap.put("possible roads", possibleno);
+        hashMap.put("hypothetical routes", hypotheticalno);
+        hashMap.put("hist_rec", hist_recno);
+        hashMap.put("others", otherno);
+
+        return hashMap;
     }
 
     private List<ModernReferenceDTO> getModernReferenceDTOList (List<ModernReference> modernReferenceList) {

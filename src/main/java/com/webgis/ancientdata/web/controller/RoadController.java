@@ -1,10 +1,11 @@
-package com.webgis.ancientdata.road;
+package com.webgis.ancientdata.web.controller;
 
-import com.webgis.ancientdata.modernreference.ModernReferenceDTO;
-
+import com.webgis.ancientdata.application.service.RoadService;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -32,5 +33,12 @@ public class RoadController {
     @GetMapping("/modref/{id}")
     public List<ModernReferenceDTO> findModernReferencesByRoadId(@PathVariable long id) {
         return roadService.findModernReferencesByRoadId(id);
+    }
+
+    //this endpoint provides all the basic data on Roads in the database: The number of roads (total and per category),
+    //the amount of roads with ditches, the width of roads (min-max), TODO: length of roads per category
+    @GetMapping("/data/")
+    public LinkedHashMap getDashboardData(){
+        return roadService.getDashBoardData();
     }
 }
