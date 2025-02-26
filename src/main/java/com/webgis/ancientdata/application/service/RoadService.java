@@ -145,7 +145,7 @@ public class RoadService {
             Optional<Road> roadOptional = findById(roadId);
 
             if (roadOptional.isPresent()) {
-                Road road = findById(roadId).get();
+                Road road = roadOptional.get();
 
                 List<ModernReference> modernReferenceList = road.getModernReferenceList();
 
@@ -173,16 +173,12 @@ public class RoadService {
 
         total = StreamSupport.stream(roadIterable.spliterator(), false).count();
         StreamSupport.stream(roadIterable.spliterator(), false).forEach(road -> {
-            if (road.getType().toString().equals(ROAD)) {
-                roadno.getAndIncrement();
-            } else if (road.getType().toString().equals(POS_ROAD)) {
-                possibleno.getAndIncrement();
-            } else if (road.getType().toString().equals(HYP_ROUTE)) {
-                hypotheticalno.getAndIncrement();
-            } else if (road.getType().toString().equals(HIST_REC)) {
-                hist_recno.getAndIncrement();
-            } else if (road.getType().toString().equals(OTHER)) {
-                otherno.getAndIncrement();
+            switch (road.getType().toString()) {
+                case ROAD -> roadno.getAndIncrement();
+                case POS_ROAD -> possibleno.getAndIncrement();
+                case HYP_ROUTE -> hypotheticalno.getAndIncrement();
+                case HIST_REC -> hist_recno.getAndIncrement();
+                case OTHER -> otherno.getAndIncrement();
             }
         });
 

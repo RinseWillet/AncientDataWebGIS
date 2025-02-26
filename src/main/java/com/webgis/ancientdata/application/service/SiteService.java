@@ -78,15 +78,22 @@ public class SiteService {
 
     public Site update(long siteId, Site siteupdate) throws ResponseStatusException {
         try {
-            Site site = findById(siteId).get();
-            site.setProvince(siteupdate.getProvince());
-            site.setName(siteupdate.getName());
-            site.setGeom(siteupdate.getGeom());
-            site.setSiteType(siteupdate.getSiteType());
-            site.setStatus(siteupdate.getStatus());
-            site.setReferences(siteupdate.getReferences());
-            site.setDescription(siteupdate.getDescription());
-            return save(site);
+            Optional<Site> siteOptional = findById(siteId);
+            if (siteOptional.isPresent()) {
+                Site site = siteOptional.get();
+                site.setProvince(siteupdate.getProvince());
+                site.setName(siteupdate.getName());
+                site.setGeom(siteupdate.getGeom());
+                site.setSiteType(siteupdate.getSiteType());
+                site.setStatus(siteupdate.getStatus());
+                site.setReferences(siteupdate.getReferences());
+                site.setDescription(siteupdate.getDescription());
+                return save(site);
+            } else {
+                logger.warn("site was not found");
+                return null;
+            }
+
         } catch (Exception e) {
             logger.warn("updating site failed: {}", String.valueOf(e));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
@@ -95,14 +102,20 @@ public class SiteService {
 
     public Site addModernReferenceToSite(long siteId, ModernReferenceDTO modernReferenceDTO) {
         try {
-            Site site = findById(siteId).get();
+            Optional<Site> siteOptional = findById(siteId);
+            if (siteOptional.isPresent()) {
+                Site site = siteOptional.get();
 
-            ModernReference modernReference = new ModernReference(
-                    modernReferenceDTO.getShortRef(),
-                    modernReferenceDTO.getFullRef(),
-                    modernReferenceDTO.getURL());
-            site.addModernReference(modernReference);
-            return siteRepository.save(site);
+                ModernReference modernReference = new ModernReference(
+                        modernReferenceDTO.getShortRef(),
+                        modernReferenceDTO.getFullRef(),
+                        modernReferenceDTO.getURL());
+                site.addModernReference(modernReference);
+                return siteRepository.save(site);
+            } else {
+                logger.warn("site was not found");
+                return null;
+            }
         } catch (Exception e) {
             logger.warn("adding Modern Reference to site failed: {}", String.valueOf(e));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
@@ -113,18 +126,24 @@ public class SiteService {
     //roads and modernrefs
     public List<ModernReferenceDTO> findModernReferencesBySiteId(long siteId) {
         try {
-            Site site = findById(siteId).get();
+            Optional<Site> siteOptional = findById(siteId);
+            if (siteOptional.isPresent()) {
+                Site site = siteOptional.get();
 
-            List<ModernReference> modernReferenceList = site.getModernReferenceList();
+                List<ModernReference> modernReferenceList = site.getModernReferenceList();
 
-            return getModernReferenceDTOList(modernReferenceList);
+                return getModernReferenceDTOList(modernReferenceList);
+            } else {
+                logger.warn("site was not found");
+                return null;
+            }
         } catch (Exception e) {
             logger.warn("finding Modern References for site with id " + siteId + "failed because {}", String.valueOf(e));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
         }
     }
 
-    private List<ModernReferenceDTO> getModernReferenceDTOList (List<ModernReference> modernReferenceList) {
+    private List<ModernReferenceDTO> getModernReferenceDTOList(List<ModernReference> modernReferenceList) {
 
         List<ModernReferenceDTO> modernReferenceDTOList = new ArrayList<>();
 
