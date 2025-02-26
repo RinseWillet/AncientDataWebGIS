@@ -25,6 +25,12 @@ public class RoadService {
 
     private final Logger logger = LoggerFactory.getLogger(RoadService.class);
 
+    private static final String ROAD = "road";
+    private static final String POS_ROAD = "possible road";
+    private static final String HYP_ROUTE = "hypothetical route";
+    private static final String HIST_REC = "hist_rec";
+    private static final String OTHER = "other";
+
     public RoadService(RoadRepository roadRepository) {
         this.roadRepository = roadRepository;
     }
@@ -167,15 +173,15 @@ public class RoadService {
 
         total = StreamSupport.stream(roadIterable.spliterator(), false).count();
         StreamSupport.stream(roadIterable.spliterator(), false).forEach(road -> {
-            if (road.getType().toString().equals("road")) {
+            if (road.getType().toString().equals(ROAD)) {
                 roadno.getAndIncrement();
-            } else if (road.getType().toString().equals("possible road")) {
+            } else if (road.getType().toString().equals(POS_ROAD)) {
                 possibleno.getAndIncrement();
-            } else if (road.getType().toString().equals("hypothetical route")) {
+            } else if (road.getType().toString().equals(HYP_ROUTE)) {
                 hypotheticalno.getAndIncrement();
-            } else if (road.getType().toString().equals("hist_rec")) {
+            } else if (road.getType().toString().equals(HIST_REC)) {
                 hist_recno.getAndIncrement();
-            } else if (road.getType().toString().equals("other")) {
+            } else if (road.getType().toString().equals(OTHER)) {
                 otherno.getAndIncrement();
             }
         });
