@@ -41,14 +41,14 @@ public class AuthService {
 
         userRepository.save(user);
         logger.info("User '{}' successfully registered with role '{}'", username, role);
-        return jwtUtil.generateToken(username);
+        return jwtUtil.generateToken(username, role.name());
     }
 
     public String authenticate(String username, String password) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent() && passwordEncoder.matches(password, userOptional.get().getPassword())) {
             logger.info("User '{}' successfully authenticated", username);
-            return jwtUtil.generateToken(username);
+            return jwtUtil.generateToken(username, userOptional.get().getRole().name());
         }
         logger.warn("Authentication failed for user '{}'", username);
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
