@@ -1,13 +1,17 @@
 package com.webgis.ancientdata.application.service;
 
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.dto.RoadDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.domain.repository.RoadRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,10 +24,10 @@ import java.util.stream.StreamSupport;
 @Service
 public class RoadService {
 
-    @Autowired
     private final RoadRepository roadRepository;
-
     private final Logger logger = LoggerFactory.getLogger(RoadService.class);
+    private final GeometryFactory geometryFactory = new GeometryFactory();
+
 
     private static final String ROAD = "road";
     private static final String POS_ROAD = "possible road";
@@ -35,178 +39,180 @@ public class RoadService {
         this.roadRepository = roadRepository;
     }
 
+    //methods accessible for all roles
+
     public Iterable<Road> findAll() {
-        logger.info("Finding all roads");
+        logger.info("Retrieving all roads");
         return roadRepository.findAll();
     }
 
     public String findAllGeoJson() {
-        GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
-        return geoJsonConverter.convertRoads(findAll()).toString();
+        logger.info("Retrieving all roads and converting to GeoJSON");
+        return new GeoJsonConverter().convertRoads(findAll()).toString();
     }
 
     public Optional<Road> findById(long id) {
         logger.info("find road id : {}", id);
-
-        Optional<Road> roadOptional = roadRepository.findById(id);
-        if (roadOptional.isEmpty()) {
-            logger.warn("road wit id {} not found", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("Road with id " + id + "not found"));
-        }
-        return roadOptional;
+        return roadRepository.findById(id)
+                .or(() -> {
+                    logger.warn("Road with id {} not found", id);
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+                });
     }
 
     public String findByIdGeoJson(long id) throws NoSuchElementException {
-        try {
-            GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
-            return geoJsonConverter.convertRoad(findById(id)).toString();
-        } catch (Exception e) {
-            logger.warn("road {} not found ", id);
-            return "not found";
-        }
+        return new GeoJsonConverter().convertRoad(findById(id)).toString();
     }
 
-    public Road save(Road road) {
+    //protected methods
+
+    public Road save(RoadDTO roadDTO) {
+        if (roadDTO.getGeom() == null || roadDTO.getName() == null || roadDTO.getType() == null) {
+            logger.error("Invalid road data: Missing required fields");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing required fields");
+        }
         try {
-            logger.info("saving road : {}", road);
+            Road road = new Road();
+            road.setName(roadDTO.getName());
+            road.setGeom(convertWktToGeometry(roadDTO.getGeom()));
+            road.setType(roadDTO.getType());
+            road.setTypeDescription(roadDTO.getTypeDescription());
+            road.setLocation(roadDTO.getLocation());
+            road.setDescription(roadDTO.getDescription());
+            road.setDate(roadDTO.getDate());
+
+            logger.info("Savind road: {}", road);
             return roadRepository.save(road);
-        } catch (NullPointerException e) {
-            if (road.getGeom() == null) {
-                logger.error("for road: {} - no geometry is present", road);
-            }
-            if (road.getName() == null) {
-                logger.error("for road: {} - no value for name is entered", road);
-            }
-            if (road.getType() == null) {
-                logger.error("for road: {} - no value for type is entered", road);
-            }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "values missing", e);
+        } catch (ParseException e) {
+            logger.error("Invalid WKT geometry format: {}", roadDTO.getGeom());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
         } catch (Exception e) {
-            logger.warn("saving road failed: {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "duplicate value", e);
+            logger.warn("Saving road failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Duplicate value", e);
         }
     }
 
-    public Road update(long roadId, Road roadupdate) throws ResponseStatusException {
+    public Road update(long roadId, RoadDTO roadDTO) {
         try {
-
             Optional<Road> roadOptional = findById(roadId);
             if (roadOptional.isPresent()) {
                 Road road = roadOptional.get();
-                road.setName(roadupdate.getName());
-                road.setGeom(roadupdate.getGeom());
-                road.setType(roadupdate.getType());
-                road.setTypeDescription(roadupdate.getTypeDescription());
-                road.setLocation(roadupdate.getLocation());
-                road.setDescription(roadupdate.getDescription());
-                road.setDate(roadupdate.getDate());
-                road.setReferences(roadupdate.getReferences());
-                road.setHistoricalReferences(roadupdate.getHistoricalReferences());
-                return save(road);
-            } else {
-                logger.warn("updating road failed");
-                return null;
-            }
-        } catch (Exception e) {
-            logger.warn("updating road failed: {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }
-    }
+                road.setName(roadDTO.getName());
+                road.setGeom(convertWktToGeometry(roadDTO.getGeom()));
+                road.setType(roadDTO.getType());
+                road.setTypeDescription(roadDTO.getTypeDescription());
+                road.setLocation(roadDTO.getLocation());
+                road.setDescription(roadDTO.getDescription());
+                road.setDate(roadDTO.getDate());
 
-    public Road addModernReferenceToRoad(long roadId, ModernReferenceDTO modernReferenceDTO) {
-        try {
-            Optional<Road> roadOptional = findById(roadId);
-
-            if (roadOptional.isPresent()) {
-                Road road = roadOptional.get();
-
-                ModernReference modernReference = new ModernReference(
-                        modernReferenceDTO.getShortRef(),
-                        modernReferenceDTO.getFullRef(),
-                        modernReferenceDTO.getURL());
-                road.addModernReference(modernReference);
+                logger.info("Updating road: {}", road);
                 return roadRepository.save(road);
             } else {
-                logger.warn("updating road failed");
-                return null;
+                logger.warn("Road with ID {} not found for update", roadId);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
             }
+        } catch (ParseException e) {
+            logger.error("Invalid WKT geometry format: {}", roadDTO.getGeom());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
         } catch (Exception e) {
-            logger.warn("adding Modern Reference to road failed: {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
+            logger.warn("Updating road failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error updating road", e);
         }
     }
+
+    //protected - ADMIN ONLY
+
+    public void delete(long roadId) {
+        if (!roadRepository.existsById(roadId)) {
+            logger.warn("Road with ID {} not found for deletion", roadId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+        }
+        roadRepository.deleteById(roadId);
+        logger.info("Deleter road with ID {}", roadId);
+    }
+
+    //protected
+
+    public Road addModernReferenceToRoad(long roadId, ModernReferenceDTO modernReferenceDTO) {
+        return roadRepository.findById(roadId).map(road -> {
+            ModernReference modernReference = new ModernReference(
+                    modernReferenceDTO.getShortRef(),
+                    modernReferenceDTO.getFullRef(),
+                    modernReferenceDTO.getURL()
+            );
+            road.addModernReference(modernReference);
+            logger.info("Added modern reference to road ID {}", roadId);
+            return roadRepository.save(road);
+        }).orElseThrow(() -> {
+            logger.warn("Road with ID {} not found to add a modern reference to", roadId);
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+        });
+    }
+
+    //methods accessible for all roles
 
     //Parsing into DTO to prevent infinite regressing due to bidirectional many-to-many relationship
     //roads and modernrefs
     public List<ModernReferenceDTO> findModernReferencesByRoadId(long roadId) {
-        try {
-
-            Optional<Road> roadOptional = findById(roadId);
-
-            if (roadOptional.isPresent()) {
-                Road road = roadOptional.get();
-
-                List<ModernReference> modernReferenceList = road.getModernReferenceList();
-
-                return getModernReferenceDTOList(modernReferenceList);
-            } else {
-                logger.warn("updating road failed");
-                return null;
-            }
-        } catch (Exception e) {
-            logger.warn("finding Modern References for road with id " + roadId + "failed because {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }
+        return roadRepository.findById(roadId)
+                .map(road -> getModernReferenceDTOList(road.getModernReferenceList()))
+                .orElseThrow(() -> {
+                    logger.warn("Road with ID {} not found", roadId);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+                });
     }
 
-    public LinkedHashMap getDashBoardData() throws NullPointerException {
+    public LinkedHashMap<String, Object> getDashBoardData() throws NullPointerException {
         Iterable<Road> roadIterable = findAll();
 
         //count the amount of roads in total and per type in the DB
-        long total = 0;
-        AtomicInteger roadno = new AtomicInteger();
-        AtomicInteger possibleno = new AtomicInteger();
-        AtomicInteger hypotheticalno = new AtomicInteger();
-        AtomicInteger otherno = new AtomicInteger();
-        AtomicInteger hist_recno = new AtomicInteger();
+        AtomicInteger roadCount = new AtomicInteger();
+        AtomicInteger possibleCount = new AtomicInteger();
+        AtomicInteger hypotheticalCount = new AtomicInteger();
+        AtomicInteger otherCount = new AtomicInteger();
+        AtomicInteger historicalCount = new AtomicInteger();
 
-        total = StreamSupport.stream(roadIterable.spliterator(), false).count();
+        long total = StreamSupport.stream(roadIterable.spliterator(), false).count();
         StreamSupport.stream(roadIterable.spliterator(), false).forEach(road -> {
             switch (road.getType().toString()) {
-                case ROAD -> roadno.getAndIncrement();
-                case POS_ROAD -> possibleno.getAndIncrement();
-                case HYP_ROUTE -> hypotheticalno.getAndIncrement();
-                case HIST_REC -> hist_recno.getAndIncrement();
-                case OTHER -> otherno.getAndIncrement();
+                case ROAD -> roadCount.getAndIncrement();
+                case POS_ROAD -> possibleCount.getAndIncrement();
+                case HYP_ROUTE -> hypotheticalCount.getAndIncrement();
+                case HIST_REC -> historicalCount.getAndIncrement();
+                case OTHER -> otherCount.getAndIncrement();
             }
         });
 
-        LinkedHashMap hashMap = new LinkedHashMap();
-        hashMap.put("total amount of roads", total);
-        hashMap.put("roads", roadno);
-        hashMap.put("possible roads", possibleno);
-        hashMap.put("hypothetical routes", hypotheticalno);
-        hashMap.put("hist_rec", hist_recno);
-        hashMap.put("others", otherno);
+        LinkedHashMap<String, Object> data = new LinkedHashMap();
+        data.put("total_roads", total);
+        data.put("confirmed_roads", roadCount.get());
+        data.put("possible_roads", possibleCount.get());
+        data.put("hypothetical_routes", hypotheticalCount.get());
+        data.put("historical_recorded", historicalCount.get());
+        data.put("other", otherCount.get());
 
-        return hashMap;
+        logger.info("Dashboard data retrieved");
+
+        return data;
     }
 
     private List<ModernReferenceDTO> getModernReferenceDTOList(List<ModernReference> modernReferenceList) {
-
         List<ModernReferenceDTO> modernReferenceDTOList = new ArrayList<>();
-
         for (ModernReference modernReference : modernReferenceList) {
-            ModernReferenceDTO modernReferenceDTO = new ModernReferenceDTO(
+            modernReferenceDTOList.add(new ModernReferenceDTO(
                     modernReference.getId(),
                     modernReference.getShortRef(),
                     modernReference.getFullRef(),
                     modernReference.getURL()
-            );
+            ));
 
-            modernReferenceDTOList.add(modernReferenceDTO);
         }
         return modernReferenceDTOList;
     }
+
+    private MultiLineString convertWktToGeometry(String wkt) throws ParseException {
+        WKTReader reader = new WKTReader(geometryFactory);
+        return (MultiLineString) reader.read(wkt);
+    }
+
 }
