@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,10 +33,12 @@ public class ModernReference {
     private String URL;
 
     //child
+    @JsonIgnore
     @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)
     private List<Road> roadList;
 
     //child
+    @JsonIgnore
     @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)
     private List<Site> siteList;
 
@@ -70,5 +73,3 @@ public class ModernReference {
         this.siteList.add(site);
     }
 }
-
-

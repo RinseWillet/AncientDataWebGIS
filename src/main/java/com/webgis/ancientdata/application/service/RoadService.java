@@ -73,6 +73,7 @@ public class RoadService {
         }
         try {
             Road road = new Road();
+            road.setCat_nr(roadDTO.getCat_nr());
             road.setName(roadDTO.getName());
             road.setGeom(convertWktToGeometry(roadDTO.getGeom()));
             road.setType(roadDTO.getType());
@@ -81,7 +82,7 @@ public class RoadService {
             road.setDescription(roadDTO.getDescription());
             road.setDate(roadDTO.getDate());
 
-            logger.info("Savind road: {}", road);
+            logger.info("Saving road: {}", road);
             return roadRepository.save(road);
         } catch (ParseException e) {
             logger.error("Invalid WKT geometry format: {}", roadDTO.getGeom());
@@ -97,6 +98,7 @@ public class RoadService {
             Optional<Road> roadOptional = findById(roadId);
             if (roadOptional.isPresent()) {
                 Road road = roadOptional.get();
+                road.setCat_nr(roadDTO.getCat_nr());
                 road.setName(roadDTO.getName());
                 road.setGeom(convertWktToGeometry(roadDTO.getGeom()));
                 road.setType(roadDTO.getType());
@@ -128,7 +130,7 @@ public class RoadService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
         }
         roadRepository.deleteById(roadId);
-        logger.info("Deleter road with ID {}", roadId);
+        logger.info("Delete road with ID {}", roadId);
     }
 
     //protected

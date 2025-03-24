@@ -4,6 +4,7 @@ import com.webgis.ancientdata.application.service.RoadService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
 import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.web.mapper.RoadMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,9 +53,9 @@ public class RoadController {
     //protected endpoints - USER / ADMIN roles only
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<Road> createRoad(@RequestBody RoadDTO roadDTO) {
+    public ResponseEntity<RoadDTO> createRoad(@RequestBody RoadDTO roadDTO) {
         Road road = roadService.save(roadDTO);
-        return ResponseEntity.ok(road);
+        return ResponseEntity.ok(RoadMapper.toDto(road));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
