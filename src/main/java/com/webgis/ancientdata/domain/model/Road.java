@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +25,7 @@ public class Road {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @Min(value = 1, message = "Catalog number must be greater than 0")
     @Column(name="cat_nr")
@@ -68,6 +69,7 @@ public class Road {
     private String historicalReferences;
 
     //parent
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "modernrefs_roads_mapping",
     joinColumns = @JoinColumn(name="road_id", referencedColumnName = "id"),

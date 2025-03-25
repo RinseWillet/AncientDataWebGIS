@@ -1,11 +1,17 @@
 package com.webgis.ancientdata.application.service;
 
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.domain.repository.SiteRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.json.JSONObject;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,10 +27,13 @@ import java.util.Optional;
 public class SiteService {
 
     private final SiteRepository siteRepository;
+    private final ModernReferenceRepository modernReferenceRepository;
     private final Logger logger = LoggerFactory.getLogger(SiteService.class);
+    private final GeometryFactory geometryFactory = new GeometryFactory();
 
-    public SiteService(SiteRepository siteRepository) {
+    public SiteService(SiteRepository siteRepository, ModernReferenceRepository modernReferenceRepository) {
         this.siteRepository = siteRepository;
+        this.modernReferenceRepository = modernReferenceRepository;
     }
 
     public Iterable<Site> findAll() {
@@ -55,70 +64,91 @@ public class SiteService {
         }
     }
 
-    public Site save(Site site) {
+    public Site save(SiteDTO siteDTO) {
         try {
-            logger.info("saving site : {}", site);
+            Site site = new Site();
+            site.setPleiadesId(siteDTO.getPleiadesId());
+            site.setName(siteDTO.getName());
+            site.setGeom(convertWktToPoint(siteDTO.getGeom()));
+            site.setProvince(siteDTO.getProvince());
+            site.setSiteType(siteDTO.getSiteType());
+            site.setStatus(siteDTO.getStatus());
+            site.setReferences(siteDTO.getReferences());
+            site.setDescription(siteDTO.getDescription());
+
+            logger.info("saving site (DTO): {}", site);
             return siteRepository.save(site);
         } catch (NullPointerException e) {
-            if (site.getGeom() == null) {
-                logger.error("for site: {} - no geometry is present", site);
-            }
-            if (site.getName() == null) {
-                logger.error("for site: {} - no value for name is entered", site);
-            }
-            if (site.getSiteType() == null) {
-                logger.error("for site: {} - no value for type is entered", site);
-            }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "values missing", e);
+            logger.error("Missing required field in siteDTO: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing required fields", e);
+        } catch (ParseException e) {
+            logger.error("Invalid WKT: {}", siteDTO.getGeom());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid geometry", e);
         } catch (Exception e) {
-            logger.warn("saving site failed: {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "duplicate value", e);
+            logger.warn("saving site (DTO) failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Duplicate value", e);
         }
     }
 
-    public Site update(long siteId, Site siteupdate) throws ResponseStatusException {
+    public Site update(Long id, SiteDTO siteDTO) {
         try {
-            Optional<Site> siteOptional = findById(siteId);
+            Optional<Site> siteOptional = findById(id);
             if (siteOptional.isPresent()) {
                 Site site = siteOptional.get();
-                site.setProvince(siteupdate.getProvince());
-                site.setName(siteupdate.getName());
-                site.setGeom(siteupdate.getGeom());
-                site.setSiteType(siteupdate.getSiteType());
-                site.setStatus(siteupdate.getStatus());
-                site.setReferences(siteupdate.getReferences());
-                site.setDescription(siteupdate.getDescription());
-                return save(site);
-            } else {
-                logger.warn("site was not found");
-                return null;
-            }
+                site.setPleiadesId(siteDTO.getPleiadesId());
+                site.setName(siteDTO.getName());
+                site.setGeom(convertWktToPoint(siteDTO.getGeom()));
+                site.setProvince(siteDTO.getProvince());
+                site.setSiteType(siteDTO.getSiteType());
+                site.setStatus(siteDTO.getStatus());
+                site.setReferences(siteDTO.getReferences());
+                site.setDescription(siteDTO.getDescription());
 
-        } catch (Exception e) {
-            logger.warn("updating site failed: {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }
-    }
-
-    public Site addModernReferenceToSite(long siteId, ModernReferenceDTO modernReferenceDTO) {
-        try {
-            Optional<Site> siteOptional = findById(siteId);
-            if (siteOptional.isPresent()) {
-                Site site = siteOptional.get();
-
-                ModernReference modernReference = new ModernReference(
-                        modernReferenceDTO.getShortRef(),
-                        modernReferenceDTO.getFullRef(),
-                        modernReferenceDTO.getURL());
-                site.addModernReference(modernReference);
+                logger.info("updating site (DTO): {}", site);
                 return siteRepository.save(site);
             } else {
-                logger.warn("site was not found");
-                return null;
+                logger.warn("site with ID {} not found for update", id);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found");
             }
+        } catch (ParseException e) {
+            logger.error("Invalid WKT geometry format: {}", siteDTO.getGeom());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
         } catch (Exception e) {
-            logger.warn("adding Modern Reference to site failed: {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
+            logger.warn("updating site failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error updating site", e);
+        }
+    }
+
+    public void delete(Long id) {
+        if (!siteRepository.existsById(id)) {
+            logger.warn("Site with ID {} not found for deletion", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found");
+        }
+        siteRepository.deleteById(id);
+        logger.info("Deleted site with ID {}", id);
+    }
+
+    public Site addModernReferenceToSite(long siteId, ModernReferenceDTO dto) {
+        try {
+            Site site = findById(siteId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found"));
+
+            ModernReference modernReference;
+
+            if (dto.getId() != null) {
+                modernReference = modernReferenceRepository.findById(dto.getId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ModernReference not found"));
+            } else {
+                modernReference = new ModernReference(dto.getShortRef(), dto.getFullRef(), dto.getUrl());
+            }
+
+            site.addModernReference(modernReference);
+            logger.info("Added modern reference to site ID {}", siteId);
+            return siteRepository.save(site);
+
+        } catch (Exception e) {
+            logger.warn("adding Modern Reference to site failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error adding reference to site", e);
         }
     }
 
@@ -152,11 +182,16 @@ public class SiteService {
                     modernReference.getId(),
                     modernReference.getShortRef(),
                     modernReference.getFullRef(),
-                    modernReference.getURL()
+                    modernReference.getUrl()
             );
 
             modernReferenceDTOList.add(modernReferenceDTO);
         }
         return modernReferenceDTOList;
+    }
+
+    private Point convertWktToPoint(String wkt) throws ParseException {
+        WKTReader reader = new WKTReader(geometryFactory);
+        return (Point) reader.read(wkt);
     }
 }

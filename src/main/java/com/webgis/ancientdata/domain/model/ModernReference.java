@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class ModernReference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     //abbreviation, e.g. Johnson 1980
     @Column(name = "short_ref")
@@ -29,21 +30,23 @@ public class ModernReference {
 
     //full title, e.g. J. Johnson 1980 "The history of Johnsons", in A. Alan and G. George (eds.), Overview of histories of names, Oxford, pp. 12-34
     @Column(name = "url")
-    private String URL;
+    private String url;
 
     //child
+    @JsonIgnore
     @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)
     private List<Road> roadList;
 
     //child
+    @JsonIgnore
     @ManyToMany(mappedBy = "modernReferenceList", fetch = FetchType.LAZY)
     private List<Site> siteList;
 
     //constructor
-    public ModernReference(String shortRef, String fullRef, String URL) {
+    public ModernReference(String shortRef, String fullRef, String url) {
         this.shortRef = shortRef;
         this.fullRef = fullRef;
-        this.URL = URL;
+        this.url = url;
     }
 
     public List<Road> getRoads(){
@@ -70,5 +73,3 @@ public class ModernReference {
         this.siteList.add(site);
     }
 }
-
-

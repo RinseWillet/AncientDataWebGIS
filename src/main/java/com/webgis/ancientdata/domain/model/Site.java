@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,8 @@ public class Site implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "id")
+    private Long id;
 
     @Column(name="pleiadesid")
     private Integer pleiadesId;
@@ -60,6 +62,7 @@ public class Site implements Serializable {
 //    private ArrayList<EpigraphicReference> epigraphicReferences;
 
     //parent
+    @JsonIgnore
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
     @JoinTable(name = "modernrefs_sites_mapping",
             joinColumns = @JoinColumn(name="site_id", referencedColumnName = "id"),

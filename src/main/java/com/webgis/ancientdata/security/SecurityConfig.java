@@ -2,16 +2,31 @@ package com.webgis.ancientdata.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
+
+    private final JwtFilter jwtFilter;
+    private final CustomUserDetailService userDetailService;
+
+    public SecurityConfig(JwtFilter jwtFilter, CustomUserDetailService userDetailService) {
+        this.jwtFilter = jwtFilter;
+        this.userDetailService = userDetailService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -19,14 +34,26 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(List.of(authenticationProvider));
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/roads/**").permitAll() // Guests can view
+                        .requestMatchers(HttpMethod.POST, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can add
+                        .requestMatchers(HttpMethod.PUT, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can update
+                        .requestMatchers(HttpMethod.DELETE, "/api/roads/**").hasRole("ADMIN") // Only ADMIN can delete
+                        .requestMatchers("/auth/register", "/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                .csrf(AbstractHttpConfigurer::disable) //disabled to use JWT
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for JWT
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session for JWT
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -36,9 +63,11 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpStatus.FORBIDDEN.value());
                             response.setContentType("application/json");
-                            response.getWriter().write("{ \"error\" : \"Forbidden\", \"message\": \"" + accessDeniedException.getMessage() + "\" }");
+                            response.getWriter().write("{ \"error\": \"Forbidden\", \"message\": \"" + accessDeniedException.getMessage() + "\" }");
                         })
-                );
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return httpSecurity.build();
     }
 }
