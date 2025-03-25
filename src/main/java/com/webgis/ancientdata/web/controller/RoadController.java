@@ -60,9 +60,9 @@ public class RoadController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Road> updateRoad(@PathVariable long id, @RequestBody RoadDTO roadDTO) {
+    public ResponseEntity<RoadDTO> updateRoad(@PathVariable long id, @RequestBody RoadDTO roadDTO) {
         Road updatedRoad = roadService.update(id, roadDTO);
-        return ResponseEntity.ok(updatedRoad);
+        return ResponseEntity.ok(RoadMapper.toDto(updatedRoad));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

@@ -140,7 +140,7 @@ public class RoadService {
             ModernReference modernReference = new ModernReference(
                     modernReferenceDTO.getShortRef(),
                     modernReferenceDTO.getFullRef(),
-                    modernReferenceDTO.getURL()
+                    modernReferenceDTO.getUrl()
             );
             road.addModernReference(modernReference);
             logger.info("Added modern reference to road ID {}", roadId);
@@ -205,7 +205,7 @@ public class RoadService {
                     modernReference.getId(),
                     modernReference.getShortRef(),
                     modernReference.getFullRef(),
-                    modernReference.getURL()
+                    modernReference.getUrl()
             ));
 
         }

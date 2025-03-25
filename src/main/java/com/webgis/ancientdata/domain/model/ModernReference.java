@@ -18,7 +18,7 @@ public class ModernReference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     //abbreviation, e.g. Johnson 1980
     @Column(name = "short_ref")
@@ -30,7 +30,7 @@ public class ModernReference {
 
     //full title, e.g. J. Johnson 1980 "The history of Johnsons", in A. Alan and G. George (eds.), Overview of histories of names, Oxford, pp. 12-34
     @Column(name = "url")
-    private String URL;
+    private String url;
 
     //child
     @JsonIgnore
@@ -43,10 +43,10 @@ public class ModernReference {
     private List<Site> siteList;
 
     //constructor
-    public ModernReference(String shortRef, String fullRef, String URL) {
+    public ModernReference(String shortRef, String fullRef, String url) {
         this.shortRef = shortRef;
         this.fullRef = fullRef;
-        this.URL = URL;
+        this.url = url;
     }
 
     public List<Road> getRoads(){
