@@ -4,6 +4,7 @@ import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.domain.repository.RoadRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -25,6 +26,7 @@ import java.util.stream.StreamSupport;
 public class RoadService {
 
     private final RoadRepository roadRepository;
+    private final ModernReferenceRepository modernReferenceRepository;
     private final Logger logger = LoggerFactory.getLogger(RoadService.class);
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
@@ -35,8 +37,9 @@ public class RoadService {
     private static final String HIST_REC = "hist_rec";
     private static final String OTHER = "other";
 
-    public RoadService(RoadRepository roadRepository) {
+    public RoadService(RoadRepository roadRepository, ModernReferenceRepository modernReferenceRepository) {
         this.roadRepository = roadRepository;
+        this.modernReferenceRepository = modernReferenceRepository;
     }
 
     //methods accessible for all roles
@@ -135,16 +138,21 @@ public class RoadService {
 
     //protected
 
-    public Road addModernReferenceToRoad(long roadId, ModernReferenceDTO modernReferenceDTO) {
+    public Road addModernReferenceToRoad(long roadId, ModernReferenceDTO dto) {
         return roadRepository.findById(roadId).map(road -> {
-            ModernReference modernReference = new ModernReference(
-                    modernReferenceDTO.getShortRef(),
-                    modernReferenceDTO.getFullRef(),
-                    modernReferenceDTO.getUrl()
-            );
+            ModernReference modernReference;
+
+            if (dto.getId() != null) {
+                modernReference = modernReferenceRepository.findById(dto.getId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ModernReference not found"));
+            } else {
+                modernReference = new ModernReference(dto.getShortRef(), dto.getFullRef(), dto.getUrl());
+            }
+
             road.addModernReference(modernReference);
             logger.info("Added modern reference to road ID {}", roadId);
             return roadRepository.save(road);
+
         }).orElseThrow(() -> {
             logger.warn("Road with ID {} not found to add a modern reference to", roadId);
             return new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");

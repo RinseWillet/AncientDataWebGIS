@@ -61,5 +61,16 @@ public class SiteController {
         siteService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/{id}/modern-reference")
+    public ResponseEntity<SiteDTO> addModernReference(
+            @PathVariable Long id,
+            @Valid @RequestBody ModernReferenceDTO referenceDTO
+    ) {
+        Site updatedSite = siteService.addModernReferenceToSite(id, referenceDTO);
+        return ResponseEntity.ok(SiteMapper.toDto(updatedSite));
+    }
+
 }
 

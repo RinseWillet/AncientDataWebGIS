@@ -4,6 +4,7 @@ import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.domain.repository.SiteRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.json.JSONObject;
@@ -26,11 +27,13 @@ import java.util.Optional;
 public class SiteService {
 
     private final SiteRepository siteRepository;
+    private final ModernReferenceRepository modernReferenceRepository;
     private final Logger logger = LoggerFactory.getLogger(SiteService.class);
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
-    public SiteService(SiteRepository siteRepository) {
+    public SiteService(SiteRepository siteRepository, ModernReferenceRepository modernReferenceRepository) {
         this.siteRepository = siteRepository;
+        this.modernReferenceRepository = modernReferenceRepository;
     }
 
     public Iterable<Site> findAll() {
@@ -125,25 +128,27 @@ public class SiteService {
         logger.info("Deleted site with ID {}", id);
     }
 
-    public Site addModernReferenceToSite(long siteId, ModernReferenceDTO modernReferenceDTO) {
+    public Site addModernReferenceToSite(long siteId, ModernReferenceDTO dto) {
         try {
-            Optional<Site> siteOptional = findById(siteId);
-            if (siteOptional.isPresent()) {
-                Site site = siteOptional.get();
+            Site site = findById(siteId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found"));
 
-                ModernReference modernReference = new ModernReference(
-                        modernReferenceDTO.getShortRef(),
-                        modernReferenceDTO.getFullRef(),
-                        modernReferenceDTO.getUrl());
-                site.addModernReference(modernReference);
-                return siteRepository.save(site);
+            ModernReference modernReference;
+
+            if (dto.getId() != null) {
+                modernReference = modernReferenceRepository.findById(dto.getId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ModernReference not found"));
             } else {
-                logger.warn("site was not found");
-                return null;
+                modernReference = new ModernReference(dto.getShortRef(), dto.getFullRef(), dto.getUrl());
             }
+
+            site.addModernReference(modernReference);
+            logger.info("Added modern reference to site ID {}", siteId);
+            return siteRepository.save(site);
+
         } catch (Exception e) {
-            logger.warn("adding Modern Reference to site failed: {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
+            logger.warn("adding Modern Reference to site failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error adding reference to site", e);
         }
     }
 

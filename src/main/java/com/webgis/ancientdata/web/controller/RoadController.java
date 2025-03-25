@@ -28,14 +28,14 @@ public class RoadController {
     //endpoint to find all roads and return GeoJSON String for mapping in the front-end
     //info passed (when present): id, name, type, date, geometrie(s)
     @GetMapping("/all")
-    public ResponseEntity<String> findAllGeoJson(){
+    public ResponseEntity<String> findAllGeoJson() {
         return ResponseEntity.ok(roadService.findAllGeoJson());
     }
 
     //find road by id - info passed as geojson String object containing (when present):
     //id, name, type, typeDescription, location, description, date, references, historical references
     @GetMapping("/{id}")
-    public ResponseEntity<String> findByIdGeoJson(@PathVariable long id){
+    public ResponseEntity<String> findByIdGeoJson(@PathVariable long id) {
         return ResponseEntity.ok(roadService.findByIdGeoJson(id));
     }
 
@@ -47,7 +47,7 @@ public class RoadController {
     //this endpoint provides all the basic data on Roads in the database: The number of roads (total and per category),
     //the amount of roads with ditches, the width of roads (min-max), TODO: length of roads per category
     @GetMapping("/data/")
-    public ResponseEntity<LinkedHashMap> getDashboardData(){
+    public ResponseEntity<LinkedHashMap> getDashboardData() {
         return ResponseEntity.ok(roadService.getDashBoardData());
     }
 
@@ -75,8 +75,11 @@ public class RoadController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/{id}/modern-reference")
-    public ResponseEntity<Road> addModernReference(@PathVariable long id, @RequestBody ModernReferenceDTO referenceDTO) {
+    public ResponseEntity<RoadDTO> addModernReference(
+            @PathVariable long id,
+            @Valid @RequestBody ModernReferenceDTO referenceDTO
+    ) {
         Road updatedRoad = roadService.addModernReferenceToRoad(id, referenceDTO);
-        return ResponseEntity.ok(updatedRoad);
+        return ResponseEntity.ok(RoadMapper.toDto(updatedRoad));
     }
 }
