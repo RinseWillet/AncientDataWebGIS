@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -53,14 +54,14 @@ public class RoadController {
     //protected endpoints - USER / ADMIN roles only
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<RoadDTO> createRoad(@RequestBody RoadDTO roadDTO) {
+    public ResponseEntity<RoadDTO> createRoad(@Valid @RequestBody RoadDTO roadDTO) {
         Road road = roadService.save(roadDTO);
         return ResponseEntity.ok(RoadMapper.toDto(road));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<RoadDTO> updateRoad(@PathVariable long id, @RequestBody RoadDTO roadDTO) {
+    public ResponseEntity<RoadDTO> updateRoad(@PathVariable long id, @Valid @RequestBody RoadDTO roadDTO) {
         Road updatedRoad = roadService.update(id, roadDTO);
         return ResponseEntity.ok(RoadMapper.toDto(updatedRoad));
     }

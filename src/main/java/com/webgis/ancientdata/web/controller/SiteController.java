@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -42,14 +43,14 @@ public class SiteController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<SiteDTO> createSite(@RequestBody SiteDTO siteDTO) {
+    public ResponseEntity<SiteDTO> createSite(@Valid @RequestBody SiteDTO siteDTO) {
         Site site = siteService.save(siteDTO);
         return ResponseEntity.ok(SiteMapper.toDto(site));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<SiteDTO> updateSite(@PathVariable Long id, @RequestBody SiteDTO siteDTO) {
+    public ResponseEntity<SiteDTO> updateSite(@PathVariable Long id, @Valid @RequestBody SiteDTO siteDTO) {
         Site site = siteService.update(id, siteDTO);
         return ResponseEntity.ok(SiteMapper.toDto(site));
     }

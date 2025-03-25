@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -41,14 +42,14 @@ public class ModernReferenceController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<ModernReferenceDTO> createReference(@RequestBody ModernReferenceDTO dto) {
+    public ResponseEntity<ModernReferenceDTO> createReference(@Valid @RequestBody ModernReferenceDTO dto) {
         ModernReference created = modernReferenceService.save(dto);
         return ResponseEntity.ok(ModernReferenceMapper.toDto(created));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<ModernReferenceDTO> updateReference(@PathVariable Long id, @RequestBody ModernReferenceDTO dto) {
+    public ResponseEntity<ModernReferenceDTO> updateReference(@PathVariable Long id, @Valid @RequestBody ModernReferenceDTO dto) {
         ModernReference updated = modernReferenceService.update(id, dto);
         return ResponseEntity.ok(ModernReferenceMapper.toDto(updated));
     }
