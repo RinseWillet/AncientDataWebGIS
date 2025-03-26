@@ -1,6 +1,8 @@
 package com.webgis.ancientdata;
 
+import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.utils.JsonUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONObject;
@@ -9,30 +11,16 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
-import java.lang.reflect.Field;
-import java.util.LinkedHashMap;
-
 public class RandomSiteGenerator {
-
-    private void setLinkedHashMap(JSONObject jsonObject) {
-        try {
-            Field changeMap = jsonObject.getClass().getDeclaredField("map");
-            changeMap.setAccessible(true);
-            changeMap.set(jsonObject, new LinkedHashMap<>());
-            changeMap.setAccessible(false);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            System.out.println("error");
-        }
-    }
 
     public Site generateRandomSite(){
         Integer pleiadesId = RandomUtils.nextInt();
         String name = RandomStringUtils.randomAlphabetic(10);
 
         //creating random point
-        Double x = RandomUtils.nextDouble(0, 180);
-        Double y = RandomUtils.nextDouble(0, 90);
-        Double z = RandomUtils.nextDouble(0, 3000);
+        double x = RandomUtils.nextDouble(0, 180);
+        double y = RandomUtils.nextDouble(0, 90);
+        double z = RandomUtils.nextDouble(0, 3000);
         Coordinate coordinate = new Coordinate(x,y,z);
         Coordinate [] coordinates = new Coordinate[]{coordinate};
         CoordinateArraySequence coordinateArraySequence = new CoordinateArraySequence(coordinates);
@@ -71,7 +59,7 @@ public class RandomSiteGenerator {
 
     private JSONObject generateRandomSiteGeoJONProperties (Site site) {
         JSONObject properties = new JSONObject();
-        setLinkedHashMap(properties);
+        JsonUtils.enforceLinkedHashMap(properties);
         properties.put("id", site.getId());
         properties.put("pleiadesId", site.getPleiadesId());
         properties.put("name", site.getName());
@@ -85,7 +73,7 @@ public class RandomSiteGenerator {
 
     private JSONObject generateRandomSiteGeoJONGeometry (Site site) {
         JSONObject geometry = new JSONObject();
-        setLinkedHashMap(geometry);
+        JsonUtils.enforceLinkedHashMap(geometry);
         geometry.put("type", "Point");
         Double [] coordsGeoJSON = {site.getGeom().getX(), site.getGeom().getY()};
         geometry.put("coordinates", coordsGeoJSON);
@@ -94,7 +82,7 @@ public class RandomSiteGenerator {
 
     private JSONObject generateRandomSiteGeoJSONFeature (JSONObject properties, JSONObject geometry) {
         JSONObject feature = new JSONObject();
-        setLinkedHashMap(feature);
+        JsonUtils.enforceLinkedHashMap(feature);
         feature.put("type", "Feature");
         feature.put("properties", properties);
         feature.put("geometry", geometry);
@@ -109,7 +97,7 @@ public class RandomSiteGenerator {
         JSONObject feature = generateRandomSiteGeoJSONFeature(properties, geometry);
 
         JSONObject siteGeoJSON = new JSONObject();
-        setLinkedHashMap(siteGeoJSON);
+        JsonUtils.enforceLinkedHashMap(siteGeoJSON);
         siteGeoJSON.put("type", "FeatureCollection");
         siteGeoJSON.put("features", feature);
 
@@ -120,7 +108,7 @@ public class RandomSiteGenerator {
 
         //setting up properties (simplified) for sites GeoJSON
         JSONObject properties = new JSONObject();
-        setLinkedHashMap(properties);
+        JsonUtils.enforceLinkedHashMap(properties);
         properties.put("id", site.getId());
         properties.put("name", site.getName());
         properties.put("siteType", site.getSiteType());
@@ -132,11 +120,24 @@ public class RandomSiteGenerator {
         JSONObject [] features = new JSONObject[]{feature};
 
         JSONObject sitesGeoJSON = new JSONObject();
-        setLinkedHashMap(sitesGeoJSON);
+        JsonUtils.enforceLinkedHashMap(sitesGeoJSON);
         sitesGeoJSON.put("type", "FeatureCollection");
         sitesGeoJSON.put("name", "sites");
         sitesGeoJSON.put("features", features);
 
         return sitesGeoJSON;
+    }
+
+    public SiteDTO toDTO(Site site) {
+        SiteDTO dto = new SiteDTO();
+        dto.setPleiadesId(site.getPleiadesId());
+        dto.setName(site.getName());
+        dto.setGeom(site.getGeom().toText()); // WKT
+        dto.setProvince(site.getProvince());
+        dto.setSiteType(site.getSiteType());
+        dto.setStatus(site.getStatus());
+        dto.setReferences(site.getReferences());
+        dto.setDescription(site.getDescription());
+        return dto;
     }
 }

@@ -58,6 +58,7 @@ public class SiteControllerTests {
         randomSiteGenerator = new RandomSiteGenerator();
 
         site = randomSiteGenerator.generateRandomSite();
+        site.setId(RandomUtils.nextLong(1, 1000));
         siteList.add(site);
         siteJSON = randomSiteGenerator.generateRandomSiteJSON(site);
 

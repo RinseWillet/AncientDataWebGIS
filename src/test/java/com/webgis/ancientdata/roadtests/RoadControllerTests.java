@@ -58,7 +58,7 @@ public class RoadControllerTests {
         roadList = new ArrayList<>();
         randomRoadGenerator = new RandomRoadGenerator();
         road = randomRoadGenerator.generateRandomRoad();
-
+        road.setId(RandomUtils.nextLong(1, 1000));
         roadList.add(road);
 
         roadJSON = randomRoadGenerator.generateRandomRoadJSON(road);

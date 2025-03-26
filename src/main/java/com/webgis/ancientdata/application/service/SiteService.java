@@ -113,6 +113,8 @@ public class SiteService {
         } catch (ParseException e) {
             logger.error("Invalid WKT geometry format: {}", siteDTO.getGeom());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.warn("updating site failed: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Error updating site", e);

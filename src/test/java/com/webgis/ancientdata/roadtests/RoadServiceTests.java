@@ -5,8 +5,10 @@ package com.webgis.ancientdata.roadtests;
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.application.service.RoadService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.dto.RoadDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
+import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.domain.repository.RoadRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,6 +22,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +46,9 @@ public class RoadServiceTests {
     private ModernReferenceDTO modernReferenceDTO;
     private List<ModernReferenceDTO> modernReferenceDTOList;
     private RandomRoadGenerator randomRoadGenerator;
+
+    @Mock
+    private ModernReferenceRepository modernReferenceRepository;
 
     @Mock
     private RoadRepository roadRepository;
@@ -59,6 +67,7 @@ public class RoadServiceTests {
         randomRoadGenerator = new RandomRoadGenerator();
 
         road = randomRoadGenerator.generateRandomRoad();
+        road.setId(RandomUtils.nextLong(1, 10000));
         roadList.add(road);
 
         //setting up GeoJSON
@@ -124,11 +133,6 @@ public class RoadServiceTests {
 
         String fetchedRoad = roadService.findByIdGeoJson(road.getId());
 
-        System.out.println("in de test:");
-        System.out.println(fetchedRoad);
-        System.out.println("en vanuit de RandomGenerator");
-        System.out.println(roadGeoJSON);
-
         assertEquals(fetchedRoad, String.valueOf(roadGeoJSON));
 
         verify(roadRepository, times(1)).findById(any());
@@ -167,19 +171,26 @@ public class RoadServiceTests {
 
     @Test
     public void shouldSaveRoad(){
+        RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
         when(roadRepository.save(any())).thenReturn(road);
 
-        assertEquals(roadService.save(road), road);
+        Road saved = roadService.save(roadDTO);
+
+        assertEquals(road.getName(), saved.getName());
+        assertEquals(road.getType(), saved.getType());
 
         verify(roadRepository, times(1)).save(any());
     }
 
     @Test
     public void shouldUpdateRoad(){
-        when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
+        RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
+        when(roadRepository.findById(road.getId())).thenReturn(Optional.of(road));
         when(roadRepository.save(any())).thenReturn(road);
 
-        assertEquals(roadService.update(road.getId(), road), road);
+        Road updated = roadService.update(road.getId(), roadDTO);
+
+        assertEquals(road.getName(), updated.getName());
 
         verify(roadRepository, times(1)).save(road);
         verify(roadRepository, times(1)).findById(road.getId());
@@ -196,12 +207,49 @@ public class RoadServiceTests {
 
     @Test
     public void shouldAddModernReferenceToRoad(){
-        when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
+        when(roadRepository.findById(road.getId())).thenReturn(Optional.of(road));
+        when(modernReferenceRepository.findById(modernReferenceDTO.getId())).thenReturn(Optional.of(modernReference));
         when(roadRepository.save(road)).thenReturn(road);
 
         assertEquals(roadService.addModernReferenceToRoad(road.getId(), modernReferenceDTO), road);
 
         verify(roadRepository, times(1)).findById(road.getId());
+        verify(modernReferenceRepository, times(1)).findById(modernReferenceDTO.getId());
         verify(roadRepository, times(1)).save(road);
+    }
+
+    @Test
+    public void shouldThrowOnMissingFieldsWhenSavingRoad() {
+        RoadDTO roadDTO = new RoadDTO();
+        roadDTO.setName("Via Error");  // missing geom and type
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(roadDTO));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+    }
+
+    @Test
+    public void shouldThrowOnInvalidGeometry() {
+        RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
+        roadDTO.setGeom("INVALID_WKT");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(roadDTO));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+    }
+
+    @Test
+    public void shouldThrowWhenUpdatingNonexistentRoad() {
+        RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
+        when(roadRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.update(9999L, roadDTO));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    public void shouldThrowWhenDeletingNonexistentRoad() {
+        when(roadRepository.existsById(anyLong())).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.delete(9999L));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 }

@@ -119,6 +119,8 @@ public class RoadService {
         } catch (ParseException e) {
             logger.error("Invalid WKT geometry format: {}", roadDTO.getGeom());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.warn("Updating road failed: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Error updating road", e);
@@ -184,7 +186,7 @@ public class RoadService {
 
         long total = StreamSupport.stream(roadIterable.spliterator(), false).count();
         StreamSupport.stream(roadIterable.spliterator(), false).forEach(road -> {
-            switch (road.getType().toString()) {
+            switch (road.getType()) {
                 case ROAD -> roadCount.getAndIncrement();
                 case POS_ROAD -> possibleCount.getAndIncrement();
                 case HYP_ROUTE -> hypotheticalCount.getAndIncrement();
@@ -193,7 +195,7 @@ public class RoadService {
             }
         });
 
-        LinkedHashMap<String, Object> data = new LinkedHashMap();
+        LinkedHashMap<String, Object> data = new LinkedHashMap<>();
         data.put("total_roads", total);
         data.put("confirmed_roads", roadCount.get());
         data.put("possible_roads", possibleCount.get());
