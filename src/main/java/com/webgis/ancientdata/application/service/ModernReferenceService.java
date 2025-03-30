@@ -47,27 +47,18 @@ public class ModernReferenceService {
 
     public String findRoadsByModernReferenceIdAsGeoJSON(long id) {
         logger.info("finding all roads connected to modern reference id : {}", id);
-        try {
-            ModernReference modernReference = findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
-            List<Road> roadList = modernReference.getRoadList();
-            return new GeoJsonConverter().convertRoads(roadList).toString();
-        } catch (Exception e) {
-            logger.warn("finding roads for modern reference {} failed", id);
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }
+        ModernReference modernReference = findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
+        List<Road> roadList = modernReference.getRoadList();
+        return new GeoJsonConverter().convertRoads(roadList).toString();
     }
 
     public String findSitesByModernReferenceIdAsGeoJSON(long id) {
         logger.info("finding all sites connected to modern reference id : {}", id);
-        try {
-            ModernReference modernReference = findById(id).orElseThrow(
-                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
-            List<Site> siteList = modernReference.getSiteList();
-            return new GeoJsonConverter().convertSites(siteList).toString();
-        } catch (Exception e) {
-            logger.warn("finding sites for modern reference {} failed", id);
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }
+        ModernReference modernReference = findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
+        List<Site> siteList = modernReference.getSiteList();
+        return new GeoJsonConverter().convertSites(siteList).toString();
     }
 
     public ModernReference save(ModernReferenceDTO dto) {
@@ -75,6 +66,9 @@ public class ModernReferenceService {
             ModernReference modernReference = ModernReferenceMapper.toEntity(dto);
             logger.info("Saving modern reference: {}", modernReference);
             return modernReferenceRepository.save(modernReference);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid modern reference data: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_MODERN_REFERENCE, e);
         } catch (Exception e) {
             logger.error("Saving modern reference failed: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_SAVE_MODERN_REFERENCE, e);

@@ -1,9 +1,8 @@
 package com.webgis.ancientdata.roadtests;
 
-//MVC
-
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.application.service.RoadService;
+import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
@@ -219,12 +218,13 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldThrowOnMissingFieldsWhenSavingRoad() {
-        RoadDTO roadDTO = new RoadDTO();
-        roadDTO.setName("Via Error");  // missing geom and type
+    public void shouldThrowBadRequestWhenSavingRoadWithMissingFields() {
+        RoadDTO invalidDTO = new RoadDTO();
+        invalidDTO.setName("Via Error");  // Missing type and geom
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(roadDTO));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(invalidDTO));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertThat(exception.getReason()).isEqualTo(ErrorMessages.INVALID_ROAD_DATA);
     }
 
     @Test
@@ -234,6 +234,7 @@ public class RoadServiceTests {
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(roadDTO));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(ErrorMessages.INVALID_WKT_FORMAT, exception.getReason());
     }
 
     @Test
@@ -243,6 +244,7 @@ public class RoadServiceTests {
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.update(9999L, roadDTO));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals(ErrorMessages.ROAD_NOT_FOUND, exception.getReason());
     }
 
     @Test
@@ -251,5 +253,6 @@ public class RoadServiceTests {
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.delete(9999L));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals(ErrorMessages.ROAD_NOT_FOUND, exception.getReason());
     }
 }

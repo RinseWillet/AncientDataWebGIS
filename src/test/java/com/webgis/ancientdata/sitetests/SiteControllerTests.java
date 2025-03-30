@@ -1,14 +1,11 @@
 package com.webgis.ancientdata.sitetests;
 
-//MVC
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.application.service.SiteService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.Site;
-import com.webgis.ancientdata.web.controller.SiteController;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONException;
@@ -16,16 +13,14 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -35,8 +30,15 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class SiteControllerTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private SiteService siteService;
 
     private RandomSiteGenerator randomSiteGenerator;
     private Site site;
@@ -45,28 +47,15 @@ public class SiteControllerTests {
     private ModernReferenceDTO modernReferenceDTO;
     private List<ModernReferenceDTO> modernReferenceDTOList;
 
-    @Mock
-    private SiteService siteService;
-
-    @InjectMocks
-    private SiteController siteController;
-
-    @Autowired
-    private MockMvc mockMvc;
-
     @BeforeEach
     public void setup() throws JSONException {
-        mockMvc = MockMvcBuilders.standaloneSetup(siteController).build();
-
-        siteList = new ArrayList<>();
         randomSiteGenerator = new RandomSiteGenerator();
 
         site = randomSiteGenerator.generateRandomSite();
         site.setId(RandomUtils.nextLong(1, 1000));
+        siteList = new ArrayList<>();
         siteList.add(site);
         siteJSON = randomSiteGenerator.generateRandomSiteJSON(site);
-
-        modernReferenceDTOList = new ArrayList<>();
 
         Long id = RandomUtils.nextLong();
         String shortRef = RandomStringUtils.randomAlphabetic(100);
@@ -74,7 +63,7 @@ public class SiteControllerTests {
         String URL = RandomStringUtils.randomAlphabetic(100);
 
         modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, URL);
-        modernReferenceDTOList.add(modernReferenceDTO);
+        modernReferenceDTOList = List.of(modernReferenceDTO);
     }
 
     @AfterEach
@@ -92,8 +81,7 @@ public class SiteControllerTests {
         when(siteService.findByIdGeoJson(site.getId())).thenReturn(String.valueOf(siteJSON));
 
         mockMvc.perform(get("/api/sites/" + site.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.valueOf(siteJSON)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
@@ -145,11 +133,11 @@ public class SiteControllerTests {
     @Test
     public void shouldReturnBadRequestWhenMissingRequiredFields() throws Exception {
         String invalidJson = """
-        {
-            "pleiadesId": 12345,
-            "geom": "POINT (12.4924 41.8902)"
-        }
-        """;
+                {
+                    "pleiadesId": 12345,
+                    "geom": "POINT (12.4924 41.8902)"
+                }
+                """;
 
         mockMvc.perform(post("/api/sites")
                         .contentType(MediaType.APPLICATION_JSON)

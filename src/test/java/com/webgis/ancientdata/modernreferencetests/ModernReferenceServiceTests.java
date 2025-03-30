@@ -151,6 +151,18 @@ public class ModernReferenceServiceTests {
     }
 
     @Test
+    public void shouldThrowWhenFetchingGeoJSONWithNonexistentId() {
+        Long nonexistentId = 9999L;
+        when(modernReferenceRepository.findById(nonexistentId)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+                modernReferenceService.findRoadsByModernReferenceIdAsGeoJSON(nonexistentId)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
     public void shouldSaveModernReference() {
         ModernReferenceDTO dto = new ModernReferenceDTO(
                 null,
@@ -265,4 +277,14 @@ public class ModernReferenceServiceTests {
         verify(modernReferenceRepository, times(1)).deleteById(id);
     }
 
+    @Test
+    public void shouldThrowWhenSavingInvalidDTO() {
+        ModernReferenceDTO dto = new ModernReferenceDTO(null, "", "", "");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+                modernReferenceService.save(dto)
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+    }
 }

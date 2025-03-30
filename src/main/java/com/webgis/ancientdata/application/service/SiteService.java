@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.application.service;
 
+import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
@@ -20,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -42,30 +42,29 @@ public class SiteService {
     }
 
     public JSONObject findAllGeoJson() {
-
-        //create GeoJsonBuilderService object to convert incoming Iterable to GeoJson
-        GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
-
-        return geoJsonConverter.convertSites(findAll());
+        return new GeoJsonConverter().convertSites(findAll());
     }
 
     public Optional<Site> findById(long id) {
-        logger.info("find site id : {}", id);
-        return siteRepository.findById(id);
+        logger.info("Finding site with ID {}", id);
+        return siteRepository.findById(id)
+                .or(() -> {
+                    logger.warn("Site with ID {} not found", id);
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
+                });
     }
 
-    public String findByIdGeoJson(long id) throws NoSuchElementException {
-        try {
-            GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
-            return geoJsonConverter.convertSite(findById(id)).toString();
-        } catch (Exception e) {
-            logger.warn("site " + id + " not found ");
-            return "not found";
-        }
+    public String findByIdGeoJson(long id) {
+        return new GeoJsonConverter().convertSite(findById(id)).toString();
     }
 
     public Site save(SiteDTO siteDTO) {
         try {
+            if (siteDTO.getGeom() == null || siteDTO.getName() == null || siteDTO.getSiteType() == null) {
+                logger.error("Invalid site data: Missing required fields");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_SITE_DATA);
+            }
+
             Site site = new Site();
             site.setPleiadesId(siteDTO.getPleiadesId());
             site.setName(siteDTO.getName());
@@ -76,17 +75,14 @@ public class SiteService {
             site.setReferences(siteDTO.getReferences());
             site.setDescription(siteDTO.getDescription());
 
-            logger.info("saving site (DTO): {}", site);
+            logger.info("Saving site: {}", site);
             return siteRepository.save(site);
-        } catch (NullPointerException e) {
-            logger.error("Missing required field in siteDTO: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing required fields", e);
         } catch (ParseException e) {
-            logger.error("Invalid WKT: {}", siteDTO.getGeom());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid geometry", e);
+            logger.error("Invalid WKT geometry format: {}", siteDTO.getGeom());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_WKT_FORMAT, e);
         } catch (Exception e) {
-            logger.warn("saving site (DTO) failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Duplicate value", e);
+            logger.warn("Saving site failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_SAVE_SITE, e);
         }
     }
 
@@ -104,42 +100,39 @@ public class SiteService {
                 site.setReferences(siteDTO.getReferences());
                 site.setDescription(siteDTO.getDescription());
 
-                logger.info("updating site (DTO): {}", site);
+                logger.info("Updating site: {}", site);
                 return siteRepository.save(site);
             } else {
-                logger.warn("site with ID {} not found for update", id);
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found");
+                logger.warn("Site with ID {} not found for update", id);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
             }
         } catch (ParseException e) {
             logger.error("Invalid WKT geometry format: {}", siteDTO.getGeom());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_WKT_FORMAT, e);
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            logger.warn("updating site failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error updating site", e);
+            logger.warn("Updating site failed: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_UPDATE_SITE, e);
         }
     }
 
     public void delete(Long id) {
         if (!siteRepository.existsById(id)) {
             logger.warn("Site with ID {} not found for deletion", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
         }
         siteRepository.deleteById(id);
         logger.info("Deleted site with ID {}", id);
     }
 
     public Site addModernReferenceToSite(long siteId, ModernReferenceDTO dto) {
-        try {
-            Site site = findById(siteId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found"));
-
+        return siteRepository.findById(siteId).map(site -> {
             ModernReference modernReference;
 
             if (dto.getId() != null) {
                 modernReference = modernReferenceRepository.findById(dto.getId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ModernReference not found"));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
             } else {
                 modernReference = new ModernReference(dto.getShortRef(), dto.getFullRef(), dto.getUrl());
             }
@@ -148,46 +141,30 @@ public class SiteService {
             logger.info("Added modern reference to site ID {}", siteId);
             return siteRepository.save(site);
 
-        } catch (Exception e) {
-            logger.warn("adding Modern Reference to site failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error adding reference to site", e);
-        }
+        }).orElseThrow(() -> {
+            logger.warn("Site with ID {} not found to add a modern reference to", siteId);
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
+        });
     }
 
-    //Parsing into DTO to prevent infinite regressing due to bidirectional many-to-many relationship
-    //roads and modernrefs
     public List<ModernReferenceDTO> findModernReferencesBySiteId(long siteId) {
-        try {
-            Optional<Site> siteOptional = findById(siteId);
-            if (siteOptional.isPresent()) {
-                Site site = siteOptional.get();
-
-                List<ModernReference> modernReferenceList = site.getModernReferenceList();
-
-                return getModernReferenceDTOList(modernReferenceList);
-            } else {
-                logger.warn("site was not found");
-                return null;
-            }
-        } catch (Exception e) {
-            logger.warn("finding Modern References for site with id " + siteId + "failed because {}", String.valueOf(e));
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
-        }
+        return siteRepository.findById(siteId)
+                .map(site -> getModernReferenceDTOList(site.getModernReferenceList()))
+                .orElseThrow(() -> {
+                    logger.warn("Site with ID {} not found", siteId);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
+                });
     }
 
     private List<ModernReferenceDTO> getModernReferenceDTOList(List<ModernReference> modernReferenceList) {
-
         List<ModernReferenceDTO> modernReferenceDTOList = new ArrayList<>();
-
         for (ModernReference modernReference : modernReferenceList) {
-            ModernReferenceDTO modernReferenceDTO = new ModernReferenceDTO(
+            modernReferenceDTOList.add(new ModernReferenceDTO(
                     modernReference.getId(),
                     modernReference.getShortRef(),
                     modernReference.getFullRef(),
                     modernReference.getUrl()
-            );
-
-            modernReferenceDTOList.add(modernReferenceDTO);
+            ));
         }
         return modernReferenceDTOList;
     }

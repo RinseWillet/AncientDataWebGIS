@@ -2,6 +2,8 @@ package com.webgis.ancientdata.web.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -42,5 +44,31 @@ public class GlobalExceptionHandler {
         response.put("path", request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation failed.");
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", "Bad Request", "message", errorMessage));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthorizationDeniedException(
+            AuthorizationDeniedException exception, WebRequest request) {
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
+        response.put("message", "Access Denied");
+        response.put("details", exception.getMessage());
+        response.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }
