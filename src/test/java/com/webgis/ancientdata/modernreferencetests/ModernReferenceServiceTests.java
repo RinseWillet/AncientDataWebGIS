@@ -5,11 +5,13 @@ package com.webgis.ancientdata.modernreferencetests;
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.application.service.ModernReferenceService;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.domain.model.Site;
 import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +30,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +63,7 @@ public class ModernReferenceServiceTests {
         String URL = RandomStringUtils.randomAlphabetic(100);
 
         modernReference = new ModernReference(shortRef, fullRef, URL);
+        modernReference.setId(RandomUtils.nextLong(1, 1000));
 
         modernReferenceJSON = new JSONObject();
         modernReferenceJSON.put("shortRef", shortRef);
@@ -69,6 +75,7 @@ public class ModernReferenceServiceTests {
         roadList = new ArrayList<>();
 
         road = randomRoadGenerator.generateRandomRoad();
+        road.setId(RandomUtils.nextLong(1, 1000));
         roadList.add(road);
 
         roadsGeoJSON = randomRoadGenerator.generateRandomRoadsGeoJSON(road);
@@ -113,14 +120,17 @@ public class ModernReferenceServiceTests {
 
     @Test
     public void shouldFindModernReferenceById(){
-        when(modernReferenceRepository.findById(modernReference.getId())).thenReturn(Optional.ofNullable(modernReference));
+        when(modernReferenceRepository.findById(modernReference.getId())).thenReturn(Optional.of(modernReference));
 
-        Optional<ModernReference> modernReferenceOptional = modernReferenceService.findById(road.getId());
+        Optional<ModernReference> modernReferenceOptional = modernReferenceService.findById(modernReference.getId());
 
-        modernReferenceOptional.ifPresent(value -> assertThat(modernReferenceOptional.get()).isEqualTo(modernReference));
+        modernReferenceOptional.ifPresent(value ->
+                assertThat(value).isEqualTo(modernReference)
+        );
 
         verify(modernReferenceRepository, times(1)).findById(modernReference.getId());
     }
+
 
     @Test
     public void shouldFindRoadsByModernReferenceIdAsGeoJSON(){
@@ -132,11 +142,127 @@ public class ModernReferenceServiceTests {
     }
 
     @Test
-    public void shouldFindSitessByModernReferenceIdAsGeoJSON(){
+    public void shouldFindSitesByModernReferenceIdAsGeoJSON(){
         when(modernReferenceRepository.findById(modernReference.getId())).thenReturn(Optional.ofNullable(modernReference));
 
         assertEquals(modernReferenceService.findSitesByModernReferenceIdAsGeoJSON(modernReference.getId()), String.valueOf(sitesGeoJSON));
 
         verify(modernReferenceRepository, times(1)).findById(modernReference.getId());
     }
+
+    @Test
+    public void shouldSaveModernReference() {
+        ModernReferenceDTO dto = new ModernReferenceDTO(
+                null,
+                modernReference.getShortRef(),
+                modernReference.getFullRef(),
+                modernReference.getUrl()
+        );
+
+        when(modernReferenceRepository.save(any())).thenReturn(modernReference);
+
+        ModernReference saved = modernReferenceService.save(dto);
+
+        assertThat(saved).isNotNull();
+        assertEquals(modernReference.getShortRef(), saved.getShortRef());
+        assertEquals(modernReference.getFullRef(), saved.getFullRef());
+        assertEquals(modernReference.getUrl(), saved.getUrl());
+
+        verify(modernReferenceRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void shouldUpdateModernReference() {
+        Long id = modernReference.getId();
+
+        ModernReferenceDTO dto = new ModernReferenceDTO(
+                id,
+                "Updated ShortRef",
+                "Updated FullRef",
+                "https://updated.url"
+        );
+
+        // Pretend it already exists in the DB
+        when(modernReferenceRepository.findById(id)).thenReturn(Optional.of(modernReference));
+        // Assume save returns the updated version
+        when(modernReferenceRepository.save(any(ModernReference.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ModernReference updated = modernReferenceService.update(id, dto);
+
+        assertThat(updated.getShortRef()).isEqualTo("Updated ShortRef");
+        assertThat(updated.getFullRef()).isEqualTo("Updated FullRef");
+        assertThat(updated.getUrl()).isEqualTo("https://updated.url");
+
+        verify(modernReferenceRepository).findById(id);
+        verify(modernReferenceRepository).save(any(ModernReference.class));
+    }
+
+    @Test
+    public void shouldThrowWhenUpdatingNonexistentModernReference() {
+        Long id = 9999L;
+        ModernReferenceDTO dto = new ModernReferenceDTO(
+                id,
+                "Updated ShortRef",
+                "Updated FullRef",
+                "https://updated.url"
+        );
+
+        when(modernReferenceRepository.findById(id)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> modernReferenceService.update(id, dto)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        verify(modernReferenceRepository).findById(id);
+    }
+
+    @Test
+    public void shouldDeleteModernReferenceIfExists() {
+        Long id = modernReference.getId();
+
+        when(modernReferenceRepository.existsById(id)).thenReturn(true);
+        doNothing().when(modernReferenceRepository).deleteById(id);
+
+        modernReferenceService.delete(id);
+
+        verify(modernReferenceRepository, times(1)).existsById(id);
+        verify(modernReferenceRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    public void shouldThrowWhenDeletingNonexistentModernReference() {
+        Long nonexistentId = 9999L;
+
+        when(modernReferenceRepository.existsById(nonexistentId)).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+                modernReferenceService.delete(nonexistentId)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Modern reference not found", exception.getReason());
+
+        verify(modernReferenceRepository, times(1)).existsById(nonexistentId);
+        verify(modernReferenceRepository, never()).deleteById(any());
+    }
+
+    @Test
+    public void shouldThrowConflictWhenDeletionFailsUnexpectedly() {
+        Long id = modernReference.getId();
+
+        when(modernReferenceRepository.existsById(id)).thenReturn(true);
+        doThrow(new RuntimeException("DB failure")).when(modernReferenceRepository).deleteById(id);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+                modernReferenceService.delete(id)
+        );
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        assertEquals("Could not delete modern reference", exception.getReason());
+
+        verify(modernReferenceRepository, times(1)).deleteById(id);
+    }
+
 }

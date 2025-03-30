@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.application.service;
 
+import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
+
 
 @Service
 public class ModernReferenceService {
@@ -26,7 +27,7 @@ public class ModernReferenceService {
 
     private final Logger logger = LoggerFactory.getLogger(ModernReferenceService.class);
 
-    public ModernReferenceService (ModernReferenceRepository modernReferenceRepository) {
+    public ModernReferenceService(ModernReferenceRepository modernReferenceRepository) {
         this.modernReferenceRepository = modernReferenceRepository;
     }
 
@@ -35,54 +36,34 @@ public class ModernReferenceService {
         return modernReferenceRepository.findAll();
     }
 
-    public Optional<ModernReference> findById(long id) throws NoSuchElementException{
+    public Optional<ModernReference> findById(long id) {
         logger.info("find modern reference id : {}", id);
 
-        Optional<ModernReference> modernReferenceOptional = modernReferenceRepository.findById(id);
-        if(modernReferenceOptional.isEmpty()) {
+        return modernReferenceRepository.findById(id).map(Optional::of).orElseThrow(() -> {
             logger.warn("modern reference with id: {} not found", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("modern reference with id " + id + "not found"));
-        }
-        return modernReferenceOptional;
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND);
+        });
     }
 
-    public String findRoadsByModernReferenceIdAsGeoJSON(long id)  {
+    public String findRoadsByModernReferenceIdAsGeoJSON(long id) {
         logger.info("finding all roads connected to modern reference id : {}", id);
-        try{
-            Optional<ModernReference> modernReferenceOptional = findById(id);
-            if(modernReferenceOptional.isPresent()) {
-                ModernReference modernReference = modernReferenceOptional.get();
-
-                List<Road> roadList = modernReference.getRoadList();
-
-                GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
-                return geoJsonConverter.convertRoads(roadList).toString();
-            } else {
-                logger.warn("modern reference not found");
-                return null;
-            }
+        try {
+            ModernReference modernReference = findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
+            List<Road> roadList = modernReference.getRoadList();
+            return new GeoJsonConverter().convertRoads(roadList).toString();
         } catch (Exception e) {
             logger.warn("finding roads for modern reference {} failed", id);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
         }
     }
 
-    public String findSitesByModernReferenceIdAsGeoJSON(long id)  {
+    public String findSitesByModernReferenceIdAsGeoJSON(long id) {
         logger.info("finding all sites connected to modern reference id : {}", id);
-        try{
-            Optional<ModernReference> modernReferenceOptional = findById(id);
-            if(modernReferenceOptional.isPresent()) {
-                ModernReference modernReference = modernReferenceOptional.get();
-
-                List<Site> siteList = modernReference.getSiteList();
-
-                GeoJsonConverter geoJsonConverter = new GeoJsonConverter();
-                return geoJsonConverter.convertSites(siteList).toString();
-            } else {
-                logger.warn("modern reference not found");
-                return null;
-            }
+        try {
+            ModernReference modernReference = findById(id).orElseThrow(
+                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
+            List<Site> siteList = modernReference.getSiteList();
+            return new GeoJsonConverter().convertSites(siteList).toString();
         } catch (Exception e) {
             logger.warn("finding sites for modern reference {} failed", id);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "error", e);
@@ -96,44 +77,41 @@ public class ModernReferenceService {
             return modernReferenceRepository.save(modernReference);
         } catch (Exception e) {
             logger.error("Saving modern reference failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not save modern reference", e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_SAVE_MODERN_REFERENCE, e);
         }
     }
 
     public ModernReference update(Long id, ModernReferenceDTO dto) {
         try {
-            Optional<ModernReference> optionalReference = modernReferenceRepository.findById(id);
+            ModernReference reference = modernReferenceRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
 
-            if (optionalReference.isPresent()) {
-                ModernReference reference = optionalReference.get();
-                reference.setShortRef(dto.getShortRef());
-                reference.setFullRef(dto.getFullRef());
-                reference.setUrl(dto.getUrl());
+            reference.setShortRef(dto.getShortRef());
+            reference.setFullRef(dto.getFullRef());
+            reference.setUrl(dto.getUrl());
 
-                logger.info("Updating modern reference: {}", reference);
-                return modernReferenceRepository.save(reference);
-            } else {
-                logger.warn("Modern reference with ID {} not found for update", id);
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Modern reference not found");
-            }
+            logger.info("Updating modern reference: {}", reference);
+            return modernReferenceRepository.save(reference);
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Updating modern reference failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not update modern reference", e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_UPDATE_MODERN_REFERENCE, e);
         }
     }
 
     public void delete(Long id) {
+        if (!modernReferenceRepository.existsById(id)) {
+            logger.warn("Modern reference with ID {} not found for deletion", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND);
+        }
+
         try {
-            if (!modernReferenceRepository.existsById(id)) {
-                logger.warn("Modern reference with ID {} not found for deletion", id);
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Modern reference not found");
-            }
             modernReferenceRepository.deleteById(id);
             logger.info("Deleted modern reference with ID {}", id);
         } catch (Exception e) {
             logger.error("Deleting modern reference failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not delete modern reference", e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_DELETE_MODERN_REFERENCE, e);
         }
     }
-
 }

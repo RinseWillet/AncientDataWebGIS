@@ -2,9 +2,11 @@ package com.webgis.ancientdata.sitetests;
 
 //MVC
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.application.service.SiteService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
+import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.Site;
 import com.webgis.ancientdata.web.controller.SiteController;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -19,16 +21,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -120,5 +124,90 @@ public class SiteControllerTests {
                 .andDo(MockMvcResultHandlers.print());
 
         verify(siteService, times(1)).findModernReferencesBySiteId(site.getId());
+    }
+
+    @Test
+    public void shouldCreateSite() throws Exception {
+        SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        when(siteService.save(any(SiteDTO.class))).thenReturn(site);
+
+        mockMvc.perform(post("/api/sites")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(siteDTO)))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(siteService, times(1)).save(any(SiteDTO.class));
+    }
+
+    @Test
+    public void shouldReturnBadRequestWhenMissingRequiredFields() throws Exception {
+        String invalidJson = """
+        {
+            "pleiadesId": 12345,
+            "geom": "POINT (12.4924 41.8902)"
+        }
+        """;
+
+        mockMvc.perform(post("/api/sites")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void shouldUpdateSite() throws Exception {
+        SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        when(siteService.update(eq(site.getId()), any(SiteDTO.class))).thenReturn(site);
+
+        mockMvc.perform(put("/api/sites/" + site.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(siteDTO)))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(siteService, times(1)).update(eq(site.getId()), any(SiteDTO.class));
+    }
+
+    @Test
+    public void shouldDeleteSite() throws Exception {
+        doNothing().when(siteService).delete(site.getId());
+
+        mockMvc.perform(delete("/api/sites/" + site.getId()))
+                .andExpect(status().isNoContent())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(siteService, times(1)).delete(site.getId());
+    }
+
+    @Test
+    public void shouldReturnNotFoundWhenDeletingNonexistentSite() throws Exception {
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found"))
+                .when(siteService).delete(9999L);
+
+        mockMvc.perform(delete("/api/sites/9999"))
+                .andExpect(status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    public void shouldAddModernReferenceToSite() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        when(siteService.addModernReferenceToSite(eq(site.getId()), any(ModernReferenceDTO.class)))
+                .thenReturn(site);
+
+        mockMvc.perform(post("/api/sites/" + site.getId() + "/modern-reference")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(modernReferenceDTO)))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(siteService, times(1)).addModernReferenceToSite(eq(site.getId()), any(ModernReferenceDTO.class));
     }
 }
