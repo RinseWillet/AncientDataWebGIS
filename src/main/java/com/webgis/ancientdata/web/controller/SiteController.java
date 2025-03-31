@@ -5,41 +5,42 @@ import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.Site;
 import com.webgis.ancientdata.web.mapper.SiteMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
-
 
 @RestController
 @CrossOrigin
 @RequestMapping("/api/sites")
 public class SiteController {
 
-    @Autowired
-    private SiteService siteService;
+    private final SiteService siteService;
 
-    //endpoint to find all sites and return GeoJSON String for mapping in the front-end
-    //info passed (when present): id, name, siteType, status
-    @GetMapping("/all")
-    public String findAllGeoJson() {
-        return siteService.findAllGeoJson().toString();
+    public SiteController(SiteService siteService) {
+        this.siteService = siteService;
     }
 
-    //find road by id - info passed as Site object (when present):
-    //id, name, siteType, description, status, reference
+    // Public Endpoints
+
+    @GetMapping("/all")
+    public ResponseEntity<String> findAllGeoJson() {
+        return ResponseEntity.ok(siteService.findAllGeoJson().toString());
+    }
+
     @GetMapping("/{id}")
-    public String findByIdGeoJson(@PathVariable long id){
-        return siteService.findByIdGeoJson(id);
+    public ResponseEntity<String> findByIdGeoJson(@PathVariable long id) {
+        return ResponseEntity.ok(siteService.findByIdGeoJson(id));
     }
 
     @GetMapping("/modref/{id}")
-    public List<ModernReferenceDTO> findModernReferencesBySiteId(@PathVariable long id) {
-        return siteService.findModernReferencesBySiteId(id);
+    public ResponseEntity<List<ModernReferenceDTO>> findModernReferencesBySiteId(@PathVariable long id) {
+        return ResponseEntity.ok(siteService.findModernReferencesBySiteId(id));
     }
+
+    // Protected Endpoints
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
@@ -64,13 +65,11 @@ public class SiteController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/{id}/modern-reference")
-    public ResponseEntity<SiteDTO> addModernReference(
+    public ResponseEntity<SiteDTO> addModernReferenceToSite(
             @PathVariable Long id,
             @Valid @RequestBody ModernReferenceDTO referenceDTO
     ) {
         Site updatedSite = siteService.addModernReferenceToSite(id, referenceDTO);
         return ResponseEntity.ok(SiteMapper.toDto(updatedSite));
     }
-
 }
-

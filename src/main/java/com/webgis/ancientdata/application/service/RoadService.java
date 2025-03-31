@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.application.service;
 
+import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
@@ -59,7 +60,7 @@ public class RoadService {
         return roadRepository.findById(id)
                 .or(() -> {
                     logger.warn("Road with id {} not found", id);
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND);
                 });
     }
 
@@ -72,7 +73,7 @@ public class RoadService {
     public Road save(RoadDTO roadDTO) {
         if (roadDTO.getGeom() == null || roadDTO.getName() == null || roadDTO.getType() == null) {
             logger.error("Invalid road data: Missing required fields");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing required fields");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_ROAD_DATA);
         }
         try {
             Road road = new Road();
@@ -92,7 +93,7 @@ public class RoadService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
         } catch (Exception e) {
             logger.warn("Saving road failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Duplicate value", e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_SAVE_ROAD, e);
         }
     }
 
@@ -114,14 +115,16 @@ public class RoadService {
                 return roadRepository.save(road);
             } else {
                 logger.warn("Road with ID {} not found for update", roadId);
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND);
             }
         } catch (ParseException e) {
             logger.error("Invalid WKT geometry format: {}", roadDTO.getGeom());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.warn("Updating road failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error updating road", e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_UPDATE_ROAD, e);
         }
     }
 
@@ -130,7 +133,7 @@ public class RoadService {
     public void delete(long roadId) {
         if (!roadRepository.existsById(roadId)) {
             logger.warn("Road with ID {} not found for deletion", roadId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND);
         }
         roadRepository.deleteById(roadId);
         logger.info("Delete road with ID {}", roadId);
@@ -155,7 +158,7 @@ public class RoadService {
 
         }).orElseThrow(() -> {
             logger.warn("Road with ID {} not found to add a modern reference to", roadId);
-            return new ResponseStatusException(HttpStatus.NOT_FOUND, "Road not found");
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND);
         });
     }
 
@@ -184,7 +187,7 @@ public class RoadService {
 
         long total = StreamSupport.stream(roadIterable.spliterator(), false).count();
         StreamSupport.stream(roadIterable.spliterator(), false).forEach(road -> {
-            switch (road.getType().toString()) {
+            switch (road.getType()) {
                 case ROAD -> roadCount.getAndIncrement();
                 case POS_ROAD -> possibleCount.getAndIncrement();
                 case HYP_ROUTE -> hypotheticalCount.getAndIncrement();
@@ -193,7 +196,7 @@ public class RoadService {
             }
         });
 
-        LinkedHashMap<String, Object> data = new LinkedHashMap();
+        LinkedHashMap<String, Object> data = new LinkedHashMap<>();
         data.put("total_roads", total);
         data.put("confirmed_roads", roadCount.get());
         data.put("possible_roads", possibleCount.get());
@@ -224,5 +227,4 @@ public class RoadService {
         WKTReader reader = new WKTReader(geometryFactory);
         return (MultiLineString) reader.read(wkt);
     }
-
 }

@@ -11,9 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Optional;
 
 //class to convert JSON object from repository to GeoJSON
@@ -128,26 +126,13 @@ public class GeoJsonConverter {
         JSONObject features = new JSONObject();
 
         //setting HashMap to linked HashMap to keep order in JSON objects
-        setLinkedHashMap(features);
+        JsonUtils.enforceLinkedHashMap(features);
 
         //setting mainobject
         features.put("type", "FeatureCollection");
 //        features.put("crs", crs);
 
         return features;
-    }
-
-    //this function sets the HashMap in the main JSONObject to a LinkedHashMap, to ensure
-    //the ordered sequence of the JSON object
-    private void setLinkedHashMap(JSONObject jsonObject) {
-        try {
-            Field changeMap = jsonObject.getClass().getDeclaredField("map");
-            changeMap.setAccessible(true);
-            changeMap.set(jsonObject, new LinkedHashMap<>());
-            changeMap.setAccessible(false);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            logger.info(e.getMessage());
-        }
     }
 
     //method to parse values from Site object to JSON feature
@@ -159,9 +144,9 @@ public class GeoJsonConverter {
         JSONObject geometry = new JSONObject();
 
         //setting HashMap to linked HashMap to keep order in JSON objects
-        setLinkedHashMap(feature);
-        setLinkedHashMap(properties);
-        setLinkedHashMap(geometry);
+        JsonUtils.enforceLinkedHashMap(feature);
+        JsonUtils.enforceLinkedHashMap(properties);
+        JsonUtils.enforceLinkedHashMap(geometry);
 
         SitePropertiesParser(site, properties, propertyTypes);
 
@@ -234,9 +219,9 @@ public class GeoJsonConverter {
         JSONObject geometry = new JSONObject();
 
         //setting HashMap to linked HashMap to keep order in JSON objects
-        setLinkedHashMap(feature);
-        setLinkedHashMap(properties);
-        setLinkedHashMap(geometry);
+        JsonUtils.enforceLinkedHashMap(feature);
+        JsonUtils.enforceLinkedHashMap(properties);
+        JsonUtils.enforceLinkedHashMap(geometry);
 
         RoadPropertiesParser(road, properties, propertytypes);
 

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,12 +18,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.util.List;
 
+@SuppressWarnings("unused")
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final CustomUserDetailService userDetailService;
 
+    @SuppressWarnings("unused")
     public SecurityConfig(JwtFilter jwtFilter, CustomUserDetailService userDetailService) {
         this.jwtFilter = jwtFilter;
         this.userDetailService = userDetailService;
@@ -33,6 +37,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @SuppressWarnings("unused")
     @Bean
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -41,11 +46,16 @@ public class SecurityConfig {
         return new ProviderManager(List.of(authenticationProvider));
     }
 
+    @SuppressWarnings("unused")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/roads/**").permitAll() // Guests can view
+                        .requestMatchers(HttpMethod.GET, "/api/sites/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/sites/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/sites/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/sites/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/roads/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can add
                         .requestMatchers(HttpMethod.PUT, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can update
                         .requestMatchers(HttpMethod.DELETE, "/api/roads/**").hasRole("ADMIN") // Only ADMIN can delete

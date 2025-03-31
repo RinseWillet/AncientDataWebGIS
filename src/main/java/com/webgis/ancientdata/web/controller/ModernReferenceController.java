@@ -4,13 +4,11 @@ import com.webgis.ancientdata.application.service.ModernReferenceService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.web.mapper.ModernReferenceMapper;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -21,23 +19,25 @@ public class ModernReferenceController {
     private ModernReferenceService modernReferenceService;
 
     @GetMapping("/all")
-    public Iterable<ModernReference> findAll () {
-        return modernReferenceService.findAll();
+    public ResponseEntity<Iterable<ModernReference>> findAll() {
+        return ResponseEntity.ok(modernReferenceService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Optional<ModernReference> findById(@PathVariable long id){
-        return modernReferenceService.findById(id);
+    public ResponseEntity<ModernReference> findById(@PathVariable long id) {
+        return modernReferenceService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(); // will be handled by GlobalExceptionHandler
     }
 
     @GetMapping("/road/{id}")
-    public String findRoadsByModernReferenceId(@PathVariable long id){
-        return modernReferenceService.findRoadsByModernReferenceIdAsGeoJSON(id);
+    public ResponseEntity<String> findRoadsByModernReferenceId(@PathVariable long id) {
+        return ResponseEntity.ok(modernReferenceService.findRoadsByModernReferenceIdAsGeoJSON(id));
     }
 
     @GetMapping("/site/{id}")
-    public String findSitesByModernReferenceId(@PathVariable long id){
-        return modernReferenceService.findSitesByModernReferenceIdAsGeoJSON(id);
+    public ResponseEntity<String> findSitesByModernReferenceId(@PathVariable long id) {
+        return ResponseEntity.ok(modernReferenceService.findSitesByModernReferenceIdAsGeoJSON(id));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -60,5 +60,4 @@ public class ModernReferenceController {
         modernReferenceService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }
