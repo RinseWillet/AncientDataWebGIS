@@ -1,9 +1,8 @@
 package com.webgis.ancientdata.sitetests;
 
-//Model
-
 import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.application.service.SiteService;
+import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
@@ -40,15 +39,8 @@ public class SiteServiceTests {
     private RandomSiteGenerator randomSiteGenerator;
     private Site site;
     private List<Site> siteList;
-    private Iterable<Site> siteIterable;
     private JSONObject siteGeoJSON;
     private JSONObject sitesGeoJSON;
-    private JSONObject feature;
-    private JSONObject feature_2;
-    private JSONObject[] features;
-    private JSONObject properties;
-    private JSONObject properties_2;
-    private JSONObject geometry;
     private ModernReference modernReference;
     private List<ModernReference> modernReferenceList;
     private ModernReferenceDTO modernReferenceDTO;
@@ -68,13 +60,12 @@ public class SiteServiceTests {
     private SiteService siteService;
 
     @BeforeEach
-    public void setUp(){
-
+    public void setUp() {
         randomSiteGenerator = new RandomSiteGenerator();
-        siteList = new ArrayList<>();
         site = randomSiteGenerator.generateRandomSite();
         site.setId(RandomUtils.nextLong(1, 10000));
 
+        siteList = new ArrayList<>();
         siteList.add(site);
         siteGeoJSON = randomSiteGenerator.generateRandomSiteGeoJSON(site);
         sitesGeoJSON = randomSiteGenerator.generateRandomSitesGeoJSON(site);
@@ -102,12 +93,11 @@ public class SiteServiceTests {
         siteList = null;
         siteGeoJSON = null;
         sitesGeoJSON = null;
-        feature = null;
-        feature_2 = null;
-        features = null;
-        properties = null;
-        properties_2 = null;
-        geometry = null;
+        modernReference = null;
+        modernReferenceList = null;
+        modernReferenceDTO = null;
+        modernReferenceDTOList = null;
+        randomSiteGenerator = null;
     }
 
     @Test
@@ -121,63 +111,60 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldFindSiteById(){
-        when(siteRepository.findById(site.getId())).thenReturn(Optional.ofNullable(site));
+    public void shouldFindSiteById() {
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
 
         Optional<Site> optionalSite = siteService.findById(site.getId());
 
-        optionalSite.ifPresent(value -> assertThat(optionalSite.get()).isEqualTo(site));
+        optionalSite.ifPresent(value -> assertThat(value).isEqualTo(site));
 
         verify(siteRepository, times(1)).findById(any());
     }
 
     @Test
-    public void shouldFindSiteByIdGeoJSON(){
-        when(siteRepository.findById(site.getId())).thenReturn(Optional.ofNullable(site));
+    public void shouldFindSiteByIdGeoJSON() {
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
 
         String fetchedSite = siteService.findByIdGeoJson(site.getId());
 
-        assertEquals(fetchedSite, String.valueOf(siteGeoJSON));
+        assertEquals(fetchedSite, siteGeoJSON.toString());
 
         verify(siteRepository, times(1)).findById(any());
     }
 
-    //    findAllGeoJson()
     @Test
-    public void shouldListAllSitesGeoJSON(){
+    public void shouldListAllSitesGeoJSON() {
         when(siteRepository.findAll()).thenReturn(siteList);
 
         JSONObject fetchedSitesGeoJSON = siteService.findAllGeoJson();
 
-        assertEquals(String.valueOf(fetchedSitesGeoJSON), String.valueOf(sitesGeoJSON));
+        assertEquals(sitesGeoJSON.toString(), fetchedSitesGeoJSON.toString());
 
         verify(siteRepository, times(1)).findAll();
     }
 
-    //    convertSitetoGeoJson
     @Test
-    public void shouldConvertSitetoGeoJSON(){
+    public void shouldConvertSiteToGeoJSON() {
         when(geoJsonConverter.convertSite(Optional.of(site))).thenReturn(siteGeoJSON);
 
-        JSONObject fetchedsiteGeoJSON = geoJsonConverter.convertSite(Optional.of(site));
-        assertEquals(fetchedsiteGeoJSON, siteGeoJSON);
+        JSONObject fetchedGeoJSON = geoJsonConverter.convertSite(Optional.of(site));
+        assertEquals(fetchedGeoJSON, siteGeoJSON);
 
         verify(geoJsonConverter, times(1)).convertSite(any());
     }
 
-    //    convertSitestoGeoJson
     @Test
-    public void shouldConvertSitestoGeoJSON() {
+    public void shouldConvertSitesToGeoJSON() {
         when(geoJsonConverter.convertSites(siteList)).thenReturn(sitesGeoJSON);
 
-        JSONObject fetchedSitesGeoJSON = geoJsonConverter.convertSites(siteList);
-        assertEquals(fetchedSitesGeoJSON, sitesGeoJSON);
+        JSONObject fetchedGeoJSON = geoJsonConverter.convertSites(siteList);
+        assertEquals(fetchedGeoJSON, sitesGeoJSON);
 
         verify(geoJsonConverter, times(1)).convertSites(any());
     }
 
     @Test
-    public void shouldSaveSite(){
+    public void shouldSaveSite() {
         SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
         when(siteRepository.save(any())).thenReturn(site);
 
@@ -190,7 +177,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldUpdateSite(){
+    public void shouldUpdateSite() {
         SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
         when(siteRepository.save(any())).thenReturn(site);
@@ -205,7 +192,7 @@ public class SiteServiceTests {
 
     @Test
     public void shouldFindModernReferencesBySiteId() {
-        when(siteRepository.findById(site.getId())).thenReturn(Optional.ofNullable(site));
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
 
         assertEquals(siteService.findModernReferencesBySiteId(site.getId()), modernReferenceDTOList);
 
@@ -213,12 +200,13 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldAddModernReferenceToRoad(){
+    public void shouldAddModernReferenceToSite() {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
         when(modernReferenceRepository.findById(modernReferenceDTO.getId())).thenReturn(Optional.of(modernReference));
         when(siteRepository.save(site)).thenReturn(site);
 
-        assertEquals(siteService.addModernReferenceToSite(site.getId(), modernReferenceDTO), site);
+        Site result = siteService.addModernReferenceToSite(site.getId(), modernReferenceDTO);
+        assertEquals(result, site);
 
         verify(siteRepository, times(1)).findById(site.getId());
         verify(modernReferenceRepository, times(1)).findById(modernReferenceDTO.getId());
@@ -232,6 +220,7 @@ public class SiteServiceTests {
                 () -> siteService.save(invalidDTO)
         );
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(ErrorMessages.INVALID_SITE_DATA, exception.getReason());
     }
 
     @Test
@@ -243,6 +232,7 @@ public class SiteServiceTests {
                 () -> siteService.save(invalidDTO)
         );
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(ErrorMessages.INVALID_WKT_FORMAT, exception.getReason());
     }
 
     @Test
@@ -256,5 +246,17 @@ public class SiteServiceTests {
                 () -> siteService.update(fakeId, siteDTO)
         );
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals(ErrorMessages.SITE_NOT_FOUND, exception.getReason());
+    }
+
+    @Test
+    public void shouldThrowWhenDeletingNonexistentSite() {
+        when(siteRepository.existsById(anyLong())).thenReturn(false);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> siteService.delete(9999L)
+        );
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals(ErrorMessages.SITE_NOT_FOUND, exception.getReason());
     }
 }

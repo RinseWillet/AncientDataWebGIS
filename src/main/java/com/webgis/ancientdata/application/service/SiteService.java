@@ -59,12 +59,8 @@ public class SiteService {
     }
 
     public Site save(SiteDTO siteDTO) {
+        validateSiteDTO(siteDTO);
         try {
-            if (siteDTO.getGeom() == null || siteDTO.getName() == null || siteDTO.getSiteType() == null) {
-                logger.error("Invalid site data: Missing required fields");
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_SITE_DATA);
-            }
-
             Site site = new Site();
             site.setPleiadesId(siteDTO.getPleiadesId());
             site.setName(siteDTO.getName());
@@ -80,6 +76,8 @@ public class SiteService {
         } catch (ParseException e) {
             logger.error("Invalid WKT geometry format: {}", siteDTO.getGeom());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_WKT_FORMAT, e);
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.warn("Saving site failed: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_SAVE_SITE, e);
@@ -172,5 +170,12 @@ public class SiteService {
     private Point convertWktToPoint(String wkt) throws ParseException {
         WKTReader reader = new WKTReader(geometryFactory);
         return (Point) reader.read(wkt);
+    }
+
+    private void validateSiteDTO(SiteDTO siteDTO) {
+        if (siteDTO.getGeom() == null || siteDTO.getName() == null || siteDTO.getSiteType() == null) {
+            logger.error("Invalid site data: Missing required fields");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_SITE_DATA);
+        }
     }
 }

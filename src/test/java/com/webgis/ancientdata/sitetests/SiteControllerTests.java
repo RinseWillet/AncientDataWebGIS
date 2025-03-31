@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.web.server.ResponseStatusException;
@@ -93,8 +94,7 @@ public class SiteControllerTests {
         when(siteService.findAllGeoJson()).thenReturn(siteJSON);
 
         mockMvc.perform(get("/api/sites/all")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.valueOf(siteJSON)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
@@ -103,11 +103,11 @@ public class SiteControllerTests {
 
     @Test
     public void shouldFindModernReferencesBySiteId() throws Exception {
-        when(siteService.findModernReferencesBySiteId(site.getId())).thenReturn(modernReferenceDTOList);
+        when(siteService.findModernReferencesBySiteId(site.getId()))
+                .thenReturn(modernReferenceDTOList);
 
         mockMvc.perform(get("/api/sites/modref/" + site.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(modernReferenceDTOList.toString()))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
@@ -115,6 +115,7 @@ public class SiteControllerTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void shouldCreateSite() throws Exception {
         SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -131,6 +132,7 @@ public class SiteControllerTests {
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void shouldReturnBadRequestWhenMissingRequiredFields() throws Exception {
         String invalidJson = """
                 {
@@ -144,9 +146,12 @@ public class SiteControllerTests {
                         .content(invalidJson))
                 .andExpect(status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
+
+        verify(siteService, times(0)).save(any());
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void shouldUpdateSite() throws Exception {
         SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -163,6 +168,7 @@ public class SiteControllerTests {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     public void shouldDeleteSite() throws Exception {
         doNothing().when(siteService).delete(site.getId());
 
@@ -174,6 +180,7 @@ public class SiteControllerTests {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     public void shouldReturnNotFoundWhenDeletingNonexistentSite() throws Exception {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found"))
                 .when(siteService).delete(9999L);
@@ -181,9 +188,12 @@ public class SiteControllerTests {
         mockMvc.perform(delete("/api/sites/9999"))
                 .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
+
+        verify(siteService, times(1)).delete(9999L);
     }
 
     @Test
+    @WithMockUser(roles = "USER")
     public void shouldAddModernReferenceToSite() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 

@@ -37,14 +37,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class RoadControllerTests {
 
+    @SuppressWarnings("unused")
     @Autowired
     private MockMvc mockMvc;
 
+    @SuppressWarnings("unused")
     @MockBean
     private RoadService roadService;
 
     private Road road;
-    private List<Road> roadList;
     private JSONObject roadJSON;
     private ModernReferenceDTO modernReferenceDTO;
     private List<ModernReferenceDTO> modernReferenceDTOList;
@@ -52,13 +53,12 @@ public class RoadControllerTests {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    public void init() throws Exception {
+    public void setUp() {
         randomRoadGenerator = new RandomRoadGenerator();
         objectMapper = new ObjectMapper();
 
         road = randomRoadGenerator.generateRandomRoad();
         road.setId(RandomUtils.nextLong(1, 1000));
-        roadList = List.of(road);
         roadJSON = randomRoadGenerator.generateRandomRoadJSON(road);
 
         modernReferenceDTO = new ModernReferenceDTO(
@@ -73,7 +73,6 @@ public class RoadControllerTests {
     @AfterEach
     public void tearDown() {
         road = null;
-        roadList = null;
         roadJSON = null;
         modernReferenceDTO = null;
         modernReferenceDTOList = null;
