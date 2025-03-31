@@ -60,7 +60,7 @@ public class RoadServiceTests {
     private RoadService roadService;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
 
         roadList = new ArrayList<>();
         randomRoadGenerator = new RandomRoadGenerator();
@@ -116,7 +116,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldFindRoadById(){
+    public void shouldFindRoadById() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
 
         Optional<Road> optionalRoad = roadService.findById(road.getId());
@@ -127,7 +127,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldFindRoadByIdGeoJSON(){
+    public void shouldFindRoadByIdGeoJSON() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
 
         String fetchedRoad = roadService.findByIdGeoJson(road.getId());
@@ -138,7 +138,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldListAllRoadsGeoJSON(){
+    public void shouldListAllRoadsGeoJSON() {
         when(roadRepository.findAll()).thenReturn(roadList);
 
         String fetchedRoadsGeoJSON = roadService.findAllGeoJson();
@@ -149,7 +149,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldConvertRoadtoGeoJSON(){
+    public void shouldConvertRoadtoGeoJSON() {
         when(geoJsonConverter.convertRoad(Optional.of(road))).thenReturn(roadGeoJSON);
 
         JSONObject fetchedroadGeoJSON = geoJsonConverter.convertRoad(Optional.of(road));
@@ -159,7 +159,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldConvertRoadstoGeoJSON(){
+    public void shouldConvertRoadstoGeoJSON() {
         when(geoJsonConverter.convertRoads(roadList)).thenReturn(roadsGeoJSON);
 
         JSONObject fetchedRoadsGeoJSON = geoJsonConverter.convertRoads(roadList);
@@ -169,7 +169,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldSaveRoad(){
+    public void shouldSaveRoad() {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
         when(roadRepository.save(any())).thenReturn(road);
 
@@ -182,7 +182,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldUpdateRoad(){
+    public void shouldUpdateRoad() {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
         when(roadRepository.findById(road.getId())).thenReturn(Optional.of(road));
         when(roadRepository.save(any())).thenReturn(road);
@@ -205,7 +205,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldAddModernReferenceToRoad(){
+    public void shouldAddModernReferenceToRoad() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.of(road));
         when(modernReferenceRepository.findById(modernReferenceDTO.getId())).thenReturn(Optional.of(modernReference));
         when(roadRepository.save(road)).thenReturn(road);

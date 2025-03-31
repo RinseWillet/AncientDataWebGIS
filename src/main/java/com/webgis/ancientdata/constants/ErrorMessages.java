@@ -9,7 +9,6 @@ public final class ErrorMessages {
 
     public static final String ROAD_NOT_FOUND = "Road not found";
     public static final String COULD_NOT_SAVE_ROAD = "Could not save road";
-    public static final String COULD_NOT_DELETE_ROAD = "Could not delete road";
     public static final String COULD_NOT_UPDATE_ROAD = "Could not update road";
     public static final String INVALID_ROAD_DATA = "Invalid road data";
     public static final String INVALID_WKT_FORMAT = "Invalid WKT format";
@@ -17,8 +16,8 @@ public final class ErrorMessages {
     public static final String SITE_NOT_FOUND = "Site not found";
     public static final String COULD_NOT_SAVE_SITE = "Could not save site";
     public static final String COULD_NOT_UPDATE_SITE = "Could not update site";
-    public static final String COULD_NOT_DELETE_SITE = "Could not delete site";
     public static final String INVALID_SITE_DATA = "Invalid site data";
 
-    private ErrorMessages() {}
+    private ErrorMessages() {
+    }
 }
