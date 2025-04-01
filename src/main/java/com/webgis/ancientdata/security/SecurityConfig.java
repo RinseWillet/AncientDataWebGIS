@@ -59,7 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can add
                         .requestMatchers(HttpMethod.PUT, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can update
                         .requestMatchers(HttpMethod.DELETE, "/api/roads/**").hasRole("ADMIN") // Only ADMIN can delete
-                        .requestMatchers("/auth/register", "/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for JWT
