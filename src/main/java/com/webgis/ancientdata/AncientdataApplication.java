@@ -1,6 +1,5 @@
 package com.webgis.ancientdata;
 
-import com.fasterxml.jackson.core.StreamWriteConstraints;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
