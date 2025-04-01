@@ -1,12 +1,15 @@
 package com.webgis.ancientdata.web.controller;
 
 import com.webgis.ancientdata.application.service.AuthService;
+import com.webgis.ancientdata.domain.dto.AuthResponseDTO;
 import com.webgis.ancientdata.domain.model.Role;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,15 +22,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponseDTO> register(@RequestBody AuthRequest request) {
         String token = authService.registerUser(request.username(), request.password(), request.role());
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new AuthResponseDTO(token, List.of(request.role().name())));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest request) {
-        String token = authService.authenticate(request.username(), request.password());
-        return ResponseEntity.ok(token);
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.login(request.username(), request.password()));
     }
 }
 
