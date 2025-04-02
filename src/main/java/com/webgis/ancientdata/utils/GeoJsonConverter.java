@@ -32,7 +32,7 @@ public class GeoJsonConverter {
                     "siteType", "status", "references", "description"};
 
             JSONObject feature = siteParser(site, propertyTypes);
-            features.put("features", feature);
+            features.put("features", wrapInArray(feature));
             return features;
         } else {
             return null;
@@ -112,7 +112,7 @@ public class GeoJsonConverter {
                     "historicalReferences"};
 
             JSONObject feature = roadParser(road, propertyTypes);
-            features.put("features", feature);
+            features.put("features", wrapInArray(feature));
             return features;
         } else {
             return null;
@@ -327,5 +327,11 @@ public class GeoJsonConverter {
         } else {
             return null;
         }
+    }
+
+    private JSONArray wrapInArray(JSONObject feature) {
+        JSONArray array = new JSONArray();
+        array.put(feature);
+        return array;
     }
 }
