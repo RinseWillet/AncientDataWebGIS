@@ -5,6 +5,7 @@ import com.webgis.ancientdata.domain.model.Site;
 import com.webgis.ancientdata.utils.JsonUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -98,8 +99,13 @@ public class RandomSiteGenerator {
 
         JSONObject siteGeoJSON = new JSONObject();
         JsonUtils.enforceLinkedHashMap(siteGeoJSON);
+
+        JSONArray featureArray = new JSONArray();
+        featureArray.put(feature);
+
         siteGeoJSON.put("type", "FeatureCollection");
-        siteGeoJSON.put("features", feature);
+
+        siteGeoJSON.put("features", featureArray);
 
         return siteGeoJSON;
     }
