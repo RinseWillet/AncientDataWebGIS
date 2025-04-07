@@ -1,7 +1,5 @@
 package com.webgis.ancientdata.utils;
 
-//Spring
-
 import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.domain.model.Site;
 import org.json.JSONArray;
@@ -11,290 +9,157 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
-//class to convert JSON object from repository to GeoJSON
 @Service
 public class GeoJsonConverter {
 
-    //Logging object
     private final Logger logger = LoggerFactory.getLogger(GeoJsonConverter.class);
 
-    //method to convert individual point to geojson
-    public JSONObject convertSite(Optional<Site> siteOptional) {
+    //method to convert individual Point to geojson
+    public JSONObject convertSite(Site site) {
+        if (site == null) return null;
         JSONObject features = setUpGeoJSON();
-        if(siteOptional.isPresent()) {
-            Site site = siteOptional.get();
-
-            String [] propertyTypes = {
-                    "id", "pleiadesId", "name", "province",
-                    "siteType", "status", "references", "description"};
-
-            JSONObject feature = siteParser(site, propertyTypes);
-            features.put("features", feature);
-            return features;
-        } else {
-            return null;
-        }
+        String[] propertyTypes = {
+                "id", "pleiadesId", "name", "province",
+                "siteType", "status", "references", "description"};
+        JSONObject feature = siteParser(site, propertyTypes);
+        features.put("features", wrapInArray(feature));
+        return features;
     }
 
-    //method to convert points to geojson
     public JSONObject convertSites(Iterable<Site> siteIterable) {
 
-        String [] propertyTypes = {"id", "name", "siteType", "status"};
+        String[] propertyTypes = {"id", "name", "siteType", "status"};
 
         JSONObject features = setUpGeoJSON();
         features.put("name", "sites");
 
-        //converting incoming Iterable to Iterator
-        Iterator<Site> siteIterator = siteIterable.iterator();
-
-        //JSONArray to store all features
         JSONArray jsonArray = new JSONArray();
 
-        //lambda function to iterate through the sites
-        siteIterator.forEachRemaining(element -> {
+        for (Site site : siteIterable) {
+            jsonArray.put(siteParser(site, propertyTypes));
+        }
 
-            JSONObject feature = siteParser(element, propertyTypes);
-
-            //add to JSON Array
-            jsonArray.put(feature);
-        });
-
-        //loading parsed sites into JSONobject
         features.put("features", jsonArray);
-
-        //returning JSON cf. GeoJSON standard
         return features;
     }
 
-    //method to convert multilinestrings to geojson
-    public JSONObject convertRoads(Iterable<Road> roadIterable) {
+    //method to convert MultiLineString to geojson
+    public JSONObject convertRoad(Road road) {
+        if (road == null) return null;
+        JSONObject features = setUpGeoJSON();
+        String[] propertyTypes = {
+                "id", "cat_nr", "name", "type", "typeDescription",
+                "location", "description", "date", "references",
+                "historicalReferences"};
+        JSONObject feature = roadParser(road, propertyTypes);
+        features.put("features", wrapInArray(feature));
+        return features;
+    }
 
-        String [] propertyTypes = {"id", "name", "type", "date"};
+    public JSONObject convertRoads(Iterable<Road> roadIterable) {
+        String[] propertyTypes = {"id", "name", "type", "date"};
 
         JSONObject features = setUpGeoJSON();
         features.put("name", "roads");
 
-        //converting incoming Iterable to Iterator
-        Iterator<Road> roadIterator = roadIterable.iterator();
-
-        //JSONArray to store all features
         JSONArray jsonArray = new JSONArray();
 
-        //lambda function to iterate through the sites
-        roadIterator.forEachRemaining(element -> {
-            if(element!=null){
-                JSONObject feature = roadParser(element, propertyTypes);
-                //add to JSON Array
-                jsonArray.put(feature);
+        for (Road road : roadIterable) {
+            if (road != null) {
+                jsonArray.put(roadParser(road, propertyTypes));
             } else {
-                logger.info("no elements found in roadsarray");
+                logger.debug("[GeoJsonConverter] Skipping null road entry.");
             }
-        });
+        }
 
-        //loading parsed sites into JSONobject
         features.put("features", jsonArray);
-
-        //returning JSON cf. GeoJSON standard
         return features;
     }
 
-    public JSONObject convertRoad(Optional<Road> roadOptional){
-        JSONObject features = setUpGeoJSON();
-        if(roadOptional.isPresent()){
-            Road road = roadOptional.get();
-
-            String [] propertyTypes = {
-                    "id", "cat_nr", "name", "type", "typeDescription",
-                    "location", "description", "date", "references",
-                    "historicalReferences"};
-
-            JSONObject feature = roadParser(road, propertyTypes);
-            features.put("features", feature);
-            return features;
-        } else {
-            return null;
-        }
-    }
-
-    private JSONObject setUpGeoJSON () {
-
-        //main object in which all features are stored, object in which projection (crs) information is stored, object
-        //in which projection properties are stored;
+    private JSONObject setUpGeoJSON() {
         JSONObject features = new JSONObject();
 
-        //setting HashMap to linked HashMap to keep order in JSON objects
         JsonUtils.enforceLinkedHashMap(features);
 
-        //setting mainobject
         features.put("type", "FeatureCollection");
-//        features.put("crs", crs);
-
         return features;
     }
 
     //method to parse values from Site object to JSON feature
-    private JSONObject siteParser (Site site, String [] propertyTypes) throws NullPointerException {
+    private JSONObject siteParser(Site site, String[] propertyTypes) throws NullPointerException {
 
         //JSON objects to store the properties, geometry and the complete feature
-        JSONObject feature = new JSONObject();
-        JSONObject properties = new JSONObject();
-        JSONObject geometry = new JSONObject();
+        Map<String, JSONObject> structure = createFeatureStructure();
+        JSONObject feature = structure.get("feature");
+        JSONObject geometry = structure.get("geometry");
 
-        //setting HashMap to linked HashMap to keep order in JSON objects
-        JsonUtils.enforceLinkedHashMap(feature);
-        JsonUtils.enforceLinkedHashMap(properties);
-        JsonUtils.enforceLinkedHashMap(geometry);
-
-        SitePropertiesParser(site, properties, propertyTypes);
+        JSONObject extractedProps = extractProperties(site, propertyTypes, siteExtractors);
 
         //constructing geometry
-        try {
-            geometry.put("type", site.getGeom().getGeometryType());
-        } catch (Exception e) {
-            logger.warn("geometry of " + site.getName() + " not found");
+        if (site.getGeom() == null) {
+            logger.warn("[GeoJsonConverter] Skipping Site '{}' (ID: {}) due to missing geometry.",
+                    site.getName(), site.getId());
             return feature;
         }
+        geometry.put("type", site.getGeom().getGeometryType());
 
-        Double [] coordinates = pointCoordinates(site);
+        Double[] coordinates = pointCoordinates(site);
 
         if (coordinates != null) {
             geometry.put("coordinates", coordinates);
         } else {
-            geometry.put("coordinates", 1234);
+            geometry.put("coordinates", JSONObject.NULL);
         }
 
         //constructing feature
         feature.put("type", "Feature");
-        feature.put("properties", properties);
+        feature.put("properties", extractedProps);
         feature.put("geometry", geometry);
 
         //return completed feature
         return feature;
     }
 
-    private JSONObject SitePropertiesParser (Site site, JSONObject properties, String [] propertytypes) throws NullPointerException {
-        try{
-            for (String propertytype : propertytypes) {
-                switch (propertytype) {
-                    case "id":
-                        properties.put(propertytype, site.getId());
-                        break;
-                    case "pleiadesId":
-                        properties.put(propertytype, site.getPleiadesId());
-                        break;
-                    case "name":
-                        properties.put(propertytype, site.getName());
-                        break;
-                    case "province":
-                        properties.put(propertytype, site.getProvince());
-                        break;
-                    case "siteType":
-                        properties.put(propertytype, site.getSiteType());
-                        break;
-                    case "status":
-                        properties.put(propertytype, site.getStatus());
-                        break;
-                    case "references":
-                        properties.put(propertytype, site.getReferences());
-                        break;
-                    case "description":
-                        properties.put(propertytype, site.getDescription());
-                        break;
-                }
-            }
-        } catch (Exception E) {
-            logger.warn("property not found in site " + site.getName());
-        }
-        return properties;
-    }
-
-    private JSONObject roadParser (Road road, String [] propertytypes) throws NullPointerException {
+    private JSONObject roadParser(Road road, String[] propertyTypes) throws NullPointerException {
 
         //JSON objects to store the properties, geometry and the complete feature
-        JSONObject feature = new JSONObject();
-        JSONObject properties = new JSONObject();
-        JSONObject geometry = new JSONObject();
+        Map<String, JSONObject> structure = createFeatureStructure();
+        JSONObject feature = structure.get("feature");
+        JSONObject geometry = structure.get("geometry");
 
-        //setting HashMap to linked HashMap to keep order in JSON objects
-        JsonUtils.enforceLinkedHashMap(feature);
-        JsonUtils.enforceLinkedHashMap(properties);
-        JsonUtils.enforceLinkedHashMap(geometry);
+        JSONObject extractedProps = extractProperties(road, propertyTypes, roadExtractors);
 
-        RoadPropertiesParser(road, properties, propertytypes);
-
-       //constructing geometry
-        try {
-            geometry.put("type", road.getGeom().getGeometryType());
-        } catch (Exception e) {
-            logger.warn("geometry of " + road.getName() + " not found");
+        //constructing geometry
+        if (road.getGeom() == null) {
+            logger.warn("[GeoJsonConverter] Skipping Road '{}' (ID: {}) due to missing geometry.",
+                    road.getName(), road.getId());
             geometry.put("type", "not_found");
         }
+        geometry.put("type", road.getGeom().getGeometryType());
 
-        Double [][][] coordinates = lineCoordinates(road);
+        Double[][][] coordinates = lineCoordinates(road);
 
         if (coordinates != null) {
             geometry.put("coordinates", coordinates);
         } else {
-            geometry.put("coordinates", 1234);
+            geometry.put("coordinates", JSONObject.NULL);
         }
 
         //constructing feature
         feature.put("type", "Feature");
-        feature.put("properties", properties);
+        feature.put("properties", extractedProps);
         feature.put("geometry", geometry);
         return feature;
     }
 
-    private JSONObject RoadPropertiesParser (Road road, JSONObject properties, String [] propertytypes) throws NullPointerException {
-        try{
-            for (String propertytype : propertytypes) {
-                switch (propertytype) {
-                    case "id":
-                        properties.put(propertytype, road.getId());
-                        break;
-                    case "cat_nr":
-                        properties.put(propertytype, road.getCat_nr());
-                        break;
-                    case "name":
-                        properties.put(propertytype, road.getName());
-                        break;
-                    case "type":
-                        properties.put(propertytype, road.getType());
-                        break;
-                    case "typeDescription":
-                        properties.put(propertytype, road.getTypeDescription());
-                        break;
-                    case "location":
-                        properties.put(propertytype, road.getLocation());
-                        break;
-                    case "description":
-                        properties.put(propertytype, road.getDescription());
-                        break;
-                    case "date":
-                        properties.put(propertytype, road.getDate());
-                        break;
-                    case "references":
-                        properties.put(propertytype, road.getReferences());
-                        break;
-                    case "historicalReferences":
-                        properties.put(propertytype, road.getHistoricalReferences());
-                        break;
-                }
-            }
-
-        } catch (Exception E) {
-            logger.warn("property not found in site " + road.getName());
-        }
-        return properties;
-    }
-
     //constructing coordinates for JSON
-    Double [] pointCoordinates (Site site) {
+    Double[] pointCoordinates(Site site) {
 
-        if (site.getGeom() != null){
+        if (site.getGeom() != null) {
             //making array of X (latitude) and Y (longitude) coordinates
             return new Double[]{site.getGeom().getX(), site.getGeom().getY()};
         } else {
@@ -303,20 +168,20 @@ public class GeoJsonConverter {
     }
 
     //loop over number of geometries (arrays of coordinates of separate line in multilinestring)
-    Double [][][] lineCoordinates (Road road) {
+    Double[][][] lineCoordinates(Road road) {
         if (road.getGeom() != null) {
 
             int i = 0;
-            Double [][][] multiLineCoords = new Double [road.getGeom().getNumGeometries()][][];
+            Double[][][] multiLineCoords = new Double[road.getGeom().getNumGeometries()][][];
 
             while (i < road.getGeom().getNumGeometries()) {
                 Coordinate[] coord = road.getGeom().getGeometryN(i).getCoordinates();
 
                 int j = 0;
-                Double [][] line = new Double[coord.length][];
+                Double[][] line = new Double[coord.length][];
 
-                while (j<coord.length){
-                    Double [] point = {coord[j].getX(), coord[j].getY()};
+                while (j < coord.length) {
+                    Double[] point = {coord[j].getX(), coord[j].getY()};
                     line[j] = point;
                     j++;
                 }
@@ -328,4 +193,74 @@ public class GeoJsonConverter {
             return null;
         }
     }
+
+    private JSONArray wrapInArray(JSONObject feature) {
+        JSONArray array = new JSONArray();
+        array.put(feature);
+        return array;
+    }
+
+    private Map<String, JSONObject> createFeatureStructure() {
+        JSONObject feature = new JSONObject();
+        JSONObject geometry = new JSONObject();
+
+        JsonUtils.enforceLinkedHashMap(feature);
+        JsonUtils.enforceLinkedHashMap(geometry);
+
+        Map<String, JSONObject> map = new HashMap<>();
+        map.put("feature", feature);
+        map.put("geometry", geometry);
+        return map;
+    }
+
+    private <T> JSONObject extractProperties(
+            T obj,
+            String[] propertyTypes,
+            Map<String, Function<T, Object>> extractorMap
+    ) {
+        JSONObject properties = new JSONObject();
+        JsonUtils.enforceLinkedHashMap(properties);
+
+        boolean hadFailure = false;
+
+        for (String type : propertyTypes) {
+            try {
+                Object value = extractorMap.getOrDefault(type, o -> null).apply(obj);
+                properties.put(type, value);
+            } catch (Exception e) {
+                hadFailure = true;
+                logger.debug("Extractor for '{}' failed on object of type {}", type, obj.getClass().getSimpleName());
+            }
+        }
+
+        if (hadFailure) {
+            logger.warn("Some properties failed to extract for {} (ID unknown or missing)", obj.getClass().getSimpleName());
+        }
+
+        return properties;
+    }
+
+    private static final Map<String, Function<Site, Object>> siteExtractors = Map.of(
+            "id", Site::getId,
+            "pleiadesId", Site::getPleiadesId,
+            "name", Site::getName,
+            "province", Site::getProvince,
+            "siteType", Site::getSiteType,
+            "status", Site::getStatus,
+            "references", Site::getReferences,
+            "description", Site::getDescription
+    );
+
+    private static final Map<String, Function<Road, Object>> roadExtractors = Map.of(
+            "id", Road::getId,
+            "cat_nr", Road::getCat_nr,
+            "name", Road::getName,
+            "type", Road::getType,
+            "typeDescription", Road::getTypeDescription,
+            "location", Road::getLocation,
+            "description", Road::getDescription,
+            "date", Road::getDate,
+            "references", Road::getReferences,
+            "historicalReferences", Road::getHistoricalReferences
+    );
 }

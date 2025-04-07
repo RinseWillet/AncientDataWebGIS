@@ -65,7 +65,7 @@ public class RoadService {
     }
 
     public String findByIdGeoJson(long id) throws NoSuchElementException {
-        return new GeoJsonConverter().convertRoad(findById(id)).toString();
+        return new GeoJsonConverter().convertRoad(findById(id).orElse(null)).toString();
     }
 
     //protected methods

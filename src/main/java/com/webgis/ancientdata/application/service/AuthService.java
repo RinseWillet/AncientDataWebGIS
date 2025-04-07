@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.application.service;
 
+import com.webgis.ancientdata.domain.dto.AuthResponseDTO;
 import com.webgis.ancientdata.domain.model.Role;
 import com.webgis.ancientdata.domain.model.User;
 import com.webgis.ancientdata.domain.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -41,16 +43,28 @@ public class AuthService {
 
         userRepository.save(user);
         logger.info("User '{}' successfully registered with role '{}'", username, role);
-        return jwtUtil.generateToken(username, role.name());
+        return generateToken(user);
     }
 
     public String authenticate(String username, String password) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent() && passwordEncoder.matches(password, userOptional.get().getPassword())) {
             logger.info("User '{}' successfully authenticated", username);
-            return jwtUtil.generateToken(username, userOptional.get().getRole().name());
+            return generateToken(userOptional.get());
         }
         logger.warn("Authentication failed for user '{}'", username);
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+    }
+
+    public AuthResponseDTO login (String username, String password) {
+        String token = authenticate(username, password);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow();
+        List<String> roles = List.of(user.getRole().name());
+        return new AuthResponseDTO(token, roles);
+    }
+
+    public String generateToken(User user) {
+        return jwtUtil.generateToken(user.getUsername(), user.getRole().name());
     }
 }

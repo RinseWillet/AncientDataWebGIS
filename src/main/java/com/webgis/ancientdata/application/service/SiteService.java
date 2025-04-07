@@ -55,7 +55,7 @@ public class SiteService {
     }
 
     public String findByIdGeoJson(long id) {
-        return new GeoJsonConverter().convertSite(findById(id)).toString();
+        return new GeoJsonConverter().convertSite(findById(id).orElse(null)).toString();
     }
 
     public Site save(SiteDTO siteDTO) {
