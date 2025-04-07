@@ -79,7 +79,7 @@ public class RandomRoadGenerator {
         return roadJSON;
     }
 
-    private JSONObject generateRandomRoadGeoJONProperties (Road road) {
+    private JSONObject generateRandomRoadGeoJONProperties(Road road) {
 
         //properties
         JSONObject properties = new JSONObject();
@@ -98,7 +98,7 @@ public class RandomRoadGenerator {
         return properties;
     }
 
-    private JSONObject generateRandomRoadGeoJONGeometry (Road road) {
+    private JSONObject generateRandomRoadGeoJONGeometry(Road road) {
         //setting up geometry for GeoJSON
         JSONObject geometry = new JSONObject();
         JsonUtils.enforceLinkedHashMap(geometry);
@@ -127,7 +127,7 @@ public class RandomRoadGenerator {
     }
 
 
-    public JSONObject generateRandomRoadGeoJSON (Road road) {
+    public JSONObject generateRandomRoadGeoJSON(Road road) {
 
         //setting up GeoJSON
         //properties
@@ -155,7 +155,7 @@ public class RandomRoadGenerator {
         return roadGeoJSON;
     }
 
-    public JSONObject generateRandomRoadsGeoJSON (Road road) {
+    public JSONObject generateRandomRoadsGeoJSON(Road road) {
         //setting up simplified properties for roads GeoJSON
         JSONObject properties = new JSONObject();
         JsonUtils.enforceLinkedHashMap(properties);
@@ -175,7 +175,7 @@ public class RandomRoadGenerator {
         feature.put("properties", properties);
         feature.put("geometry", geometry);
 
-        JSONObject [] features = new JSONObject[] {feature};
+        JSONObject[] features = new JSONObject[]{feature};
 
         JSONObject roadsGeoJSON = new JSONObject();
         JsonUtils.enforceLinkedHashMap(roadsGeoJSON);
