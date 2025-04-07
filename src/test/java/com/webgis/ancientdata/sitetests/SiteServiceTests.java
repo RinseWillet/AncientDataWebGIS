@@ -145,9 +145,9 @@ public class SiteServiceTests {
 
     @Test
     public void shouldConvertSiteToGeoJSON() {
-        when(geoJsonConverter.convertSite(Optional.of(site))).thenReturn(siteGeoJSON);
+        when(geoJsonConverter.convertSite(site)).thenReturn(siteGeoJSON);
 
-        JSONObject fetchedGeoJSON = geoJsonConverter.convertSite(Optional.of(site));
+        JSONObject fetchedGeoJSON = geoJsonConverter.convertSite(site);
         assertEquals(fetchedGeoJSON, siteGeoJSON);
 
         verify(geoJsonConverter, times(1)).convertSite(any());

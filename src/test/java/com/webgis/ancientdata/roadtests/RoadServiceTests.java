@@ -150,9 +150,9 @@ public class RoadServiceTests {
 
     @Test
     public void shouldConvertRoadtoGeoJSON() {
-        when(geoJsonConverter.convertRoad(Optional.of(road))).thenReturn(roadGeoJSON);
+        when(geoJsonConverter.convertRoad(road)).thenReturn(roadGeoJSON);
 
-        JSONObject fetchedroadGeoJSON = geoJsonConverter.convertRoad(Optional.of(road));
+        JSONObject fetchedroadGeoJSON = geoJsonConverter.convertRoad(road);
         assertEquals(fetchedroadGeoJSON, roadGeoJSON);
 
         verify(geoJsonConverter, times(1)).convertRoad(any());

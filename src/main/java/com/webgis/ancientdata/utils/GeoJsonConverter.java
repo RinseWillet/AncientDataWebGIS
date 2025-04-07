@@ -11,26 +11,23 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
-//class to convert JSON object from repository to GeoJSON
 @Service
 public class GeoJsonConverter {
 
     private final Logger logger = LoggerFactory.getLogger(GeoJsonConverter.class);
 
     //method to convert individual Point to geojson
-    public JSONObject convertSite(Optional<Site> siteOptional) {
-        return siteOptional.map(site -> {
-            JSONObject features = setUpGeoJSON();
-            String[] propertyTypes = {
-                    "id", "pleiadesId", "name", "province",
-                    "siteType", "status", "references", "description"};
-            JSONObject feature = siteParser(site, propertyTypes);
-            features.put("features", wrapInArray(feature));
-            return features;
-        }).orElse(null);
+    public JSONObject convertSite(Site site) {
+        if (site == null) return null;
+        JSONObject features = setUpGeoJSON();
+        String[] propertyTypes = {
+                "id", "pleiadesId", "name", "province",
+                "siteType", "status", "references", "description"};
+        JSONObject feature = siteParser(site, propertyTypes);
+        features.put("features", wrapInArray(feature));
+        return features;
     }
 
     public JSONObject convertSites(Iterable<Site> siteIterable) {
@@ -51,17 +48,16 @@ public class GeoJsonConverter {
     }
 
     //method to convert MultiLineString to geojson
-    public JSONObject convertRoad(Optional<Road> roadOptional) {
-        return roadOptional.map(road -> {
-            JSONObject features = setUpGeoJSON();
-            String[] propertyTypes = {
-                    "id", "cat_nr", "name", "type", "typeDescription",
-                    "location", "description", "date", "references",
-                    "historicalReferences"};
-            JSONObject feature = roadParser(road, propertyTypes);
-            features.put("features", wrapInArray(feature));
-            return features;
-        }).orElse(null);
+    public JSONObject convertRoad(Road road) {
+        if (road == null) return null;
+        JSONObject features = setUpGeoJSON();
+        String[] propertyTypes = {
+                "id", "cat_nr", "name", "type", "typeDescription",
+                "location", "description", "date", "references",
+                "historicalReferences"};
+        JSONObject feature = roadParser(road, propertyTypes);
+        features.put("features", wrapInArray(feature));
+        return features;
     }
 
     public JSONObject convertRoads(Iterable<Road> roadIterable) {
