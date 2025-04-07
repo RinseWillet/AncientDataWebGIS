@@ -31,7 +31,6 @@ public class GeoJsonConverter {
     }
 
     public JSONObject convertSites(Iterable<Site> siteIterable) {
-
         String[] propertyTypes = {"id", "name", "siteType", "status"};
 
         JSONObject features = setUpGeoJSON();
