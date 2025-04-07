@@ -5,6 +5,7 @@ import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.utils.JsonUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
@@ -145,8 +146,11 @@ public class RandomRoadGenerator {
         //constructing final GeoJSON
         JSONObject roadGeoJSON = new JSONObject();
         JsonUtils.enforceLinkedHashMap(roadGeoJSON);
+
+        JSONArray featureArray = new JSONArray();
+        featureArray.put(feature);
         roadGeoJSON.put("type", "FeatureCollection");
-        roadGeoJSON.put("features", feature);
+        roadGeoJSON.put("features", featureArray);
 
         return roadGeoJSON;
     }
