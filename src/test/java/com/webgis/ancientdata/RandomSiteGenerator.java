@@ -14,7 +14,7 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
 public class RandomSiteGenerator {
 
-    public Site generateRandomSite(){
+    public Site generateRandomSite() {
         Integer pleiadesId = RandomUtils.nextInt();
         String name = RandomStringUtils.randomAlphabetic(10);
 
@@ -22,8 +22,8 @@ public class RandomSiteGenerator {
         double x = RandomUtils.nextDouble(0, 180);
         double y = RandomUtils.nextDouble(0, 90);
         double z = RandomUtils.nextDouble(0, 3000);
-        Coordinate coordinate = new Coordinate(x,y,z);
-        Coordinate [] coordinates = new Coordinate[]{coordinate};
+        Coordinate coordinate = new Coordinate(x, y, z);
+        Coordinate[] coordinates = new Coordinate[]{coordinate};
         CoordinateArraySequence coordinateArraySequence = new CoordinateArraySequence(coordinates);
         GeometryFactory geometryFactory = new GeometryFactory();
         Point geom = new Point(coordinateArraySequence, geometryFactory);
@@ -44,7 +44,7 @@ public class RandomSiteGenerator {
                 description);
     }
 
-    public JSONObject generateRandomSiteJSON (Site site){
+    public JSONObject generateRandomSiteJSON(Site site) {
         JSONObject siteJSON = new JSONObject();
         siteJSON.put("pleiadesId", site.getPleiadesId());
         siteJSON.put("name", site.getName());
@@ -58,7 +58,7 @@ public class RandomSiteGenerator {
         return siteJSON;
     }
 
-    private JSONObject generateRandomSiteGeoJONProperties (Site site) {
+    private JSONObject generateRandomSiteGeoJONProperties(Site site) {
         JSONObject properties = new JSONObject();
         JsonUtils.enforceLinkedHashMap(properties);
         properties.put("id", site.getId());
@@ -72,16 +72,16 @@ public class RandomSiteGenerator {
         return properties;
     }
 
-    private JSONObject generateRandomSiteGeoJONGeometry (Site site) {
+    private JSONObject generateRandomSiteGeoJONGeometry(Site site) {
         JSONObject geometry = new JSONObject();
         JsonUtils.enforceLinkedHashMap(geometry);
         geometry.put("type", "Point");
-        Double [] coordsGeoJSON = {site.getGeom().getX(), site.getGeom().getY()};
+        Double[] coordsGeoJSON = {site.getGeom().getX(), site.getGeom().getY()};
         geometry.put("coordinates", coordsGeoJSON);
         return geometry;
     }
 
-    private JSONObject generateRandomSiteGeoJSONFeature (JSONObject properties, JSONObject geometry) {
+    private JSONObject generateRandomSiteGeoJSONFeature(JSONObject properties, JSONObject geometry) {
         JSONObject feature = new JSONObject();
         JsonUtils.enforceLinkedHashMap(feature);
         feature.put("type", "Feature");
@@ -123,7 +123,7 @@ public class RandomSiteGenerator {
         JSONObject geometry = generateRandomSiteGeoJONGeometry(site);
         JSONObject feature = generateRandomSiteGeoJSONFeature(properties, geometry);
 
-        JSONObject [] features = new JSONObject[]{feature};
+        JSONObject[] features = new JSONObject[]{feature};
 
         JSONObject sitesGeoJSON = new JSONObject();
         JsonUtils.enforceLinkedHashMap(sitesGeoJSON);
