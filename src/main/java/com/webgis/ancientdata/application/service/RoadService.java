@@ -111,6 +111,11 @@ public class RoadService {
                 road.setDescription(roadDTO.getDescription());
                 road.setDate(roadDTO.getDate());
 
+                if (roadDTO.getReferenceIds() != null) {
+                    List<ModernReference> references = modernReferenceRepository.findAllById(roadDTO.getReferenceIds());
+                    road.setModernReferenceList(references);
+                }
+
                 logger.info("Updating road: {}", road);
                 return roadRepository.save(road);
             } else {

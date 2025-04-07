@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @Entity
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "roadList")
 @Table(name = "modernrefs")
 public class ModernReference {
 
