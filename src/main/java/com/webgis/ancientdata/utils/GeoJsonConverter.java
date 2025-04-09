@@ -231,7 +231,6 @@ public class GeoJsonConverter {
                 logger.debug("Extractor for '{}' failed on object of type {}", type, obj.getClass().getSimpleName());
             }
         }
-
         if (hadFailure) {
             logger.warn("Some properties failed to extract for {} (ID unknown or missing)", obj.getClass().getSimpleName());
         }

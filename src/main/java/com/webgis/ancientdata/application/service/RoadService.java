@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.StreamSupport;
 
+import static com.webgis.ancientdata.constants.ErrorMessages.INVALID_WKT_FORMAT;
+
 
 @Service
 public class RoadService {
@@ -89,8 +91,8 @@ public class RoadService {
             logger.info("Saving road: {}", road);
             return roadRepository.save(road);
         } catch (ParseException e) {
-            logger.error("Invalid WKT geometry format: {}", roadDTO.getGeom());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
+            logger.error(INVALID_WKT_FORMAT + ": {} ", roadDTO.getGeom());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_WKT_FORMAT, e);
         } catch (Exception e) {
             logger.warn("Saving road failed: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_SAVE_ROAD, e);
@@ -111,9 +113,19 @@ public class RoadService {
                 road.setDescription(roadDTO.getDescription());
                 road.setDate(roadDTO.getDate());
 
+
                 if (roadDTO.getReferenceIds() != null) {
                     List<ModernReference> references = modernReferenceRepository.findAllById(roadDTO.getReferenceIds());
+                    StringBuilder shortRefsBuilder = new StringBuilder();
+                    for (ModernReference ref : references) {
+                        if (!shortRefsBuilder.isEmpty()) {
+                            shortRefsBuilder.append(", ");
+                        }
+                        shortRefsBuilder.append(ref.getShortRef());
+                    }
+                    road.setReferences(shortRefsBuilder.toString());
                     road.setModernReferenceList(references);
+                    logger.info("Set {} modern references on road ID {}", references.size(), road.getId());
                 }
 
                 logger.info("Updating road: {}", road);
@@ -123,8 +135,8 @@ public class RoadService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND);
             }
         } catch (ParseException e) {
-            logger.error("Invalid WKT geometry format: {}", roadDTO.getGeom());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid WKT format", e);
+            logger.error(ErrorMessages.INVALID_WKT_FORMAT + ": {}", roadDTO.getGeom());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_WKT_FORMAT, e);
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
