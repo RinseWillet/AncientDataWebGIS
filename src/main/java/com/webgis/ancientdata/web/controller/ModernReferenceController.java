@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/modernreferences")
@@ -19,8 +21,8 @@ public class ModernReferenceController {
     private ModernReferenceService modernReferenceService;
 
     @GetMapping("/all")
-    public ResponseEntity<Iterable<ModernReference>> findAll() {
-        return ResponseEntity.ok(modernReferenceService.findAll());
+    public ResponseEntity<List<ModernReferenceDTO>> findAll() {
+        return ResponseEntity.ok(modernReferenceService.findAllAsDTOs());
     }
 
     @GetMapping("/{id}")

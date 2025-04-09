@@ -15,8 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 
 @Service
@@ -29,6 +31,20 @@ public class ModernReferenceService {
 
     public ModernReferenceService(ModernReferenceRepository modernReferenceRepository) {
         this.modernReferenceRepository = modernReferenceRepository;
+    }
+
+    public List<ModernReferenceDTO> findAllAsDTOs() {
+        try {
+            return StreamSupport
+                    .stream(modernReferenceRepository.findAll().spliterator(), false)
+                    .map(ModernReferenceMapper::toDto)
+                    .filter(dto -> dto.getShortRef() != null)
+                    .sorted(Comparator.comparing(ModernReferenceDTO::getShortRef, String.CASE_INSENSITIVE_ORDER))
+                    .toList();
+        } catch (Exception e) {
+            logger.error("Failed to fetch or sort modern references: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load references", e);
+        }
     }
 
     public Iterable<ModernReference> findAll() {

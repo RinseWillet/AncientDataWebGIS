@@ -1,9 +1,12 @@
 package com.webgis.ancientdata.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.util.List;
 
 
 @Data
@@ -34,4 +37,7 @@ public class RoadDTO {
     private String description;
 
     private String date;
+
+    @JsonProperty("referenceIds")
+    private List<Long> referenceIds;
 }
