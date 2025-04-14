@@ -177,7 +177,7 @@ public class ModernReferenceServiceTests {
 
     @Test
     public void shouldThrowWhenFetchingGeoJSONWithNonexistentId() {
-        Long nonexistentId = 9999L;
+        long nonexistentId = 9999L;
         when(modernReferenceRepository.findById(nonexistentId)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
