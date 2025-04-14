@@ -62,19 +62,19 @@ public class SiteService {
         validateSiteDTO(siteDTO);
         try {
             Site site = new Site();
-            site.setPleiadesId(siteDTO.getPleiadesId());
-            site.setName(siteDTO.getName());
-            site.setGeom(convertWktToPoint(siteDTO.getGeom()));
-            site.setProvince(siteDTO.getProvince());
-            site.setSiteType(siteDTO.getSiteType());
-            site.setStatus(siteDTO.getStatus());
-            site.setReferences(siteDTO.getReferences());
-            site.setDescription(siteDTO.getDescription());
+            site.setPleiadesId(siteDTO.pleiadesId());
+            site.setName(siteDTO.name());
+            site.setGeom(convertWktToPoint(siteDTO.geom()));
+            site.setProvince(siteDTO.province());
+            site.setSiteType(siteDTO.siteType());
+            site.setStatus(siteDTO.status());
+            site.setReferences(siteDTO.references());
+            site.setDescription(siteDTO.description());
 
             logger.info("Saving site: {}", site);
             return siteRepository.save(site);
         } catch (ParseException e) {
-            logger.error("Invalid WKT geometry format: {}", siteDTO.getGeom());
+            logger.error("Invalid WKT geometry format: {}", siteDTO.geom());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_WKT_FORMAT, e);
         } catch (ResponseStatusException e) {
             throw e;
@@ -89,14 +89,14 @@ public class SiteService {
             Optional<Site> siteOptional = findById(id);
             if (siteOptional.isPresent()) {
                 Site site = siteOptional.get();
-                site.setPleiadesId(siteDTO.getPleiadesId());
-                site.setName(siteDTO.getName());
-                site.setGeom(convertWktToPoint(siteDTO.getGeom()));
-                site.setProvince(siteDTO.getProvince());
-                site.setSiteType(siteDTO.getSiteType());
-                site.setStatus(siteDTO.getStatus());
-                site.setReferences(siteDTO.getReferences());
-                site.setDescription(siteDTO.getDescription());
+                site.setPleiadesId(siteDTO.pleiadesId());
+                site.setName(siteDTO.name());
+                site.setGeom(convertWktToPoint(siteDTO.geom()));
+                site.setProvince(siteDTO.province());
+                site.setSiteType(siteDTO.siteType());
+                site.setStatus(siteDTO.status());
+                site.setReferences(siteDTO.references());
+                site.setDescription(siteDTO.description());
 
                 logger.info("Updating site: {}", site);
                 return siteRepository.save(site);
@@ -105,7 +105,7 @@ public class SiteService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
             }
         } catch (ParseException e) {
-            logger.error("Invalid WKT geometry format: {}", siteDTO.getGeom());
+            logger.error("Invalid WKT geometry format: {}", siteDTO.geom());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_WKT_FORMAT, e);
         } catch (ResponseStatusException e) {
             throw e;
@@ -128,11 +128,11 @@ public class SiteService {
         return siteRepository.findById(siteId).map(site -> {
             ModernReference modernReference;
 
-            if (dto.getId() != null) {
-                modernReference = modernReferenceRepository.findById(dto.getId())
+            if (dto.id() != null) {
+                modernReference = modernReferenceRepository.findById(dto.id())
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
             } else {
-                modernReference = new ModernReference(dto.getShortRef(), dto.getFullRef(), dto.getUrl());
+                modernReference = new ModernReference(dto.shortRef(), dto.fullRef(), dto.url());
             }
 
             site.addModernReference(modernReference);
@@ -173,7 +173,7 @@ public class SiteService {
     }
 
     private void validateSiteDTO(SiteDTO siteDTO) {
-        if (siteDTO.getGeom() == null || siteDTO.getName() == null || siteDTO.getSiteType() == null) {
+        if (siteDTO.geom() == null || siteDTO.name() == null || siteDTO.siteType() == null) {
             logger.error("Invalid site data: Missing required fields");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_SITE_DATA);
         }

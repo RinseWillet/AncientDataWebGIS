@@ -187,17 +187,18 @@ public class RandomRoadGenerator {
     }
 
     public RoadDTO toDTO(Road road) {
-        RoadDTO dto = new RoadDTO();
-        dto.setCat_nr(road.getCat_nr());
-        dto.setName(road.getName());
-        dto.setGeom(road.getGeom().toText()); // WKT
-        dto.setType(road.getType());
-        dto.setTypeDescription(road.getTypeDescription());
-        dto.setLocation(road.getLocation());
-        dto.setDescription(road.getDescription());
-        dto.setDate(road.getDate());
-        return dto;
+        return new RoadDTO(
+                road.getId(),
+                road.getCat_nr(),
+                road.getName(),
+
+                road.getGeom().toText(), // WKT
+                road.getType(),
+                road.getTypeDescription(),
+                road.getLocation(),
+                road.getDescription(),
+                road.getDate(),
+                null
+        );
     }
 }
-
-

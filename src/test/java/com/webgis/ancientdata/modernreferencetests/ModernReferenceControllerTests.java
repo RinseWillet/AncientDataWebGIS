@@ -2,6 +2,7 @@ package com.webgis.ancientdata.modernreferencetests;
 
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.RandomSiteGenerator;
+import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.domain.model.Site;
@@ -26,10 +27,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -44,7 +45,8 @@ public class ModernReferenceControllerTests {
     private com.webgis.ancientdata.application.service.ModernReferenceService modernReferenceService;
 
     private ModernReference modernReference;
-    private List<ModernReference> modernReferenceList;
+    private ModernReferenceDTO modernReferenceDTO;
+    private List<ModernReferenceDTO> modernReferenceDTOList;
     private JSONObject modernReferenceJSON;
 
     private Road road;
@@ -60,14 +62,21 @@ public class ModernReferenceControllerTests {
         String url = RandomStringUtils.randomAlphabetic(100);
 
         modernReference = new ModernReference(shortRef, fullRef, url);
+
         modernReference.setId(RandomUtils.nextLong(1, 1000));
+        modernReferenceDTO = new ModernReferenceDTO(
+                modernReference.getId(),
+                modernReference.getShortRef(),
+                modernReference.getFullRef(),
+                modernReference.getUrl()
+        );
 
         modernReferenceJSON = new JSONObject();
         modernReferenceJSON.put("shortRef", shortRef);
         modernReferenceJSON.put("fullRef", fullRef);
         modernReferenceJSON.put("URL", url);
 
-        modernReferenceList = Collections.singletonList(modernReference);
+        modernReferenceDTOList = Collections.singletonList(modernReferenceDTO);
 
         road = new RandomRoadGenerator().generateRandomRoad();
         roadJSON = new RandomRoadGenerator().generateRandomRoadJSON(road);
@@ -79,27 +88,29 @@ public class ModernReferenceControllerTests {
     @WithMockUser(roles = "USER")
     @Test
     public void shouldFindModernReferenceById() throws Exception {
-        when(modernReferenceService.findById(modernReference.getId())).thenReturn(Optional.of(modernReference));
+        when(modernReferenceService.findByIdDTO(modernReference.getId())).thenReturn(modernReferenceDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/modernreferences/" + modernReference.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(modernReference.getId()))
+                .andExpect(jsonPath("$.shortRef").value(modernReference.getShortRef()))
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(modernReferenceService, times(1)).findById(modernReference.getId());
+        verify(modernReferenceService).findByIdDTO(modernReference.getId());
     }
 
     @WithMockUser(roles = "USER")
     @Test
     public void shouldFindAllModernReferences() throws Exception {
-        when(modernReferenceService.findAll()).thenReturn(modernReferenceList);
+        when(modernReferenceService.findAllAsDTOs()).thenReturn(modernReferenceDTOList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/modernreferences/all")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(modernReferenceService, times(1)).findAll();
+        verify(modernReferenceService, times(1)).findAllAsDTOs();
     }
 
     @WithMockUser(roles = "USER")
@@ -136,9 +147,12 @@ public class ModernReferenceControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/modernreferences")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(modernReferenceJSON.toString()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(modernReference.getId()))
+                .andExpect(jsonPath("$.shortRef").value(modernReference.getShortRef()));
 
         verify(modernReferenceService).save(any());
+
     }
 
     @Test
@@ -149,9 +163,29 @@ public class ModernReferenceControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/modernreferences/" + modernReference.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(modernReferenceJSON.toString()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(modernReference.getId()))
+                .andExpect(jsonPath("$.shortRef").value(modernReference.getShortRef()));
+        ;
 
         verify(modernReferenceService).update(eq(modernReference.getId()), any());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnBadRequestWhenUpdatingWithInvalidModernReference() throws Exception {
+        String invalidJson = """
+                    {
+                      "shortRef": "",
+                      "fullRef": "",
+                      "URL": ""
+                    }
+                """;
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/modernreferences/" + modernReference.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.webgis.ancientdata.application.service.RoadService;
 import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
+import com.webgis.ancientdata.domain.dto.RoadDashboardDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
@@ -207,20 +208,30 @@ public class RoadServiceTests {
     @Test
     public void shouldAddModernReferenceToRoad() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.of(road));
-        when(modernReferenceRepository.findById(modernReferenceDTO.getId())).thenReturn(Optional.of(modernReference));
+        when(modernReferenceRepository.findById(modernReferenceDTO.id())).thenReturn(Optional.of(modernReference));
         when(roadRepository.save(road)).thenReturn(road);
 
         assertEquals(roadService.addModernReferenceToRoad(road.getId(), modernReferenceDTO), road);
 
         verify(roadRepository, times(1)).findById(road.getId());
-        verify(modernReferenceRepository, times(1)).findById(modernReferenceDTO.getId());
+        verify(modernReferenceRepository, times(1)).findById(modernReferenceDTO.id());
         verify(roadRepository, times(1)).save(road);
     }
 
     @Test
     public void shouldThrowBadRequestWhenSavingRoadWithMissingFields() {
-        RoadDTO invalidDTO = new RoadDTO();
-        invalidDTO.setName("Via Error");  // Missing type and geom
+        RoadDTO invalidDTO = new RoadDTO(
+                0L,
+                123,               // cat_nr
+                "Via Error",       // name
+                null,              // geom (missing on purpose)
+                null,              // type (missing on purpose)
+                null,
+                null,
+                null,
+                null,
+                null
+        );
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(invalidDTO));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -229,10 +240,9 @@ public class RoadServiceTests {
 
     @Test
     public void shouldThrowOnInvalidGeometry() {
-        RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
-        roadDTO.setGeom("INVALID_WKT");
+        RoadDTO invalidDto = copyWithNewGeom(randomRoadGenerator.toDTO(road), "INVALID_WKT");
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(roadDTO));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(invalidDto));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals(ErrorMessages.INVALID_WKT_FORMAT, exception.getReason());
     }
@@ -254,5 +264,35 @@ public class RoadServiceTests {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.delete(9999L));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals(ErrorMessages.ROAD_NOT_FOUND, exception.getReason());
+    }
+
+    @Test
+    public void shouldReturnDashboardData() {
+        when(roadRepository.findAll()).thenReturn(roadList);
+        road.setType("road");
+
+        RoadDashboardDTO result = roadService.getDashBoardData();
+
+        assertEquals(1L, result.totalRoads());
+        assertEquals(1L, result.confirmedRoads());
+        assertEquals(0L, result.possibleRoads());
+        assertEquals(0L, result.hypotheticalRoutes());
+        assertEquals(0L, result.historicalRecorded());
+        assertEquals(0L, result.other());
+    }
+
+    private RoadDTO copyWithNewGeom(RoadDTO original, String newGeom) {
+        return new RoadDTO(
+                original.id(),
+                original.cat_nr(),
+                original.name(),
+                newGeom,
+                original.type(),
+                original.typeDescription(),
+                original.location(),
+                original.description(),
+                original.date(),
+                original.referenceIds()
+        );
     }
 }

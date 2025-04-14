@@ -114,10 +114,10 @@ public class RoadControllerTests {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(modernReferenceDTOList.size()))
-                .andExpect(jsonPath("$[0].id").value(modernReferenceDTO.getId()))
-                .andExpect(jsonPath("$[0].shortRef").value(modernReferenceDTO.getShortRef()))
-                .andExpect(jsonPath("$[0].fullRef").value(modernReferenceDTO.getFullRef()))
-                .andExpect(jsonPath("$[0].url").value(modernReferenceDTO.getUrl()))
+                .andExpect(jsonPath("$[0].id").value(modernReferenceDTO.id()))
+                .andExpect(jsonPath("$[0].shortRef").value(modernReferenceDTO.shortRef()))
+                .andExpect(jsonPath("$[0].fullRef").value(modernReferenceDTO.fullRef()))
+                .andExpect(jsonPath("$[0].url").value(modernReferenceDTO.url()))
                 .andDo(MockMvcResultHandlers.print());
 
         verify(roadService, times(1)).findModernReferencesByRoadId(road.getId());
@@ -237,8 +237,8 @@ public class RoadControllerTests {
                 .andExpect(result -> {
                     String json = result.getResponse().getContentAsString();
                     RoadDTO responseDto = objectMapper.readValue(json, RoadDTO.class);
-                    assertThat(responseDto.getName()).isEqualTo(expectedDto.getName());
-                    assertThat(responseDto.getType()).isEqualTo(expectedDto.getType());
+                    assertThat(responseDto.name()).isEqualTo(expectedDto.name());
+                    assertThat(responseDto.type()).isEqualTo(expectedDto.type());
                 })
                 .andDo(MockMvcResultHandlers.print());
 

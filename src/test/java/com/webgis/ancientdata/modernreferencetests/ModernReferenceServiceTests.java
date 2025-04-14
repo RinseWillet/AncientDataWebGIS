@@ -1,7 +1,5 @@
 package com.webgis.ancientdata.modernreferencetests;
 
-//MVC
-
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.application.service.ModernReferenceService;
@@ -118,6 +116,8 @@ public class ModernReferenceServiceTests {
         verify(modernReferenceRepository, times(1)).findAll();
     }
 
+
+
     @Test
     public void shouldFindModernReferenceById(){
         when(modernReferenceRepository.findById(modernReference.getId())).thenReturn(Optional.of(modernReference));
@@ -131,6 +131,31 @@ public class ModernReferenceServiceTests {
         verify(modernReferenceRepository, times(1)).findById(modernReference.getId());
     }
 
+    @Test
+    public void shouldReturnModernReferenceDTOById() {
+        when(modernReferenceRepository.findById(1L)).thenReturn(Optional.of(modernReference));
+
+        ModernReferenceDTO result = modernReferenceService.findByIdDTO(1L);
+
+        assertEquals(modernReference.getId(), result.id());
+        assertEquals(modernReference.getShortRef(), result.shortRef());
+        assertEquals(modernReference.getFullRef(), result.fullRef());
+        assertEquals(modernReference.getUrl(), result.url());
+
+        verify(modernReferenceRepository).findById(1L);
+    }
+
+    @Test
+    public void shouldThrowWhenModernReferenceNotFound() {
+        when(modernReferenceRepository.findById(999L)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> modernReferenceService.findByIdDTO(999L)
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
 
     @Test
     public void shouldFindRoadsByModernReferenceIdAsGeoJSON(){

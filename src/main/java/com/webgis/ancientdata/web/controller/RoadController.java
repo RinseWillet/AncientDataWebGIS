@@ -3,6 +3,7 @@ package com.webgis.ancientdata.web.controller;
 import com.webgis.ancientdata.application.service.RoadService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
+import com.webgis.ancientdata.domain.dto.RoadDashboardDTO;
 import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.web.mapper.RoadMapper;
 import jakarta.validation.Valid;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -42,7 +42,7 @@ public class RoadController {
     }
 
     @GetMapping("/data/")
-    public ResponseEntity<LinkedHashMap<String, Object>> getDashboardData() {
+    public ResponseEntity<RoadDashboardDTO> getDashboardData() {
         return ResponseEntity.ok(roadService.getDashBoardData());
     }
 

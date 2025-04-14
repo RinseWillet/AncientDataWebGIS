@@ -202,20 +202,29 @@ public class SiteServiceTests {
     @Test
     public void shouldAddModernReferenceToSite() {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
-        when(modernReferenceRepository.findById(modernReferenceDTO.getId())).thenReturn(Optional.of(modernReference));
+        when(modernReferenceRepository.findById(modernReferenceDTO.id())).thenReturn(Optional.of(modernReference));
         when(siteRepository.save(site)).thenReturn(site);
 
         Site result = siteService.addModernReferenceToSite(site.getId(), modernReferenceDTO);
         assertEquals(result, site);
 
         verify(siteRepository, times(1)).findById(site.getId());
-        verify(modernReferenceRepository, times(1)).findById(modernReferenceDTO.getId());
+        verify(modernReferenceRepository, times(1)).findById(modernReferenceDTO.id());
         verify(siteRepository, times(1)).save(site);
     }
 
     @Test
     public void shouldThrowWhenSavingInvalidSite() {
-        SiteDTO invalidDTO = new SiteDTO(); // All nulls
+        SiteDTO invalidDTO = new SiteDTO(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null); // All nulls
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> siteService.save(invalidDTO)
         );
@@ -225,8 +234,7 @@ public class SiteServiceTests {
 
     @Test
     public void shouldThrowWhenSavingSiteWithInvalidWKT() {
-        SiteDTO invalidDTO = randomSiteGenerator.toDTO(site);
-        invalidDTO.setGeom("INVALID_WKT");
+        SiteDTO invalidDTO = copyWithNewGeom(randomSiteGenerator.toDTO(site), "INVALID_WKT");
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> siteService.save(invalidDTO)
@@ -258,5 +266,19 @@ public class SiteServiceTests {
         );
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals(ErrorMessages.SITE_NOT_FOUND, exception.getReason());
+    }
+
+    private SiteDTO copyWithNewGeom(SiteDTO original, String newGeom) {
+        return new SiteDTO(
+                original.id(),
+                original.pleiadesId(),
+                original.name(),
+                newGeom,
+                original.province(),
+                original.siteType(),
+                original.status(),
+                original.references(),
+                original.description()
+        );
     }
 }

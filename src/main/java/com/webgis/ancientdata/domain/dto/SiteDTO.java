@@ -2,35 +2,36 @@ package com.webgis.ancientdata.domain.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 
-@Data
-public class SiteDTO {
+import java.io.Serializable;
 
-    private Long id;
+public record SiteDTO(
 
-    private Integer pleiadesId;
+        Long id,
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 255, message = "Name must be less than 255 characters")
-    private String name;
+        Integer pleiadesId,
 
-    @NotBlank(message = "Geometry (WKT) is required")
-    private String geom;
+        @NotBlank(message = "Name is required")
+        @Size(max = 255, message = "Name must be less than 255 characters")
+        String name,
 
-    @Size(max = 255, message = "Province must be less than 255 characters")
-    private String province;
+        @NotBlank(message = "Geometry (WKT) is required")
+        String geom,
 
-    @NotBlank(message = "Site type is required")
-    @Size(max = 255, message = "Site type must be less than 255 characters")
-    private String siteType;
+        @Size(max = 255, message = "Province must be less than 255 characters")
+        String province,
 
-    @Size(max = 255, message = "Status must be less than 255 characters")
-    private String status;
+        @NotBlank(message = "Site type is required")
+        @Size(max = 255, message = "Site type must be less than 255 characters")
+        String siteType,
 
-    @Size(max = 800, message = "References must be less than 800 characters")
-    private String references;
+        @Size(max = 255, message = "Status must be less than 255 characters")
+        String status,
 
-    @Size(max = 5000, message = "Description must be less than 5000 characters")
-    private String description;
-}
+        @Size(max = 800, message = "References must be less than 800 characters")
+        String references,
+
+        @Size(max = 5000, message = "Description must be less than 5000 characters")
+        String description
+
+) implements Serializable {}
