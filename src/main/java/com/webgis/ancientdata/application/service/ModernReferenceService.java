@@ -36,10 +36,10 @@ public class ModernReferenceService {
     public List<ModernReferenceDTO> findAllAsDTOs() {
         try {
             return StreamSupport
-                    .stream(modernReferenceRepository.findAll().spliterator(), false)
+                    .stream(findAll().spliterator(), false)
                     .map(ModernReferenceMapper::toDto)
-                    .filter(dto -> dto.getShortRef() != null)
-                    .sorted(Comparator.comparing(ModernReferenceDTO::getShortRef, String.CASE_INSENSITIVE_ORDER))
+                    .filter(dto -> dto.shortRef() != null)
+                    .sorted(Comparator.comparing(ModernReferenceDTO::shortRef, String.CASE_INSENSITIVE_ORDER))
                     .toList();
         } catch (Exception e) {
             logger.error("Failed to fetch or sort modern references: {}", e.getMessage(), e);
@@ -52,13 +52,22 @@ public class ModernReferenceService {
         return modernReferenceRepository.findAll();
     }
 
-    public Optional<ModernReference> findById(long id) {
-        logger.info("find modern reference id : {}", id);
+    public ModernReferenceDTO findByIdDTO(long id) {
+        return findById(id)
+                .map(ModernReferenceMapper::toDto)
+                .orElseThrow(() -> {
+                    logger.warn("ModernReference with ID {} not found", id);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, "Modern reference not found");
+                });
+    }
 
-        return modernReferenceRepository.findById(id).map(Optional::of).orElseThrow(() -> {
+    public Optional<ModernReference> findById(long id) {
+        Optional<ModernReference> found = modernReferenceRepository.findById(id);
+        if (found.isEmpty()) {
             logger.warn("modern reference with id: {} not found", id);
-            return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND);
-        });
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND);
+        }
+        return found;
     }
 
     public String findRoadsByModernReferenceIdAsGeoJSON(long id) {
@@ -96,9 +105,9 @@ public class ModernReferenceService {
             ModernReference reference = modernReferenceRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
 
-            reference.setShortRef(dto.getShortRef());
-            reference.setFullRef(dto.getFullRef());
-            reference.setUrl(dto.getUrl());
+            reference.setShortRef(dto.shortRef());
+            reference.setFullRef(dto.fullRef());
+            reference.setUrl(dto.url());
 
             logger.info("Updating modern reference: {}", reference);
             return modernReferenceRepository.save(reference);

@@ -26,10 +26,9 @@ public class ModernReferenceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ModernReference> findById(@PathVariable long id) {
-        return modernReferenceService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(); // will be handled by GlobalExceptionHandler
+    public ResponseEntity<ModernReferenceDTO> findById(@PathVariable long id) {
+        ModernReferenceDTO dto = modernReferenceService.findByIdDTO(id);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/road/{id}")

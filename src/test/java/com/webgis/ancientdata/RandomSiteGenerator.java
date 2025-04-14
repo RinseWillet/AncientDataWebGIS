@@ -135,15 +135,15 @@ public class RandomSiteGenerator {
     }
 
     public SiteDTO toDTO(Site site) {
-        SiteDTO dto = new SiteDTO();
-        dto.setPleiadesId(site.getPleiadesId());
-        dto.setName(site.getName());
-        dto.setGeom(site.getGeom().toText()); // WKT
-        dto.setProvince(site.getProvince());
-        dto.setSiteType(site.getSiteType());
-        dto.setStatus(site.getStatus());
-        dto.setReferences(site.getReferences());
-        dto.setDescription(site.getDescription());
-        return dto;
+        return new SiteDTO(
+                site.getId(),
+                site.getPleiadesId(),
+                site.getName(),
+                site.getGeom().toString(),
+                site.getProvince(),
+                site.getSiteType(),
+                site.getStatus(),
+                site.getReferences(),
+                site.getDescription());
     }
 }
