@@ -56,12 +56,11 @@ public class AuthService {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 
-    public AuthResponseDTO login (String username, String password) {
+    public AuthResponseDTO login(String username, String password) {
         String token = authenticate(username, password);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow();
+        User user = userRepository.findByUsername(username).orElseThrow();
         List<String> roles = List.of(user.getRole().name());
-        return new AuthResponseDTO(token, roles);
+        return new AuthResponseDTO(token, roles, user.getUsername());
     }
 
     public String generateToken(User user) {

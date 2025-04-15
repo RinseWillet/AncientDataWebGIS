@@ -53,14 +53,6 @@ public class Site implements Serializable {
     @Column(name = "description", length=5000)
     private String description;
 
-//    //ancientreference(s)
-//    @Column(name = "ancrefs")
-//    private ArrayList<AncientReference> ancientReferences;
-//
-//    //epigraphicreference(s)
-//    @Column(name = "eprefs")
-//    private ArrayList<EpigraphicReference> epigraphicReferences;
-
     //parent
     @JsonIgnore
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
