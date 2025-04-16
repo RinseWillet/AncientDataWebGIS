@@ -2,8 +2,6 @@ package com.webgis.ancientdata.web.controller;
 
 import com.webgis.ancientdata.application.service.ModernReferenceService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
-import com.webgis.ancientdata.domain.model.ModernReference;
-import com.webgis.ancientdata.web.mapper.ModernReferenceMapper;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,15 +42,13 @@ public class ModernReferenceController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ModernReferenceDTO> createReference(@Valid @RequestBody ModernReferenceDTO dto) {
-        ModernReference created = modernReferenceService.save(dto);
-        return ResponseEntity.ok(ModernReferenceMapper.toDto(created));
+        return ResponseEntity.ok(modernReferenceService.save(dto));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ModernReferenceDTO> updateReference(@PathVariable Long id, @Valid @RequestBody ModernReferenceDTO dto) {
-        ModernReference updated = modernReferenceService.update(id, dto);
-        return ResponseEntity.ok(ModernReferenceMapper.toDto(updated));
+        return ResponseEntity.ok(modernReferenceService.update(id, dto));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

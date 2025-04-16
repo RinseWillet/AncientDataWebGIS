@@ -86,11 +86,12 @@ public class ModernReferenceService {
         return new GeoJsonConverter().convertSites(siteList).toString();
     }
 
-    public ModernReference save(ModernReferenceDTO dto) {
+    public ModernReferenceDTO save(ModernReferenceDTO dto) {
         try {
             ModernReference modernReference = ModernReferenceMapper.toEntity(dto);
-            logger.info("Saving modern reference: {}", modernReference);
-            return modernReferenceRepository.save(modernReference);
+            ModernReference saved  = modernReferenceRepository.save(modernReference);
+            logger.info("Saved modern reference: {}", modernReference);
+            return ModernReferenceMapper.toDto(saved);
         } catch (IllegalArgumentException e) {
             logger.error("Invalid modern reference data: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_MODERN_REFERENCE, e);
@@ -100,7 +101,7 @@ public class ModernReferenceService {
         }
     }
 
-    public ModernReference update(Long id, ModernReferenceDTO dto) {
+    public ModernReferenceDTO update(Long id, ModernReferenceDTO dto) {
         try {
             ModernReference reference = modernReferenceRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
@@ -108,9 +109,9 @@ public class ModernReferenceService {
             reference.setShortRef(dto.shortRef());
             reference.setFullRef(dto.fullRef());
             reference.setUrl(dto.url());
-
-            logger.info("Updating modern reference: {}", reference);
-            return modernReferenceRepository.save(reference);
+            ModernReference updated = modernReferenceRepository.save(reference);
+            logger.info("Updated modern reference: {}", reference);
+            return ModernReferenceMapper.toDto(updated);
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
