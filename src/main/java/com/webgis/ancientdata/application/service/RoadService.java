@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -167,26 +168,40 @@ public class RoadService {
 
     //protected
 
-    public Road addModernReferenceToRoad(long roadId, ModernReferenceDTO dto) {
-        return roadRepository.findById(roadId).map(road -> {
-            ModernReference modernReference;
-
-            if (dto.id() != null) {
-                modernReference = modernReferenceRepository.findById(dto.id())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ModernReference not found"));
-            } else {
-                modernReference = new ModernReference(dto.shortRef(), dto.fullRef(), dto.url());
-            }
-
-            road.addModernReference(modernReference);
-            logger.info("Added modern reference to road ID {}", roadId);
-            return roadRepository.save(road);
-
-        }).orElseThrow(() -> {
-            logger.warn("Road with ID {} not found to add a modern reference to", roadId);
+    @Transactional
+    public RoadDTO addModernReferenceToRoad(long roadId, long refId) {
+        Road road = roadRepository.findById(roadId).orElseThrow(() -> {
+            logger.warn("Road with ID {} not found to add a modern reference", roadId);
             return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND);
         });
+
+        ModernReference modernReference = modernReferenceRepository.findById(refId).orElseThrow(() -> {
+            logger.warn("ModernReference with ID {} not found", refId);
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND);
+        });
+
+        if (!road.getModernReferenceList().contains(modernReference)) {
+            road.addModernReference(modernReference);
+            logger.info("Linked ModernReference ID {} to Site ID {}", refId, roadId);
+            roadRepository.save(road);
+        } else {
+            logger.info("ModernReference ID {} already linked to Site ID {}", refId, roadId);
+        }
+
+        return RoadMapper.toDto(road);
     }
+
+    public RoadDTO removeModernReferenceFromRoad(long roadId, long refId) {
+        Road road = roadRepository.findById(roadId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND));
+        ModernReference ref = modernReferenceRepository.findById(refId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MODERN_REFERENCE_NOT_FOUND));
+
+        road.getModernReferenceList().remove(ref);
+        logger.info("Removed ModernReference ID {} from Road ID {}", refId, roadId);
+        return RoadMapper.toDto(roadRepository.save(road));
+    }
+
 
     //methods accessible for all roles
 

@@ -70,11 +70,19 @@ public class RoadController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @PostMapping("/{id}/modern-reference")
+    @PostMapping("/{id}/modern-references/{refId}")
     public ResponseEntity<RoadDTO> addModernReferenceToRoad(
             @PathVariable long id,
-            @Valid @RequestBody ModernReferenceDTO referenceDTO) {
-        Road updatedRoad = roadService.addModernReferenceToRoad(id, referenceDTO);
-        return ResponseEntity.ok(RoadMapper.toDto(updatedRoad));
+            @PathVariable Long refId) {
+        return ResponseEntity.ok(roadService.addModernReferenceToRoad(id, refId));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}/modern-references/{refId}")
+    public ResponseEntity<RoadDTO> removeModernReferenceFromRoad(
+            @PathVariable Long id,
+            @PathVariable Long refId
+    ) {
+        return ResponseEntity.ok(roadService.removeModernReferenceFromRoad(id, refId));
     }
 }

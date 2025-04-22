@@ -67,8 +67,7 @@ public class SiteController {
             @PathVariable Long id,
             @PathVariable Long refId
     ) {
-        SiteDTO updatedSite = siteService.addModernReferenceToSite(id, refId);
-        return ResponseEntity.ok(updatedSite);
+        return ResponseEntity.ok(siteService.addModernReferenceToSite(id, refId));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -77,7 +76,6 @@ public class SiteController {
             @PathVariable Long id,
             @PathVariable Long refId
     ) {
-        SiteDTO updatedSite = siteService.removeModernReferenceFromSite(id, refId);
-        return ResponseEntity.ok(updatedSite);
+        return ResponseEntity.ok(siteService.removeModernReferenceFromSite(id, refId));
     }
 }
