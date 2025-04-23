@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +60,8 @@ public class SiteService {
     public SiteDTO save(SiteDTO siteDTO) {
         validateSiteDTO(siteDTO);
         try {
-            Site site = SiteMapper.toEntity(siteDTO);
+            List<ModernReference> modernReferenceList = buildModernReferenceList(siteDTO);
+            Site site = SiteMapper.toEntity(siteDTO, modernReferenceList);
             Site saved = siteRepository.save(site);
             logger.info("Saving site: {}", saved);
             return SiteMapper.toDto(saved);
@@ -79,8 +81,8 @@ public class SiteService {
                         logger.warn("Site with ID {} not found for update", id);
                         return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
                     });
-
-            Site updateSite = SiteMapper.toEntity(siteDTO);
+            List<ModernReference> modernReferenceList = buildModernReferenceList(siteDTO);
+            Site updateSite = SiteMapper.toEntity(siteDTO, modernReferenceList);
             site.setPleiadesId(updateSite.getPleiadesId());
             site.setName(updateSite.getName());
             site.setGeom(updateSite.getGeom());
@@ -168,5 +170,13 @@ public class SiteService {
             logger.error("Invalid site data: Missing required fields");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_SITE_DATA);
         }
+    }
+
+    private List<ModernReference> buildModernReferenceList (SiteDTO siteDTO) {
+        List<ModernReference> modernReferenceList = new ArrayList<>();
+        for (Long refId : siteDTO.referenceIds()) {
+            modernReferenceList.add(modernReferenceRepository.getReferenceById(refId));
+        }
+        return modernReferenceList;
     }
 }

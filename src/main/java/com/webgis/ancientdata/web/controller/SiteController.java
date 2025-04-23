@@ -33,7 +33,7 @@ public class SiteController {
         return ResponseEntity.ok(siteService.findByIdGeoJson(id));
     }
 
-    @GetMapping("/{id}/modern-references")
+    @GetMapping("/modref/{id}")
     public ResponseEntity<List<ModernReferenceDTO>> findModernReferencesBySiteId(@PathVariable long id) {
         return ResponseEntity.ok(siteService.findModernReferencesBySiteId(id));
     }

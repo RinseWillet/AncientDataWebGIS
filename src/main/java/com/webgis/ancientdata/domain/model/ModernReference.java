@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @Entity
 @NoArgsConstructor
-@ToString(exclude = "roadList")
+@ToString(exclude = {"roadList", "siteList"})
 @Table(name = "modernrefs")
 public class ModernReference {
 
@@ -24,11 +24,10 @@ public class ModernReference {
     @Column(name = "short_ref")
     private String shortRef;
 
-    //pagenumber
+    //full title, e.g. J. Johnson 1980 "The history of Johnsons", in A. Alan and G. George (eds.), Overview of histories of names, Oxford, pp. 12-34
     @Column(name = "full_ref")
     private String fullRef;
 
-    //full title, e.g. J. Johnson 1980 "The history of Johnsons", in A. Alan and G. George (eds.), Overview of histories of names, Oxford, pp. 12-34
     @Column(name = "url")
     private String url;
 

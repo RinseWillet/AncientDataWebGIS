@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -35,6 +36,7 @@ public record SiteDTO(
         @Size(max = 800, message = "References must be less than 800 characters")
         String references,
 
-        List<ModernReferenceDTO>modernReferenceList
+        @JsonProperty("referenceIds")
+        List<Long> referenceIds
 
 ) implements Serializable {}

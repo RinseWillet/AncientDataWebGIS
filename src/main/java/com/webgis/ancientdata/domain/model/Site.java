@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = "modernReferenceList")
 @Table(name = "arch_sites")
 public class Site implements Serializable {
 

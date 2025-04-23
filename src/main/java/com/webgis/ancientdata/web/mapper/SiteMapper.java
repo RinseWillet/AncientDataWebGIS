@@ -1,6 +1,7 @@
 package com.webgis.ancientdata.web.mapper;
 
 import com.webgis.ancientdata.domain.dto.SiteDTO;
+import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Site;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
@@ -8,11 +9,15 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 
-import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
 
 public class SiteMapper {
     public static SiteDTO toDto(Site site) {
+        List<Long> referenceIds = site.getModernReferences() != null
+                ? site.getModernReferences().stream().map(ModernReference::getId).toList()
+                : Collections.emptyList();
+
         return new SiteDTO(
                 site.getId(),
                 site.getPleiadesId(),
@@ -23,11 +28,11 @@ public class SiteMapper {
                 site.getStatus(),
                 site.getReferences(),
                 site.getDescription(),
-                site.getModernReferenceList().stream().map(ModernReferenceMapper::toDto).collect(Collectors.toList())
+                referenceIds
         );
     }
 
-    public static Site toEntity(SiteDTO siteDTO) {
+    public static Site toEntity(SiteDTO siteDTO, List<ModernReference> modernReferenceList) {
         Site site = new Site();
         site.setId(siteDTO.id());
         site.setPleiadesId(siteDTO.pleiadesId());
@@ -46,12 +51,7 @@ public class SiteMapper {
         site.setStatus(siteDTO.status());
         site.setReferences(siteDTO.references());
         site.setDescription(siteDTO.description());
-        site.setModernReferenceList(siteDTO.modernReferenceList() != null
-                ? siteDTO.modernReferenceList().stream()
-                .map(ModernReferenceMapper::toEntity)
-                .collect(Collectors.toList())
-                : new ArrayList<>()
-        );
+        site.setModernReferenceList(modernReferenceList);
         return site;
     }
 }
