@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -42,7 +42,7 @@ dependencies {
 	implementation 'org.n52.jackson:jackson-datatype-jts:1.2.10'
 	implementation 'org.hibernate.orm:hibernate-spatial:6.5.2.Final'
 	implementation 'com.fasterxml.jackson.core:jackson-core:2.17.2'
-	implementation 'org.json:json:20211205'
+	implementation 'org.json:json:20231013'
 	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
 	compileOnly 'org.projectlombok:lombok'
