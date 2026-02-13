@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   ancientdata:
-    image: git.grosc.com:5050/linw/delphi-back-end:beta9
+    image: rinsedev/ancientdata
     restart: on-failure
     depends_on:
       - db
