@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   ancientdata:
-    image: git.grosc.com:5050/linw/delphi-back-end:beta9
+    image: rinsedev/ancientdata
     restart: on-failure
     depends_on:
       - db
@@ -16,9 +16,9 @@ services:
 
   db:
     container_name: PostGIS
-    image: postgis/postgis
+    image: postgis/postgis:16-3.4
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "webGIS_DB", "-U", "root"]
+      test: [ "CMD", "pg_isready", "-q", "-d", "webGIS_DB", "-U", "root" ]
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: Asia133BCE!
@@ -29,9 +29,24 @@ services:
       - 2665:5432
     restart: on-failure
 
+  geoserver:
+    container_name: GeoServer
+    image: kartoza/geoserver:2.24.1
+    environment:
+      - GEOSERVER_ADMIN_PASSWORD=Asia133BCE!
+      - GEOSERVER_DATA_DIR=/opt/geoserver/data_dir
+    volumes:
+      - /volume1/docker/postgis_pgadmin_stack/geoserver:/opt/geoserver/data_dir:rw
+    ports:
+      - 2675:8080
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+
   pgadmin:
     container_name: pgAdmin
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:8.14
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:5050
     environment:
