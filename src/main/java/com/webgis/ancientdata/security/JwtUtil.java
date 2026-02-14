@@ -16,12 +16,14 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private final Key key;
+    private final long expirationMs;
 
-    public JwtUtil(@Value("${jwt.secret:}") String secret) {
+    public JwtUtil(@Value("${jwt.secret:}") String secret,  @Value("${jwt.expiration-ms:}") long expirationMs) {
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException("JWT Secret is missing! Set JWT_SECRET as an environment variable.");
         }
         this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
+        this.expirationMs = expirationMs;
     }
 
     public String generateToken(String username, String role) {
@@ -29,7 +31,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
