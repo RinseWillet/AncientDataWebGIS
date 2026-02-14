@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	// JWT Authentication Dependencies (Fixed)
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -37,7 +38,7 @@ dependencies {
 	// Security Crypto for password hashing
 	implementation 'org.springframework.security:spring-security-crypto'
 
-	implementation 'org.apache.commons:commons-lang3:3.8.1'
+	implementation 'org.apache.commons:commons-lang3:3.14.0'
 	implementation 'org.locationtech.jts:jts-core:1.19.0'
 	implementation 'org.n52.jackson:jackson-datatype-jts:1.2.10'
 	implementation 'org.hibernate.orm:hibernate-spatial:6.5.2.Final'
