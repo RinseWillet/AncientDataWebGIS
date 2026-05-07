@@ -6,8 +6,6 @@ import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.domain.model.Site;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,10 +14,11 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -27,6 +26,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -36,34 +37,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ModernReferenceControllerTests {
+@ActiveProfiles("test")
+class ModernReferenceControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private com.webgis.ancientdata.application.service.ModernReferenceService modernReferenceService;
 
     private ModernReference modernReference;
     private ModernReferenceDTO modernReferenceDTO;
     private List<ModernReferenceDTO> modernReferenceDTOList;
     private JSONObject modernReferenceJSON;
-
-    private Road road;
     private JSONObject roadJSON;
-
-    private Site site;
     private JSONObject siteJSON;
 
+
     @BeforeAll
-    public void setup() throws JSONException {
-        String shortRef = RandomStringUtils.randomAlphabetic(100);
-        String fullRef = RandomStringUtils.randomAlphabetic(100);
-        String url = RandomStringUtils.randomAlphabetic(100);
+    void setup() throws JSONException {
+        Random random = new Random();
+        String shortRef = UUID.randomUUID().toString();
+        String fullRef = UUID.randomUUID().toString();
+        String url = UUID.randomUUID().toString();
 
         modernReference = new ModernReference(shortRef, fullRef, url);
 
-        modernReference.setId(RandomUtils.nextLong(1, 1000));
+        modernReference.setId(1L + random.nextInt(999));
         modernReferenceDTO = new ModernReferenceDTO(
                 modernReference.getId(),
                 modernReference.getShortRef(),
@@ -78,16 +78,16 @@ public class ModernReferenceControllerTests {
 
         modernReferenceDTOList = Collections.singletonList(modernReferenceDTO);
 
-        road = new RandomRoadGenerator().generateRandomRoad();
+        Road road = new RandomRoadGenerator().generateRandomRoad();
         roadJSON = new RandomRoadGenerator().generateRandomRoadJSON(road);
 
-        site = new RandomSiteGenerator().generateRandomSite();
+        Site site = new RandomSiteGenerator().generateRandomSite();
         siteJSON = new RandomSiteGenerator().generateRandomSiteJSON(site);
     }
 
     @WithMockUser(roles = "USER")
     @Test
-    public void shouldFindModernReferenceById() throws Exception {
+    void shouldFindModernReferenceById() throws Exception {
         when(modernReferenceService.findByIdDTO(modernReference.getId())).thenReturn(modernReferenceDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/modernreferences/" + modernReference.getId())
@@ -102,7 +102,7 @@ public class ModernReferenceControllerTests {
 
     @WithMockUser(roles = "USER")
     @Test
-    public void shouldFindAllModernReferences() throws Exception {
+    void shouldFindAllModernReferences() throws Exception {
         when(modernReferenceService.findAllAsDTOs()).thenReturn(modernReferenceDTOList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/modernreferences/all")
@@ -115,7 +115,7 @@ public class ModernReferenceControllerTests {
 
     @WithMockUser(roles = "USER")
     @Test
-    public void shouldFindRoadsByModernReferenceId() throws Exception {
+    void shouldFindRoadsByModernReferenceId() throws Exception {
         when(modernReferenceService.findRoadsByModernReferenceIdAsGeoJSON(modernReference.getId()))
                 .thenReturn(roadJSON.toString());
 
@@ -128,7 +128,7 @@ public class ModernReferenceControllerTests {
 
     @WithMockUser(roles = "USER")
     @Test
-    public void shouldFindSitesByModernReferenceId() throws Exception {
+    void shouldFindSitesByModernReferenceId() throws Exception {
         when(modernReferenceService.findSitesByModernReferenceIdAsGeoJSON(modernReference.getId()))
                 .thenReturn(siteJSON.toString());
 
@@ -141,7 +141,7 @@ public class ModernReferenceControllerTests {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldCreateModernReference() throws Exception {
+    void shouldCreateModernReference() throws Exception {
         when(modernReferenceService.save(any())).thenReturn(modernReference);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/modernreferences")
@@ -157,7 +157,7 @@ public class ModernReferenceControllerTests {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldUpdateModernReference() throws Exception {
+    void shouldUpdateModernReference() throws Exception {
         when(modernReferenceService.update(eq(modernReference.getId()), any())).thenReturn(modernReference);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/modernreferences/" + modernReference.getId())
@@ -166,14 +166,13 @@ public class ModernReferenceControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(modernReference.getId()))
                 .andExpect(jsonPath("$.shortRef").value(modernReference.getShortRef()));
-        ;
 
         verify(modernReferenceService).update(eq(modernReference.getId()), any());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnBadRequestWhenUpdatingWithInvalidModernReference() throws Exception {
+    void shouldReturnBadRequestWhenUpdatingWithInvalidModernReference() throws Exception {
         String invalidJson = """
                     {
                       "shortRef": "",
@@ -190,7 +189,7 @@ public class ModernReferenceControllerTests {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldDeleteModernReference() throws Exception {
+    void shouldDeleteModernReference() throws Exception {
         doNothing().when(modernReferenceService).delete(modernReference.getId());
 
         mockMvc.perform(delete("/api/modernreferences/" + modernReference.getId()))
@@ -200,7 +199,7 @@ public class ModernReferenceControllerTests {
     }
 
     @Test
-    public void shouldRejectUnauthenticatedDelete() throws Exception {
+    void shouldRejectUnauthenticatedDelete() throws Exception {
         mockMvc.perform(delete("/api/modernreferences/" + modernReference.getId()))
                 .andExpect(status().isUnauthorized());
 
@@ -209,7 +208,7 @@ public class ModernReferenceControllerTests {
 
     @WithMockUser(roles = "GUEST")
     @Test
-    public void shouldDenyCreateModernReferenceForUnauthorizedRole() throws Exception {
+    void shouldDenyCreateModernReferenceForUnauthorizedRole() throws Exception {
         when(modernReferenceService.save(any())).thenReturn(modernReference);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/modernreferences")
@@ -222,7 +221,7 @@ public class ModernReferenceControllerTests {
 
     @WithMockUser(roles = "USER")
     @Test
-    public void shouldForbidUserFromDeletingReference() throws Exception {
+    void shouldForbidUserFromDeletingReference() throws Exception {
         Long id = modernReference.getId();
         mockMvc.perform(delete("/api/modernreferences/{id}", id))
                 .andExpect(status().isForbidden());
@@ -232,7 +231,7 @@ public class ModernReferenceControllerTests {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnNotFoundWhenUpdatingNonexistentModernReference() throws Exception {
+    void shouldReturnNotFoundWhenUpdatingNonexistentModernReference() throws Exception {
         when(modernReferenceService.update(eq(999L), any()))
                 .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -244,7 +243,7 @@ public class ModernReferenceControllerTests {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnNotFoundWhenDeletingNonexistentReference() throws Exception {
+    void shouldReturnNotFoundWhenDeletingNonexistentReference() throws Exception {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
                 .when(modernReferenceService).delete(999L);
 
@@ -254,7 +253,7 @@ public class ModernReferenceControllerTests {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnBadRequestWhenCreatingInvalidModernReference() throws Exception {
+    void shouldReturnBadRequestWhenCreatingInvalidModernReference() throws Exception {
         String invalidJson = """
                 {
                   "shortRef": "",
@@ -271,7 +270,7 @@ public class ModernReferenceControllerTests {
 
     @WithMockUser(roles = "GUEST")
     @Test
-    public void shouldFailAtPreAuthorize() throws Exception {
+    void shouldFailAtPreAuthorize() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/modernreferences/1"))
                 .andExpect(status().isForbidden());
     }

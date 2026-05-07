@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.stream.StreamSupport;
 import static com.webgis.ancientdata.constants.ErrorMessages.INVALID_WKT_FORMAT;
 
 
+@Transactional
 @Service
 public class RoadService {
 
@@ -100,10 +102,8 @@ public class RoadService {
             logger.info("Saving road: {}", road);
             return roadRepository.save(road);
         } catch (ParseException e) {
-            logger.error(INVALID_WKT_FORMAT + ": {} ", roadDTO.geom());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_WKT_FORMAT, e);
         } catch (Exception e) {
-            logger.warn("Saving road failed: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_SAVE_ROAD, e);
         }
     }
@@ -149,7 +149,6 @@ public class RoadService {
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
-            logger.warn("Updating road failed: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorMessages.COULD_NOT_UPDATE_ROAD, e);
         }
     }
@@ -219,6 +218,10 @@ public class RoadService {
                 case HYP_ROUTE -> hypotheticalCount.incrementAndGet();
                 case HIST_REC -> historicalCount.incrementAndGet();
                 case OTHER -> otherCount.incrementAndGet();
+                default -> {
+                    logger.warn("Unknown road type encountered: {}", road.getType());
+                    otherCount.incrementAndGet();
+                }
             }
         });
 

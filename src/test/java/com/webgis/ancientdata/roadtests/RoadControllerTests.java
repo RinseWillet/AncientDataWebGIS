@@ -1,14 +1,11 @@
 package com.webgis.ancientdata.roadtests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.application.service.RoadService;
 import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
 import com.webgis.ancientdata.domain.model.Road;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,15 +13,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,14 +35,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class RoadControllerTests {
+@ActiveProfiles("test")
+class RoadControllerTests {
 
     @SuppressWarnings("unused")
     @Autowired
     private MockMvc mockMvc;
 
     @SuppressWarnings("unused")
-    @MockBean
+    @MockitoBean
     private RoadService roadService;
 
     private Road road;
@@ -50,28 +51,29 @@ public class RoadControllerTests {
     private ModernReferenceDTO modernReferenceDTO;
     private List<ModernReferenceDTO> modernReferenceDTOList;
     private RandomRoadGenerator randomRoadGenerator;
-    private ObjectMapper objectMapper;
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         randomRoadGenerator = new RandomRoadGenerator();
-        objectMapper = new ObjectMapper();
+        objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
+        Random random = new Random();
         road = randomRoadGenerator.generateRandomRoad();
-        road.setId(RandomUtils.nextLong(1, 1000));
+        road.setId(1L + random.nextInt(999));
         roadJSON = randomRoadGenerator.generateRandomRoadJSON(road);
 
         modernReferenceDTO = new ModernReferenceDTO(
-                RandomUtils.nextLong(1, 1000),
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(20),
-                RandomStringUtils.randomAlphabetic(15)
+                1L + random.nextInt(999),
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString()
         );
         modernReferenceDTOList = List.of(modernReferenceDTO);
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         road = null;
         roadJSON = null;
         modernReferenceDTO = null;
@@ -81,7 +83,7 @@ public class RoadControllerTests {
     }
 
     @Test
-    public void shouldFindRoadByIdGeoJSON() throws Exception {
+    void shouldFindRoadByIdGeoJSON() throws Exception {
         when(roadService.findByIdGeoJson(road.getId())).thenReturn(roadJSON.toString());
 
         mockMvc.perform(get("/api/roads/" + road.getId())
@@ -90,11 +92,11 @@ public class RoadControllerTests {
                 .andExpect(content().json(roadJSON.toString()))
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).findByIdGeoJson(road.getId());
+        verify(roadService).findByIdGeoJson(road.getId());
     }
 
     @Test
-    public void shouldFindAllRoadsGeoJSON() throws Exception {
+    void shouldFindAllRoadsGeoJSON() throws Exception {
         when(roadService.findAllGeoJson()).thenReturn(roadJSON.toString());
 
         mockMvc.perform(get("/api/roads/all")
@@ -103,11 +105,11 @@ public class RoadControllerTests {
                 .andExpect(content().json(roadJSON.toString()))
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).findAllGeoJson();
+        verify(roadService).findAllGeoJson();
     }
 
     @Test
-    public void shouldFindModernReferencesByRoadId() throws Exception {
+    void shouldFindModernReferencesByRoadId() throws Exception {
         when(roadService.findModernReferencesByRoadId(road.getId())).thenReturn(modernReferenceDTOList);
 
         mockMvc.perform(get("/api/roads/modref/" + road.getId())
@@ -120,12 +122,12 @@ public class RoadControllerTests {
                 .andExpect(jsonPath("$[0].url").value(modernReferenceDTO.url()))
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).findModernReferencesByRoadId(road.getId());
+        verify(roadService).findModernReferencesByRoadId(road.getId());
     }
 
     @Test
     @WithMockUser(roles = {"USER"})
-    public void shouldCreateRoad() throws Exception {
+    void shouldCreateRoad() throws Exception {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
         when(roadService.save(any(RoadDTO.class))).thenReturn(road);
 
@@ -139,12 +141,12 @@ public class RoadControllerTests {
                 .andExpect(jsonPath("$.type").value(road.getType()))
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).save(any(RoadDTO.class));
+        verify(roadService).save(any(RoadDTO.class));
     }
 
     @Test
     @WithMockUser(roles = {"USER"})
-    public void shouldReturnBadRequestWhenMissingRequiredFields() throws Exception {
+    void shouldReturnBadRequestWhenMissingRequiredFields() throws Exception {
         String invalidJson = """
         {
             "cat_nr": 12345,
@@ -158,14 +160,13 @@ public class RoadControllerTests {
                 .andExpect(status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(0)).save(any(RoadDTO.class));
+        verify(roadService, never()).save(any(RoadDTO.class));
     }
 
     @Test
     @WithMockUser(roles = {"USER"})
-    public void shouldUpdateRoad() throws Exception {
+    void shouldUpdateRoad() throws Exception {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
-        ObjectMapper objectMapper = new ObjectMapper();
 
         when(roadService.update(eq(road.getId()), any(RoadDTO.class))).thenReturn(road);
 
@@ -175,14 +176,13 @@ public class RoadControllerTests {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).update(eq(road.getId()), any(RoadDTO.class));
+        verify(roadService).update(eq(road.getId()), any(RoadDTO.class));
     }
 
     @Test
     @WithMockUser(roles = {"USER"})
-    public void shouldReturnNotFoundWhenUpdatingNonexistentRoad() throws Exception {
+    void shouldReturnNotFoundWhenUpdatingNonexistentRoad() throws Exception {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
-        ObjectMapper objectMapper = new ObjectMapper();
 
         when(roadService.update(eq(9999L), any(RoadDTO.class)))
                 .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND));
@@ -195,19 +195,19 @@ public class RoadControllerTests {
     }
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    public void shouldDeleteRoad() throws Exception {
+    void shouldDeleteRoad() throws Exception {
         doNothing().when(roadService).delete(road.getId());
 
         mockMvc.perform(delete("/api/roads/" + road.getId()))
                 .andExpect(status().isNoContent())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).delete(road.getId());
+        verify(roadService).delete(road.getId());
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    public void shouldReturnNotFoundWhenDeletingNonexistentRoad() throws Exception {
+    void shouldReturnNotFoundWhenDeletingNonexistentRoad() throws Exception {
         long nonexistentId = 9999L;
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND))
                 .when(roadService).delete(nonexistentId);
@@ -220,11 +220,9 @@ public class RoadControllerTests {
                 .andDo(MockMvcResultHandlers.print());
     }
 
-
     @Test
     @WithMockUser(roles = {"USER"})
-    public void shouldAddModernReferenceToRoad() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+    void shouldAddModernReferenceToRoad() throws Exception {
         RoadDTO expectedDto = randomRoadGenerator.toDTO(road);
 
         when(roadService.addModernReferenceToRoad(eq(road.getId()), any(ModernReferenceDTO.class)))
@@ -242,13 +240,12 @@ public class RoadControllerTests {
                 })
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).addModernReferenceToRoad(eq(road.getId()), any(ModernReferenceDTO.class));
+        verify(roadService).addModernReferenceToRoad(eq(road.getId()), any(ModernReferenceDTO.class));
     }
 
     @Test
     @WithMockUser(roles = {"USER"})
-    public void shouldReturnNotFoundWhenAddingReferenceToNonexistentRoad() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+    void shouldReturnNotFoundWhenAddingReferenceToNonexistentRoad() throws Exception {
         long nonexistentId = 9999L;
 
         when(roadService.addModernReferenceToRoad(eq(nonexistentId), any(ModernReferenceDTO.class)))
@@ -265,6 +262,6 @@ public class RoadControllerTests {
                 )
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService, times(1)).addModernReferenceToRoad(eq(nonexistentId), any(ModernReferenceDTO.class));
+        verify(roadService).addModernReferenceToRoad(eq(nonexistentId), any(ModernReferenceDTO.class));
     }
 }

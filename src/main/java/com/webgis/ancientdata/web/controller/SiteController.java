@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.web.controller;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.webgis.ancientdata.application.service.SiteService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
@@ -25,11 +26,13 @@ public class SiteController {
 
     // Public Endpoints
 
+    @JsonRawValue
     @GetMapping("/all")
     public ResponseEntity<String> findAllGeoJson() {
         return ResponseEntity.ok(siteService.findAllGeoJson().toString());
     }
 
+    @JsonRawValue
     @GetMapping("/{id}")
     public ResponseEntity<String> findByIdGeoJson(@PathVariable long id) {
         return ResponseEntity.ok(siteService.findByIdGeoJson(id));
