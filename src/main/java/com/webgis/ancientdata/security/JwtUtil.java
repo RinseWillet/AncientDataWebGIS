@@ -17,9 +17,12 @@ public class JwtUtil {
     private final SecretKey key;
     private final long expirationMs;
 
-    public JwtUtil(@Value("${jwt.secret:}") String secret,  @Value("${jwt.expiration-ms:}") long expirationMs) {
+    public JwtUtil(@Value("${jwt.secret:}") String secret,  @Value("${jwt.expiration-ms:0}") long expirationMs) {
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException("JWT Secret is missing! Set JWT_SECRET as an environment variable.");
+        }
+        if (expirationMs <= 0) {
+            throw new IllegalStateException("JWT expiration is invalid! Set JWT_EXPIRATION to a positive value in milliseconds.");
         }
 
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
