@@ -20,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SiteServiceTests {
+class SiteServiceTests {
 
     private RandomSiteGenerator randomSiteGenerator;
     private Site site;
@@ -55,15 +54,14 @@ public class SiteServiceTests {
     @Mock
     private GeoJsonConverter geoJsonConverter;
 
-    @Autowired
     @InjectMocks
     private SiteService siteService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         randomSiteGenerator = new RandomSiteGenerator();
         site = randomSiteGenerator.generateRandomSite();
-        site.setId(RandomUtils.nextLong(1, 10000));
+        site.setId(RandomUtils.insecure().randomLong(1, 10000));
 
         siteList = new ArrayList<>();
         siteList.add(site);
@@ -73,22 +71,22 @@ public class SiteServiceTests {
         modernReferenceDTOList = new ArrayList<>();
         modernReferenceList = new ArrayList<>();
 
-        Long id = RandomUtils.nextLong();
-        String shortRef = RandomStringUtils.randomAlphabetic(100);
-        String fullRef = RandomStringUtils.randomAlphabetic(100);
-        String URL = RandomStringUtils.randomAlphabetic(100);
+        Long id = RandomUtils.insecure().randomLong();
+        String shortRef = RandomStringUtils.insecure().nextAlphabetic(100);
+        String fullRef = RandomStringUtils.insecure().nextAlphabetic(100);
+        String url = RandomStringUtils.insecure().nextAlphabetic(100);
 
-        modernReference = new ModernReference(shortRef, fullRef, URL);
+        modernReference = new ModernReference(shortRef, fullRef, url);
         modernReference.setId(id);
         modernReferenceList.add(modernReference);
-        modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, URL);
+        modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, url);
         modernReferenceDTOList.add(modernReferenceDTO);
 
         site.setModernReferenceList(modernReferenceList);
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         site = null;
         siteList = null;
         siteGeoJSON = null;
@@ -101,7 +99,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldListAllSites() {
+    void shouldListAllSites() {
         when(siteRepository.findAll()).thenReturn(siteList);
 
         List<Site> fetchedSites = (List<Site>) siteService.findAll();
@@ -111,7 +109,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldFindSiteById() {
+    void shouldFindSiteById() {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
 
         Optional<Site> optionalSite = siteService.findById(site.getId());
@@ -122,7 +120,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldFindSiteByIdGeoJSON() {
+    void shouldFindSiteByIdGeoJSON() {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
 
         String fetchedSite = siteService.findByIdGeoJson(site.getId());
@@ -133,7 +131,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldListAllSitesGeoJSON() {
+    void shouldListAllSitesGeoJSON() {
         when(siteRepository.findAll()).thenReturn(siteList);
 
         JSONObject fetchedSitesGeoJSON = siteService.findAllGeoJson();
@@ -144,7 +142,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldConvertSiteToGeoJSON() {
+    void shouldConvertSiteToGeoJSON() {
         when(geoJsonConverter.convertSite(site)).thenReturn(siteGeoJSON);
 
         JSONObject fetchedGeoJSON = geoJsonConverter.convertSite(site);
@@ -154,7 +152,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldConvertSitesToGeoJSON() {
+    void shouldConvertSitesToGeoJSON() {
         when(geoJsonConverter.convertSites(siteList)).thenReturn(sitesGeoJSON);
 
         JSONObject fetchedGeoJSON = geoJsonConverter.convertSites(siteList);
@@ -164,7 +162,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldSaveSite() {
+    void shouldSaveSite() {
         SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
         when(siteRepository.save(any())).thenReturn(site);
 
@@ -177,7 +175,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldUpdateSite() {
+    void shouldUpdateSite() {
         SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
         when(siteRepository.save(any())).thenReturn(site);
@@ -191,7 +189,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldFindModernReferencesBySiteId() {
+    void shouldFindModernReferencesBySiteId() {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
 
         assertEquals(siteService.findModernReferencesBySiteId(site.getId()), modernReferenceDTOList);
@@ -200,7 +198,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldAddModernReferenceToSite() {
+    void shouldAddModernReferenceToSite() {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
         when(modernReferenceRepository.findById(modernReferenceDTO.id())).thenReturn(Optional.of(modernReference));
         when(siteRepository.save(site)).thenReturn(site);
@@ -214,7 +212,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldThrowWhenSavingInvalidSite() {
+    void shouldThrowWhenSavingInvalidSite() {
         SiteDTO invalidDTO = new SiteDTO(
                 null,
                 null,
@@ -233,8 +231,8 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldThrowWhenSavingSiteWithInvalidWKT() {
-        SiteDTO invalidDTO = copyWithNewGeom(randomSiteGenerator.toDTO(site), "INVALID_WKT");
+    void shouldThrowWhenSavingSiteWithInvalidWKT() {
+        SiteDTO invalidDTO = copyWithInvalidGeom(randomSiteGenerator.toDTO(site));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> siteService.save(invalidDTO)
@@ -244,7 +242,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldThrowWhenUpdatingNonexistentSite() {
+    void shouldThrowWhenUpdatingNonexistentSite() {
         Long fakeId = 9999L;
         SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
 
@@ -258,7 +256,7 @@ public class SiteServiceTests {
     }
 
     @Test
-    public void shouldThrowWhenDeletingNonexistentSite() {
+    void shouldThrowWhenDeletingNonexistentSite() {
         when(siteRepository.existsById(anyLong())).thenReturn(false);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
@@ -268,12 +266,12 @@ public class SiteServiceTests {
         assertEquals(ErrorMessages.SITE_NOT_FOUND, exception.getReason());
     }
 
-    private SiteDTO copyWithNewGeom(SiteDTO original, String newGeom) {
+    private SiteDTO copyWithInvalidGeom(SiteDTO original) {
         return new SiteDTO(
                 original.id(),
                 original.pleiadesId(),
                 original.name(),
-                newGeom,
+                "INVALID_WKT",
                 original.province(),
                 original.siteType(),
                 original.status(),

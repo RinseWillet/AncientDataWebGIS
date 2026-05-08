@@ -37,16 +37,29 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(token);
-        String role = jwtUtil.extractClaim(token, claims -> claims.get("role", String.class));
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+        try {
+            String username = jwtUtil.extractUsername(token);
 
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            // Validate token before proceeding
+            if (username == null || !jwtUtil.validateToken(token, username)) {
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+                return;
+            }
+
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                String role = jwtUtil.extractClaim(token, claims -> claims.get("role", String.class));
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
+        } catch (Exception e) {
+            // Token is invalid, expired, or tampered - continue without authentication
+            // The security chain will handle unauthorized access appropriately
         }
+
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 }

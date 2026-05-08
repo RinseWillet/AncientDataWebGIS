@@ -15,24 +15,24 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 public class RandomSiteGenerator {
 
     public Site generateRandomSite() {
-        Integer pleiadesId = RandomUtils.nextInt();
-        String name = RandomStringUtils.randomAlphabetic(10);
+        Integer pleiadesId = RandomUtils.insecure().randomInt();
+        String name = RandomStringUtils.insecure().nextAlphabetic(10);
 
         //creating random point
-        double x = RandomUtils.nextDouble(0, 180);
-        double y = RandomUtils.nextDouble(0, 90);
-        double z = RandomUtils.nextDouble(0, 3000);
+        double x = RandomUtils.insecure().randomDouble(0, 180);
+        double y = RandomUtils.insecure().randomDouble(0, 90);
+        double z = RandomUtils.insecure().randomDouble(0, 3000);
         Coordinate coordinate = new Coordinate(x, y, z);
         Coordinate[] coordinates = new Coordinate[]{coordinate};
         CoordinateArraySequence coordinateArraySequence = new CoordinateArraySequence(coordinates);
         GeometryFactory geometryFactory = new GeometryFactory();
         Point geom = new Point(coordinateArraySequence, geometryFactory);
 
-        String province = RandomStringUtils.randomAlphabetic(10);
-        String siteType = RandomStringUtils.randomAlphabetic(10);
-        String status = RandomStringUtils.randomAlphabetic(10);
-        String references = RandomStringUtils.randomAlphabetic(10);
-        String description = RandomStringUtils.randomAlphabetic(10);
+        String province = RandomStringUtils.insecure().nextAlphabetic(10);
+        String siteType = RandomStringUtils.insecure().nextAlphabetic(10);
+        String status = RandomStringUtils.insecure().nextAlphabetic(10);
+        String references = RandomStringUtils.insecure().nextAlphabetic(10);
+        String description = RandomStringUtils.insecure().nextAlphabetic(10);
 
         return new Site(pleiadesId,
                 name,

@@ -1,14 +1,18 @@
 package com.webgis.ancientdata.utils;
 
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Jwts;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JwtKeyGenerator {
+    private static final Logger logger = Logger.getLogger(JwtKeyGenerator.class.getName());
+
     public static void main(String[] args) {
-        Key key = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
+        SecretKey key = Jwts.SIG.HS256.key().build();
         String secret = Base64.getEncoder().encodeToString(key.getEncoded());
-        System.out.println("Generated Secret Key: " + secret);
+        logger.log(Level.INFO, "Generated Secret Key: {0}", secret);
     }
 }

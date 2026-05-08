@@ -14,44 +14,44 @@ public class RandomRoadGenerator {
 
     public Road generateRandomRoad() {
 
-        int cat_nr = RandomUtils.nextInt();
-        String name = RandomStringUtils.randomAlphabetic(10);
+        int catNr = RandomUtils.insecure().randomInt();
+        String name = RandomStringUtils.insecure().nextAlphabetic(10);
 
         //creating random points and line
-        int randomAmountLines = RandomUtils.nextInt(2, 500);
+        int randomAmountLines = RandomUtils.insecure().randomInt(2, 500);
         LineString[] lineStringArray = new LineString[randomAmountLines];
 
         for (int i = 0; i < randomAmountLines; i++) {
-            int randomLinePoints = RandomUtils.nextInt(2, 10);
+            int randomLinePoints = RandomUtils.insecure().randomInt(2, 10);
 
             Coordinate[] points = new Coordinate[randomLinePoints];
 
             for (int j = 0; j < randomLinePoints; j++) {
-                double x = RandomUtils.nextDouble(0, 180);
-                double y = RandomUtils.nextDouble(0, 90);
-                double z = RandomUtils.nextDouble(0, 3000);
+                double x = RandomUtils.insecure().randomDouble(0, 180);
+                double y = RandomUtils.insecure().randomDouble(0, 90);
+                double z = RandomUtils.insecure().randomDouble(0, 3000);
                 Coordinate coordinate = new Coordinate(x, y, z);
                 points[j] = coordinate;
             }
 
             CoordinateSequence coordinateArraySequence = new CoordinateArraySequence(points);
-            GeometryFactory geometryFactory_lineString = new GeometryFactory();
-            LineString lineString = new LineString(coordinateArraySequence, geometryFactory_lineString);
+            GeometryFactory geometryFactoryLineString = new GeometryFactory();
+            LineString lineString = new LineString(coordinateArraySequence, geometryFactoryLineString);
             lineStringArray[i] = lineString;
         }
 
-        GeometryFactory geometryFactory_multiLineString = new GeometryFactory();
-        MultiLineString geom = new MultiLineString(lineStringArray, geometryFactory_multiLineString);
+        GeometryFactory geometryFactoryMultiLineString = new GeometryFactory();
+        MultiLineString geom = new MultiLineString(lineStringArray, geometryFactoryMultiLineString);
 
-        String type = RandomStringUtils.randomAlphabetic(10);
-        String typeDescription = RandomStringUtils.randomAlphabetic(15);
-        String location = RandomStringUtils.randomAlphabetic(100);
-        String description = RandomStringUtils.randomAlphabetic(100);
-        String date = RandomStringUtils.randomAlphabetic(10);
-        String references = RandomStringUtils.randomAlphabetic(50);
-        String historicalReferences = RandomStringUtils.randomAlphabetic(50);
+        String type = RandomStringUtils.insecure().nextAlphabetic(10);
+        String typeDescription = RandomStringUtils.insecure().nextAlphabetic(15);
+        String location = RandomStringUtils.insecure().nextAlphabetic(100);
+        String description = RandomStringUtils.insecure().nextAlphabetic(100);
+        String date = RandomStringUtils.insecure().nextAlphabetic(10);
+        String references = RandomStringUtils.insecure().nextAlphabetic(50);
+        String historicalReferences = RandomStringUtils.insecure().nextAlphabetic(50);
 
-        return new Road(cat_nr,
+        return new Road(catNr,
                 name,
                 geom,
                 type,

@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.web.controller;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.webgis.ancientdata.application.service.RoadService;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.RoadDTO;
@@ -26,11 +27,13 @@ public class RoadController {
 
     // --- Public endpoints ---
 
+    @JsonRawValue
     @GetMapping("/all")
     public ResponseEntity<String> findAllGeoJson() {
         return ResponseEntity.ok(roadService.findAllGeoJson());
     }
 
+    @JsonRawValue
     @GetMapping("/{id}")
     public ResponseEntity<String> findByIdGeoJson(@PathVariable long id) {
         return ResponseEntity.ok(roadService.findByIdGeoJson(id));

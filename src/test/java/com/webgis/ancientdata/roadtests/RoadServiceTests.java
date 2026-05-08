@@ -21,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class RoadServiceTests {
+class RoadServiceTests {
 
     private Road road;
     private List<Road> roadList;
@@ -56,18 +55,17 @@ public class RoadServiceTests {
     @Mock
     private GeoJsonConverter geoJsonConverter;
 
-    @Autowired
     @InjectMocks
     private RoadService roadService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
 
         roadList = new ArrayList<>();
         randomRoadGenerator = new RandomRoadGenerator();
 
         road = randomRoadGenerator.generateRandomRoad();
-        road.setId(RandomUtils.nextLong(1, 10000));
+        road.setId(RandomUtils.insecure().randomLong(1, 10000));
         roadList.add(road);
 
         //setting up GeoJSON
@@ -79,22 +77,22 @@ public class RoadServiceTests {
         modernReferenceDTOList = new ArrayList<>();
         modernReferenceList = new ArrayList<>();
 
-        Long id = RandomUtils.nextLong();
-        String shortRef = RandomStringUtils.randomAlphabetic(100);
-        String fullRef = RandomStringUtils.randomAlphabetic(100);
-        String URL = RandomStringUtils.randomAlphabetic(100);
+        Long id = RandomUtils.insecure().randomLong();
+        String shortRef = RandomStringUtils.insecure().nextAlphabetic(100);
+        String fullRef = RandomStringUtils.insecure().nextAlphabetic(100);
+        String url = RandomStringUtils.insecure().nextAlphabetic(100);
 
-        modernReference = new ModernReference(shortRef, fullRef, URL);
+        modernReference = new ModernReference(shortRef, fullRef, url);
         modernReference.setId(id);
         modernReferenceList.add(modernReference);
-        modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, URL);
+        modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, url);
         modernReferenceDTOList.add(modernReferenceDTO);
 
         road.setModernReferenceList(modernReferenceList);
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         road = null;
         roadList = null;
         roadGeoJSON = null;
@@ -107,7 +105,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldListAllRoads() {
+    void shouldListAllRoads() {
         when(roadRepository.findAll()).thenReturn(roadList);
 
         List<Road> fetchedRoads = (List<Road>) roadService.findAll();
@@ -117,18 +115,18 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldFindRoadById() {
+    void shouldFindRoadById() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
 
         Optional<Road> optionalRoad = roadService.findById(road.getId());
 
-        optionalRoad.ifPresent(value -> assertThat(optionalRoad.get()).isEqualTo(road));
+        assertThat(optionalRoad).contains(road);
 
         verify(roadRepository, times(1)).findById(any());
     }
 
     @Test
-    public void shouldFindRoadByIdGeoJSON() {
+    void shouldFindRoadByIdGeoJSON() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
 
         String fetchedRoad = roadService.findByIdGeoJson(road.getId());
@@ -139,7 +137,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldListAllRoadsGeoJSON() {
+    void shouldListAllRoadsGeoJSON() {
         when(roadRepository.findAll()).thenReturn(roadList);
 
         String fetchedRoadsGeoJSON = roadService.findAllGeoJson();
@@ -150,7 +148,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldConvertRoadtoGeoJSON() {
+    void shouldConvertRoadtoGeoJSON() {
         when(geoJsonConverter.convertRoad(road)).thenReturn(roadGeoJSON);
 
         JSONObject fetchedroadGeoJSON = geoJsonConverter.convertRoad(road);
@@ -160,7 +158,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldConvertRoadstoGeoJSON() {
+    void shouldConvertRoadstoGeoJSON() {
         when(geoJsonConverter.convertRoads(roadList)).thenReturn(roadsGeoJSON);
 
         JSONObject fetchedRoadsGeoJSON = geoJsonConverter.convertRoads(roadList);
@@ -170,7 +168,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldSaveRoad() {
+    void shouldSaveRoad() {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
         when(roadRepository.save(any())).thenReturn(road);
 
@@ -183,7 +181,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldUpdateRoad() {
+    void shouldUpdateRoad() {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
         when(roadRepository.findById(road.getId())).thenReturn(Optional.of(road));
         when(roadRepository.save(any())).thenReturn(road);
@@ -197,7 +195,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldFindModernReferencesByRoadId() {
+    void shouldFindModernReferencesByRoadId() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
 
         assertEquals(roadService.findModernReferencesByRoadId(road.getId()), modernReferenceDTOList);
@@ -206,7 +204,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldAddModernReferenceToRoad() {
+    void shouldAddModernReferenceToRoad() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.of(road));
         when(modernReferenceRepository.findById(modernReferenceDTO.id())).thenReturn(Optional.of(modernReference));
         when(roadRepository.save(road)).thenReturn(road);
@@ -219,7 +217,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldThrowBadRequestWhenSavingRoadWithMissingFields() {
+    void shouldThrowBadRequestWhenSavingRoadWithMissingFields() {
         RoadDTO invalidDTO = new RoadDTO(
                 0L,
                 123,               // cat_nr
@@ -239,8 +237,8 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldThrowOnInvalidGeometry() {
-        RoadDTO invalidDto = copyWithNewGeom(randomRoadGenerator.toDTO(road), "INVALID_WKT");
+    void shouldThrowOnInvalidGeometry() {
+        RoadDTO invalidDto = copyWithInvalidGeom(randomRoadGenerator.toDTO(road));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.save(invalidDto));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -248,7 +246,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldThrowWhenUpdatingNonexistentRoad() {
+    void shouldThrowWhenUpdatingNonexistentRoad() {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
         when(roadRepository.findById(anyLong())).thenReturn(Optional.empty());
 
@@ -258,7 +256,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldThrowWhenDeletingNonexistentRoad() {
+    void shouldThrowWhenDeletingNonexistentRoad() {
         when(roadRepository.existsById(anyLong())).thenReturn(false);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> roadService.delete(9999L));
@@ -267,7 +265,7 @@ public class RoadServiceTests {
     }
 
     @Test
-    public void shouldReturnDashboardData() {
+    void shouldReturnDashboardData() {
         when(roadRepository.findAll()).thenReturn(roadList);
         road.setType("road");
 
@@ -281,12 +279,12 @@ public class RoadServiceTests {
         assertEquals(0L, result.other());
     }
 
-    private RoadDTO copyWithNewGeom(RoadDTO original, String newGeom) {
+    private RoadDTO copyWithInvalidGeom(RoadDTO original) {
         return new RoadDTO(
                 original.id(),
                 original.cat_nr(),
                 original.name(),
-                newGeom,
+                "INVALID_WKT",
                 original.type(),
                 original.typeDescription(),
                 original.location(),

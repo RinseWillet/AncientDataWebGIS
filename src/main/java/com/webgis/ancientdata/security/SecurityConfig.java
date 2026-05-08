@@ -19,9 +19,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.util.List;
 
 @SuppressWarnings("unused")
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @Configuration
 public class SecurityConfig {
+
+    private static final String SITES_URL = "/api/sites/**";
+    private static final String ROAD_URL = "/api/roads/**";
+    private static final String ADMIN = "ADMIN";
+    private static final String USER = "USER";
 
     private final JwtFilter jwtFilter;
     private final CustomUserDetailService userDetailService;
@@ -40,8 +45,7 @@ public class SecurityConfig {
     @SuppressWarnings("unused")
     @Bean
     public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailService);
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(List.of(authenticationProvider));
     }
@@ -51,14 +55,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/sites/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/sites/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/sites/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/sites/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/roads/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can add
-                        .requestMatchers(HttpMethod.PUT, "/api/roads/**").hasAnyRole("USER", "ADMIN") // Only USER/ADMIN can update
-                        .requestMatchers(HttpMethod.DELETE, "/api/roads/**").hasRole("ADMIN") // Only ADMIN can delete
+                        // Allow static frontend resources
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll()
+                        // API endpoints
+                        .requestMatchers(HttpMethod.GET, SITES_URL).permitAll()
+                        .requestMatchers(HttpMethod.POST, SITES_URL).hasAnyRole(USER, ADMIN)
+                        .requestMatchers(HttpMethod.PUT, SITES_URL).hasAnyRole(USER, ADMIN)
+                        .requestMatchers(HttpMethod.DELETE, SITES_URL).hasRole(ADMIN)
+                        .requestMatchers(HttpMethod.GET, ROAD_URL).permitAll()
+                        .requestMatchers(HttpMethod.POST, ROAD_URL).hasAnyRole(USER, ADMIN) // Only USER/ADMIN can add
+                        .requestMatchers(HttpMethod.PUT, ROAD_URL).hasAnyRole(USER, ADMIN) // Only USER/ADMIN can update
+                        .requestMatchers(HttpMethod.DELETE, ROAD_URL).hasRole(ADMIN) // Only ADMIN can delete
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
