@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.10'
+    id 'org.springframework.boot' version '3.5.14'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -21,7 +21,7 @@ configurations {
 
 repositories {
     mavenCentral()
-    maven { url "https://repo1.maven.org/maven2/" }
+    maven { url = "https://repo1.maven.org/maven2/" }
 }
 
 dependencies {
@@ -40,24 +40,28 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
     // Security Crypto for password hashing
-    implementation 'org.springframework.security:spring-security-crypto:6.4.5'
+    implementation 'org.springframework.security:spring-security-crypto'
 
     implementation 'org.apache.commons:commons-lang3:3.20.0'
     implementation 'org.locationtech.jts:jts-core:1.20.0'
     implementation 'org.n52.jackson:jackson-datatype-jts:2.0.0'
-    implementation 'org.hibernate.orm:hibernate-spatial:6.6.41.Final' // tools.jackson.core not present at runtime (false positive - verified via `./gradlew dependencies`)
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.18.6'
+    implementation 'org.hibernate.orm:hibernate-spatial' // keep BOM-managed to align with Hibernate core from Spring Boot
+    implementation 'com.fasterxml.jackson.core:jackson-core'
     implementation 'org.json:json:20251224'
     implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.3.Final'
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql:42.7.10'
+    runtimeOnly 'org.postgresql:postgresql:42.7.11'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'com.h2database:h2:2.2.224'
-    testImplementation 'org.hibernate.orm:hibernate-spatial:6.6.41.Final'
+    testImplementation 'org.hibernate.orm:hibernate-spatial'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('compileTestJava') {
+    options.compilerArgs << '-Xlint:deprecation'
 }
 
 tasks.named('test') {
