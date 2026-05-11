@@ -94,10 +94,68 @@ Use this structure for new entries:
 
 ---
 
-## Planned next phases
 
-- Phase C: Unified CI gate (require frontend + backend checks on mainline PRs).
-- Phase D: Docker image build/publish hardening (main/tags only, no publish from fork PRs).
+## Phase C - Unified CI gate strategy (2026-05-11)
+
+### What changed
+- Standardized CI intent across repos:
+  - Frontend workflow remains `Frontend CI` in `AncientDataWebGIS_FE/.github/workflows/frontend-ci.yml`.
+  - Backend workflow remains `Backend CI` in `AncientDataWebGIS/.github/workflows/backend-ci.yml`.
+- Defined gate approach for split-repo setup:
+  - Require `Frontend CI` in frontend repo PRs.
+  - Require `Backend CI` in backend repo PRs.
+  - Docker publish workflow must depend on backend verification and run only on trusted push events.
+
+### Why
+- Backend and frontend are currently managed in separate repositories, so one single required check cannot gate both in one PR.
+- Per-repo required checks keep protection clear, auditable, and low-risk.
+
+### Risk level
+- Low
+
+### Rollback
+- Remove required-check enforcement in repository branch protection settings.
+
+### Notes
+- Branch protection rules are a GitHub repository setting, not stored in repo files.
+
+---
+
+## Phase D - Docker build/publish hardening (2026-05-11)
+
+### What changed
+- Refactored backend Docker workflow in `AncientDataWebGIS/.github/workflows/docker-image.yml`.
+- New job split:
+  - `backend-verify`: runs backend test/build before any container work.
+  - `docker-build`: builds image for validation on PRs/pushes without publishing.
+  - `docker-publish`: publishes only on push to `main` or version tags.
+- Replaced manual docker CLI login/push with official Docker actions:
+  - `docker/login-action`
+  - `docker/metadata-action`
+  - `docker/build-push-action`
+- Added Docker Buildx cache (`cache-from/cache-to: type=gha`).
+- Added workflow concurrency cancellation to avoid duplicate in-flight runs.
+- Kept permissions minimal (`contents: read`).
+
+### Why
+- Prevents image publishing from pull requests and fork PR contexts.
+- Keeps PR validation useful by still building Docker images (without push).
+- Reduces CI time/cost with Buildx caching and cancels superseded runs.
+
+### Risk level
+- Medium
+
+### Rollback
+- Revert `AncientDataWebGIS/.github/workflows/docker-image.yml` to previous version or disable `docker-publish` job.
+
+### Notes
+- Publishing still relies on existing repository secrets (`DOCKERHUB_USERNAME`, `DOCKERHUB_PASSWORD`, `REPO_NAME`).
+- No secrets or environment values were changed.
+
+---
+
+## Planned next phase
+
 - Phase E: Optional `docker-compose` smoke/integration check.
 
 ## Update checklist for future phase PRs
