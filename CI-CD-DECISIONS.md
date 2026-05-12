@@ -2,6 +2,80 @@
 
 This file is the source of truth for CI/CD rollout decisions for the AncientData project.
 
+---
+
+## Project Summary (last updated: 2026-05-12)
+
+### What this project did
+
+Implemented an incremental, low-risk CI/CD pipeline for the full AncientData stack across two separate GitHub repositories.
+
+**Before:**
+- No automated CI for the frontend.
+- Backend had a partial, unmaintained CI config and a basic Docker publish workflow.
+- Backend tests were all failing due to an H2/Spatial schema init conflict.
+- Log files were accidentally tracked in git and causing constant dirty-state noise.
+- Docker publish workflow could be triggered from PRs and had no proper job sequencing.
+
+**After:**
+- Frontend repo (`AncientDataWebGIS_FE`) has a CI pipeline: lint → test → build on every push/PR to `main`.
+- Backend repo (`AncientDataWebGIS`) has: a CI pipeline (test + build), a hardened Docker build/publish workflow (test → build → Docker build → conditional publish), an optional compose smoke test, and a log-file hygiene guard.
+- Backend tests are fully green.
+- Docker image is published to Docker Hub only on trusted push to `main` or version tags — never from PRs or forks.
+
+### Architecture: how frontend changes reach the Docker image
+
+The frontend (`AncientDataWebGIS_FE`) is a **separate repo** from the backend. The Spring Boot app serves the frontend as **static assets** bundled inside `src/main/resources/static/` — these are the output of `npm run build` in the frontend project.
+
+**Current flow (manual):**
+1. Developer builds the frontend locally (`npm run build`).
+2. Developer copies the `dist/` output into `AncientDataWebGIS/src/main/resources/static/`.
+3. Developer commits and pushes the backend repo.
+4. Backend CI runs: test → build → Docker build → Docker publish.
+
+**The gap:** A frontend-only push to `AncientDataWebGIS_FE/main` does **not** automatically trigger a new Docker image. Phase H (below) addresses this with an automated frontend build step inside the backend Docker pipeline.
+
+### Files created/changed
+
+| File | Repo | Purpose |
+|---|---|---|
+| `.github/workflows/frontend-ci.yml` | FE | Lint, test, build on push/PR |
+| `.github/workflows/backend-ci.yml` | BE | Test, build, log guard on push/PR |
+| `.github/workflows/docker-image.yml` | BE | Hardened Docker build/publish pipeline |
+| `.github/workflows/compose-smoke-ci.yml` | BE | Optional integration smoke test |
+| `.github/docker/docker-compose.smoke.yml` | BE | CI-only compose stack for smoke test |
+| `src/test/resources/application-test.properties` | BE | Fixed H2 geometry domain init conflict |
+| `CI-CD-DECISIONS.md` | BE | This file — decisions log |
+
+### Full CI/CD flow after Phase H
+
+```
+AncientDataWebGIS_FE/main push
+  └─► Frontend CI (lint → test → build)   [AncientDataWebGIS_FE repo]
+
+AncientDataWebGIS/main push (or manual trigger)
+  └─► backend-verify job:
+        1. Checkout backend
+        2. Checkout AncientDataWebGIS_FE @ main
+        3. npm ci + npm run build
+        4. Copy dist/ → src/main/resources/static/
+        5. ./gradlew test
+        6. ./gradlew build -x test
+        7. Upload JAR artifact
+  └─► docker-build job:
+        1. Download JAR
+        2. Docker build (no push) — validates image
+  └─► docker-publish job (main/tags only):
+        1. Download JAR
+        2. Docker build + push to Docker Hub
+```
+
+### Known remaining items
+
+- **Formatting gate (deferred):** `npm run format:check` currently fails on the existing unformatted baseline; gate deferred until formatting is applied project-wide.
+
+---
+
 ## Scope
 
 - Backend repo: `AncientDataWebGIS`
@@ -252,6 +326,40 @@ Use this structure for new entries:
 
 ### Notes
 - Frontend `.gitignore` already correctly ignores `logs/` and `*.log` — no changes needed there.
+
+---
+
+---
+
+## Phase H - Automated frontend build inside backend Docker pipeline (2026-05-12)
+
+### What changed
+- Added three steps to the `backend-verify` job in `AncientDataWebGIS/.github/workflows/docker-image.yml`, before the Gradle build:
+  1. `Checkout frontend` — checks out `RinseWillet/AncientDataWebGIS_FE @ main` into `frontend-src/`.
+  2. `Set up Node.js` — Node 20 with npm cache keyed on `frontend-src/package-lock.json`.
+  3. `Build frontend` — runs `npm ci && npm run build` in `frontend-src/`.
+  4. `Copy frontend dist into backend static resources` — clears `src/main/resources/static/` and copies `frontend-src/dist/*` into it.
+
+### Why
+- The frontend `dist/` is served as static assets baked into the Spring Boot JAR (`src/main/resources/static/`).
+- Previously this copy was done manually; the Docker image would not reflect frontend changes unless a developer manually ran the copy and committed it.
+- Now any push to `AncientDataWebGIS/main` automatically builds the latest frontend from `AncientDataWebGIS_FE/main` and includes it in the published image.
+
+### Safety chain
+- `AncientDataWebGIS_FE` frontend CI gate ensures `main` is always in a buildable/tested state.
+- `backend-verify` then pulls that validated frontend, runs all backend tests, and builds the JAR.
+- `docker-publish` only runs on trusted push events after both prior jobs succeed.
+
+### Risk level
+- Low to Medium
+
+### Rollback
+- Remove the four frontend steps from `backend-verify` in `docker-image.yml`.
+- The static assets committed in `src/main/resources/static/` will be used as the fallback.
+
+### Notes
+- Local verification: `npm ci && npm run build` ✅, copy step ✅, `./gradlew test` ✅, `./gradlew build -x test` ✅.
+- The `frontend-src/` directory is never committed — it exists only during the CI runner's lifetime.
 
 ---
 
