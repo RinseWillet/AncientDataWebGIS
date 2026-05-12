@@ -1,0 +1,19 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+title AncientData WebGIS - System Context
+
+Person(researcher, "Researcher / Public User", "Views roads/sites and references")
+Person(editor, "Editor/Admin", "Creates/updates data and references")
+
+System(system, "AncientData WebGIS", "Full-stack WebGIS for ancient roads/sites data")
+
+System_Ext(db, "PostgreSQL + PostGIS", "Primary spatial datastore")
+System_Ext(dockerhub, "Docker Hub", "Container registry for backend image")
+
+Rel(researcher, system, "Browse maps and data")
+Rel(editor, system, "Authenticate and manage content")
+Rel(system, db, "Reads/writes geospatial and auth data", "JDBC/JPA")
+Rel(system, dockerhub, "Publishes backend image via CI", "GitHub Actions")
+
+@enduml
+

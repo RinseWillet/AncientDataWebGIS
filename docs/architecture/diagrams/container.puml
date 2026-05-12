@@ -1,0 +1,25 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+title AncientData WebGIS - Container Diagram
+
+Person(user, "User")
+Person(admin, "Admin")
+
+System_Boundary(s1, "AncientData WebGIS") {
+  Container(frontend, "Frontend SPA", "React + Vite + Redux Toolkit", "UI, routing, state, API calls")
+  Container(api, "Backend API", "Spring Boot 3.5 + Spring Security + JPA", "JWT auth, business logic, REST API")
+  ContainerDb(pg, "PostgreSQL/PostGIS", "PostgreSQL", "Spatial + domain persistence")
+}
+
+System_Ext(ci, "GitHub Actions", "CI/CD workflows")
+System_Ext(reg, "Docker Hub", "Image registry")
+
+Rel(user, frontend, "Uses", "Browser")
+Rel(admin, frontend, "Uses", "Browser")
+Rel(frontend, api, "Calls REST endpoints", "HTTPS /api/*")
+Rel(api, pg, "Reads/writes", "JPA/Hibernate")
+Rel(ci, api, "Builds/tests/packages")
+Rel(ci, reg, "Pushes Docker image")
+
+@enduml
+
