@@ -100,6 +100,17 @@ docker compose up --build
 ## Project Structure
 
 ```
+docs/
+  architecture/
+    WORKFLOW-ANALYSIS.md
+  ci-cd/
+    CI-CD-DECISIONS.md
+  security/
+    SECURITY-UPGRADE-PROMPT.md
+    2026-05/
+      SECURITY-UPGRADE-STATUS.md
+      DEPENDENCY-UPGRADE-SUMMARY.md
+      TEST-REPORT.md
 src/
   main/
     java/com/webgis/ancientdata/
