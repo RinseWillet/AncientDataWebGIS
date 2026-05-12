@@ -207,6 +207,30 @@ Use this structure for new entries:
 
 ---
 
+## Phase D.1 - Docker workflow fix: JAR artifact passing between jobs (2026-05-12)
+
+### What changed
+- Added `Upload JAR artifact` step at the end of `backend-verify` job in `docker-image.yml`.
+  - Uploads `build/libs/ancientdata-0.0.1-SNAPSHOT.jar` using `actions/upload-artifact@v4` with `retention-days: 1`.
+- Added `Download JAR artifact` step at the start of `docker-build` and `docker-publish` jobs.
+  - Downloads the artifact to `build/libs/` before `docker/build-push-action` runs.
+
+### Why
+- Each GitHub Actions job runs on a fresh runner; the JAR built in `backend-verify` was not available in `docker-build`/`docker-publish`.
+- The `Dockerfile` `COPY ./build/libs/...jar` step was failing with "file not found".
+
+### Risk level
+- Low
+
+### Rollback
+- Remove the `Upload JAR artifact` and `Download JAR artifact` steps; combine build and Docker steps into a single job.
+
+### Notes
+- Artifact retention set to 1 day to avoid accumulating stale build artifacts.
+- No Gradle duplication: Docker jobs no longer need Java/Gradle setup.
+
+---
+
 ## Phase G - Log file hygiene: untrack + CI guard (2026-05-12)
 
 ### What changed
