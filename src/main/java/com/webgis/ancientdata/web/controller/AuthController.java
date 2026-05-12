@@ -23,15 +23,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@RequestBody AuthRequest request) {
-        String token = authService.registerUser(request.username(), request.password(), request.role());
-        return ResponseEntity.ok(new AuthResponseDTO(token, List.of(request.role().name())));
+        Role effectiveRole = request.role() == null ? Role.USER : request.role();
+        String token = authService.registerUser(request.username(), request.password(), effectiveRole);
+        return ResponseEntity.ok(new AuthResponseDTO(token, List.of(effectiveRole.name())));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequest request) {
         return ResponseEntity.ok(authService.login(request.username(), request.password()));
     }
+
+    public record AuthRequest(String username, String password, Role role) {
+    }
 }
 
-record AuthRequest(String username, String password, Role role) {
-}

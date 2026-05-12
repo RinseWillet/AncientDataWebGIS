@@ -1,0 +1,20 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+title Backend API - Component Diagram (Simplified)
+
+Container_Boundary(api, "Spring Boot API") {
+  Component(ctrl, "Controllers", "AuthController, RoadController, SiteController, ModernReferenceController")
+  Component(sec, "Security Layer", "SecurityConfig, JwtFilter, JwtUtil, CustomUserDetailService")
+  Component(svc, "Application Services", "AuthService, RoadService, SiteService, ModernReferenceService")
+  Component(repo, "Repositories", "UserRepository, RoadRepository, SiteRepository, ModernReferenceRepository")
+  Component(map, "Mappers/DTO + GeoJsonConverter", "Request/response shaping")
+}
+
+Rel(ctrl, svc, "Delegates")
+Rel(ctrl, sec, "Protected by")
+Rel(svc, repo, "Uses")
+Rel(svc, map, "Uses")
+Rel(sec, repo, "Loads users")
+
+@enduml
+
