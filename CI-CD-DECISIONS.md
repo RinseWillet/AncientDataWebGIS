@@ -154,9 +154,31 @@ Use this structure for new entries:
 
 ---
 
-## Planned next phase
+## Phase E - Optional docker-compose smoke check (2026-05-11)
 
-- Phase E: Optional `docker-compose` smoke/integration check.
+### What changed
+- Added smoke compose definition: `AncientDataWebGIS/.github/docker/docker-compose.smoke.yml`.
+- Added optional smoke workflow: `AncientDataWebGIS/.github/workflows/compose-smoke-ci.yml`.
+- Workflow behavior:
+  - Triggers on `workflow_dispatch` and selected `pull_request` path changes.
+  - Builds backend JAR (`bootJar -x test`) to satisfy Dockerfile artifact expectations.
+  - Starts compose stack, waits for `GET /actuator/health` endpoint reachability (HTTP `200` or `401`), prints logs on failure, always tears down.
+- Uses no new secrets and keeps permissions minimal (`contents: read`).
+
+### Why
+- Provides integration-level confidence (container build + app startup + DB dependency) without making it a hard gate for every PR.
+- Limits CI runtime/cost by running only on relevant changes or manual trigger.
+
+### Risk level
+- Medium
+
+### Rollback
+- Remove or disable `AncientDataWebGIS/.github/workflows/compose-smoke-ci.yml`.
+- Remove `AncientDataWebGIS/.github/docker/docker-compose.smoke.yml` if no longer needed.
+
+### Notes
+- This smoke stack is CI-focused and intentionally separate from production/local `docker-compose.yml`.
+- Backend test baseline issues remain separate from this smoke check.
 
 ## Update checklist for future phase PRs
 

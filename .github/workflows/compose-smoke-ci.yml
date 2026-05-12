@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Docker Compose Smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "Dockerfile"
+      - ".github/workflows/compose-smoke-ci.yml"
+      - ".github/docker/docker-compose.smoke.yml"
+      - "src/main/**"
+      - "build.gradle"
+      - "settings.gradle"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compose-smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build JAR for Docker image
+        run: ./gradlew --no-daemon clean bootJar -x test
+
+      - name: Start smoke stack
+        run: docker compose -f .github/docker/docker-compose.smoke.yml up --build -d
+
+      - name: Wait for backend health endpoint
+        run: |
+          for i in {1..36}; do
+            status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:18080/actuator/health || true)
+            if [ "$status_code" = "200" ] || [ "$status_code" = "401" ]; then
+              echo "Backend endpoint reachable (HTTP $status_code)"
+              exit 0
+            fi
+            echo "Waiting for service readiness... attempt $i (HTTP $status_code)"
+            sleep 5
+          done
+          echo "Service did not become reachable in time"
+          exit 1
+
+      - name: Print service status and logs on failure
+        if: failure()
+        run: |
+          docker compose -f .github/docker/docker-compose.smoke.yml ps
+          docker compose -f .github/docker/docker-compose.smoke.yml logs --no-color
+
+      - name: Tear down smoke stack
+        if: always()
+        run: docker compose -f .github/docker/docker-compose.smoke.yml down -v
+
+
