@@ -205,6 +205,56 @@ Use this structure for new entries:
   - `./gradlew --no-daemon test` passed.
   - `./gradlew --no-daemon build` passed.
 
+---
+
+## Phase D.1 - Docker workflow fix: JAR artifact passing between jobs (2026-05-12)
+
+### What changed
+- Added `Upload JAR artifact` step at the end of `backend-verify` job in `docker-image.yml`.
+  - Uploads `build/libs/ancientdata-0.0.1-SNAPSHOT.jar` using `actions/upload-artifact@v4` with `retention-days: 1`.
+- Added `Download JAR artifact` step at the start of `docker-build` and `docker-publish` jobs.
+  - Downloads the artifact to `build/libs/` before `docker/build-push-action` runs.
+
+### Why
+- Each GitHub Actions job runs on a fresh runner; the JAR built in `backend-verify` was not available in `docker-build`/`docker-publish`.
+- The `Dockerfile` `COPY ./build/libs/...jar` step was failing with "file not found".
+
+### Risk level
+- Low
+
+### Rollback
+- Remove the `Upload JAR artifact` and `Download JAR artifact` steps; combine build and Docker steps into a single job.
+
+### Notes
+- Artifact retention set to 1 day to avoid accumulating stale build artifacts.
+- No Gradle duplication: Docker jobs no longer need Java/Gradle setup.
+
+---
+
+## Phase G - Log file hygiene: untrack + CI guard (2026-05-12)
+
+### What changed
+- Untracked `logs/ancientdata.log` from git index via `git rm --cached logs/ancientdata.log`.
+  - `logs/` was already in `.gitignore`; the file had slipped into git before the ignore rule applied.
+- Added a `Check no log files are tracked` step to `AncientDataWebGIS/.github/workflows/backend-ci.yml`.
+  - Step runs `git ls-files --error-unmatch 'logs/*.log' 'logs/*.gz'` and fails the job if any match.
+
+### Why
+- Log files were appearing as dirty/staged on every `./gradlew` run, creating noise in diffs and risk of accidental commits.
+- The CI guard provides a permanent safety net: if any log file is accidentally re-tracked, the job will catch it immediately.
+
+### Risk level
+- Low
+
+### Rollback
+- Remove the `Check no log files are tracked` step from `backend-ci.yml`.
+- Re-track the file with `git add logs/ancientdata.log` if needed (not recommended).
+
+### Notes
+- Frontend `.gitignore` already correctly ignores `logs/` and `*.log` — no changes needed there.
+
+---
+
 ## Update checklist for future phase PRs
 
 - [ ] Add a new phase section with date.
