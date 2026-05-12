@@ -180,6 +180,31 @@ Use this structure for new entries:
 - This smoke stack is CI-focused and intentionally separate from production/local `docker-compose.yml`.
 - Backend test baseline issues remain separate from this smoke check.
 
+---
+
+## Phase F - Backend test stabilization: H2 spatial init fix (2026-05-12)
+
+### What changed
+- Updated test datasource URL in `AncientDataWebGIS/src/test/resources/application-test.properties`.
+- Removed H2 URL `INIT=CREATE DOMAIN GEOMETRY AS OBJECT` from test DB configuration.
+
+### Why
+- Hibernate Spatial already contributes H2GIS geometry handling during test startup.
+- The extra `INIT` statement attempted to recreate `GEOMETRY`, causing `Domain "GEOMETRY" already exists` and preventing Spring test context initialization.
+
+### Risk level
+- Low
+
+### Rollback
+- Revert `AncientDataWebGIS/src/test/resources/application-test.properties` to reintroduce the previous URL.
+
+### Notes
+- Verification after change:
+  - `./gradlew --no-daemon test --tests "com.webgis.ancientdata.AncientdataApplicationTests"` passed.
+  - `./gradlew --no-daemon test --tests "com.webgis.ancientdata.roadtests.RoadControllerTests"` passed.
+  - `./gradlew --no-daemon test` passed.
+  - `./gradlew --no-daemon build` passed.
+
 ## Update checklist for future phase PRs
 
 - [ ] Add a new phase section with date.
