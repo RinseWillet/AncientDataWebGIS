@@ -5,7 +5,6 @@ import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.web.mapper.ModernReferenceMapper;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +16,11 @@ import java.util.List;
 @RequestMapping("/api/modernreferences")
 public class ModernReferenceController {
 
-    @Autowired
-    private ModernReferenceService modernReferenceService;
+    private final ModernReferenceService modernReferenceService;
+
+    public ModernReferenceController(ModernReferenceService modernReferenceService) {
+        this.modernReferenceService = modernReferenceService;
+    }
 
     @GetMapping("/all")
     public ResponseEntity<List<ModernReferenceDTO>> findAll() {
