@@ -205,6 +205,32 @@ Use this structure for new entries:
   - `./gradlew --no-daemon test` passed.
   - `./gradlew --no-daemon build` passed.
 
+---
+
+## Phase G - Log file hygiene: untrack + CI guard (2026-05-12)
+
+### What changed
+- Untracked `logs/ancientdata.log` from git index via `git rm --cached logs/ancientdata.log`.
+  - `logs/` was already in `.gitignore`; the file had slipped into git before the ignore rule applied.
+- Added a `Check no log files are tracked` step to `AncientDataWebGIS/.github/workflows/backend-ci.yml`.
+  - Step runs `git ls-files --error-unmatch 'logs/*.log' 'logs/*.gz'` and fails the job if any match.
+
+### Why
+- Log files were appearing as dirty/staged on every `./gradlew` run, creating noise in diffs and risk of accidental commits.
+- The CI guard provides a permanent safety net: if any log file is accidentally re-tracked, the job will catch it immediately.
+
+### Risk level
+- Low
+
+### Rollback
+- Remove the `Check no log files are tracked` step from `backend-ci.yml`.
+- Re-track the file with `git add logs/ancientdata.log` if needed (not recommended).
+
+### Notes
+- Frontend `.gitignore` already correctly ignores `logs/` and `*.log` — no changes needed there.
+
+---
+
 ## Update checklist for future phase PRs
 
 - [ ] Add a new phase section with date.

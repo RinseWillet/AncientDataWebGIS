@@ -17,6 +17,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Check no log files are tracked
+        run: |
+          if git ls-files --error-unmatch 'logs/*.log' 'logs/*.gz' 2>/dev/null; then
+            echo "ERROR: log files are tracked by git. Run 'git rm --cached <file>' to untrack them."
+            exit 1
+          fi
+          echo "Log file check passed."
+
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
