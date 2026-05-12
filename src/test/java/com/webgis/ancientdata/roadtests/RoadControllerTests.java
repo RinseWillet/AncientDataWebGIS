@@ -125,28 +125,23 @@ class RoadControllerTests {
         verify(roadService).findModernReferencesByRoadId(road.getId());
     }
 
-    @Test
-    @WithMockUser(roles = {"USER"})
-    void shouldCreateRoad() throws Exception {
-        RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
-        when(roadService.save(any(RoadDTO.class))).thenReturn(road);
+     @Test
+     @WithMockUser
+     void shouldForbidCreateRoad() throws Exception {
+         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
 
-        mockMvc.perform(post("/api/roads")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(roadDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(road.getId()))
-                .andExpect(jsonPath("$.name").value(road.getName()))
-                .andExpect(jsonPath("$.cat_nr").value(road.getCat_nr()))
-                .andExpect(jsonPath("$.type").value(road.getType()))
-                .andDo(MockMvcResultHandlers.print());
+         mockMvc.perform(post("/api/roads")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(objectMapper.writeValueAsString(roadDTO)))
+                 .andExpect(status().isForbidden())
+                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService).save(any(RoadDTO.class));
-    }
+         verify(roadService, never()).save(any(RoadDTO.class));
+     }
 
-    @Test
-    @WithMockUser(roles = {"USER"})
-    void shouldReturnBadRequestWhenMissingRequiredFields() throws Exception {
+     @Test
+     @WithMockUser
+     void shouldForbidCreateRoadWhenMissingRequiredFields() throws Exception {
         String invalidJson = """
         {
             "cat_nr": 12345,
@@ -157,95 +152,88 @@ class RoadControllerTests {
         mockMvc.perform(post("/api/roads")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
-                .andExpect(status().isBadRequest())
+                                .andExpect(status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
 
         verify(roadService, never()).save(any(RoadDTO.class));
     }
 
-    @Test
-    @WithMockUser(roles = {"USER"})
-    void shouldUpdateRoad() throws Exception {
+     @Test
+     @WithMockUser
+     void shouldForbidUpdateRoad() throws Exception {
+         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
+
+         mockMvc.perform(put("/api/roads/" + road.getId())
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(objectMapper.writeValueAsString(roadDTO)))
+                 .andExpect(status().isForbidden())
+                 .andDo(MockMvcResultHandlers.print());
+
+         verify(roadService, never()).update(eq(road.getId()), any(RoadDTO.class));
+     }
+
+     @Test
+     @WithMockUser
+     void shouldForbidUpdatingNonexistentRoad() throws Exception {
         RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
-
-        when(roadService.update(eq(road.getId()), any(RoadDTO.class))).thenReturn(road);
-
-        mockMvc.perform(put("/api/roads/" + road.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(roadDTO)))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-
-        verify(roadService).update(eq(road.getId()), any(RoadDTO.class));
-    }
-
-    @Test
-    @WithMockUser(roles = {"USER"})
-    void shouldReturnNotFoundWhenUpdatingNonexistentRoad() throws Exception {
-        RoadDTO roadDTO = randomRoadGenerator.toDTO(road);
-
-        when(roadService.update(eq(9999L), any(RoadDTO.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND));
 
         mockMvc.perform(put("/api/roads/9999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(roadDTO)))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
+
+        verify(roadService, never()).update(eq(9999L), any(RoadDTO.class));
     }
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    void shouldDeleteRoad() throws Exception {
-        doNothing().when(roadService).delete(road.getId());
+    void shouldForbidDeleteRoad() throws Exception {
 
         mockMvc.perform(delete("/api/roads/" + road.getId()))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService).delete(road.getId());
+        verify(roadService, never()).delete(road.getId());
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    void shouldReturnNotFoundWhenDeletingNonexistentRoad() throws Exception {
+    void shouldForbidDeletingNonexistentRoad() throws Exception {
         long nonexistentId = 9999L;
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND))
-                .when(roadService).delete(nonexistentId);
 
         mockMvc.perform(delete("/api/roads/" + nonexistentId))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertThat(result.getResolvedException())
-                        .isInstanceOf(ResponseStatusException.class)
-                        .hasMessageContaining(ErrorMessages.ROAD_NOT_FOUND))
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Test
-    @WithMockUser(roles = {"USER"})
-    void shouldAddModernReferenceToRoad() throws Exception {
-        RoadDTO expectedDto = randomRoadGenerator.toDTO(road);
-
-        when(roadService.addModernReferenceToRoad(eq(road.getId()), any(ModernReferenceDTO.class)))
-                .thenReturn(road);
-
-        mockMvc.perform(post("/api/roads/" + road.getId() + "/modern-reference")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(modernReferenceDTO)))
-                .andExpect(status().isOk())
-                .andExpect(result -> {
-                    String json = result.getResponse().getContentAsString();
-                    RoadDTO responseDto = objectMapper.readValue(json, RoadDTO.class);
-                    assertThat(responseDto.name()).isEqualTo(expectedDto.name());
-                    assertThat(responseDto.type()).isEqualTo(expectedDto.type());
-                })
+                .andExpect(status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(roadService).addModernReferenceToRoad(eq(road.getId()), any(ModernReferenceDTO.class));
+        verify(roadService, never()).delete(nonexistentId);
     }
 
-    @Test
-    @WithMockUser(roles = {"USER"})
-    void shouldReturnNotFoundWhenAddingReferenceToNonexistentRoad() throws Exception {
+     @Test
+     @WithMockUser
+     void shouldAddModernReferenceToRoad() throws Exception {
+         RoadDTO expectedDto = randomRoadGenerator.toDTO(road);
+
+         when(roadService.addModernReferenceToRoad(eq(road.getId()), any(ModernReferenceDTO.class)))
+                 .thenReturn(road);
+
+         mockMvc.perform(post("/api/roads/" + road.getId() + "/modern-reference")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(objectMapper.writeValueAsString(modernReferenceDTO)))
+                 .andExpect(status().isOk())
+                 .andExpect(result -> {
+                     String json = result.getResponse().getContentAsString();
+                     RoadDTO responseDto = objectMapper.readValue(json, RoadDTO.class);
+                     assertThat(responseDto.name()).isEqualTo(expectedDto.name());
+                     assertThat(responseDto.type()).isEqualTo(expectedDto.type());
+                 })
+                 .andDo(MockMvcResultHandlers.print());
+
+         verify(roadService).addModernReferenceToRoad(eq(road.getId()), any(ModernReferenceDTO.class));
+     }
+
+     @Test
+     @WithMockUser
+     void shouldReturnNotFoundWhenAddingReferenceToNonexistentRoad() throws Exception {
         long nonexistentId = 9999L;
 
         when(roadService.addModernReferenceToRoad(eq(nonexistentId), any(ModernReferenceDTO.class)))
