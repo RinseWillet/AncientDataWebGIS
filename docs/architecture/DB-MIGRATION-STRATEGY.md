@@ -35,6 +35,7 @@ dev startup verifies entities match the live DB columns without changing anythin
 
 1. Schema changes (new tables, columns, indexes) are applied **directly to the PostGIS
    container** via QGIS or a DBA-approved SQL script run outside of this application.
+   - Store reviewed SQL scripts in `docs/architecture/sql/` for traceability.
 2. This application's entities/DTOs are then updated to match the new schema.
 3. If a schema column only this backend owns needs to change, it is done via a coordinated
    update with whoever manages the shared DB — not via automated Flyway in CI/CD.

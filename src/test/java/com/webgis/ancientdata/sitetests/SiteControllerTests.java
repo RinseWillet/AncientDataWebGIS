@@ -15,21 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -98,31 +94,28 @@ class SiteControllerTests {
 
 	@Test
 	@WithMockUser(roles = "USER")
-	void shouldCreateSite() throws Exception {
+	void shouldForbidCreateSite() throws Exception {
 		SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
 		ObjectMapper objectMapper = new ObjectMapper();
-
-		when(siteService.save(any(SiteDTO.class))).thenReturn(site);
 
 		mockMvc.perform(post("/api/sites")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(siteDTO)))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andDo(MockMvcResultHandlers.print());
 
-		verify(siteService, times(1)).save(any(SiteDTO.class));
+		verify(siteService, times(0)).save(any(SiteDTO.class));
 	}
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
-	void shouldDeleteSite() throws Exception {
-		doNothing().when(siteService).delete(site.getId());
+	void shouldForbidDeleteSite() throws Exception {
 
 		mockMvc.perform(delete("/api/sites/" + site.getId()))
-				.andExpect(status().isNoContent())
+				.andExpect(status().isForbidden())
 				.andDo(MockMvcResultHandlers.print());
 
-		verify(siteService, times(1)).delete(site.getId());
+		verify(siteService, times(0)).delete(site.getId());
 	}
 
 	@Test
@@ -164,7 +157,7 @@ class SiteControllerTests {
 
 	@Test
 	@WithMockUser(roles = "USER")
-	void shouldReturnBadRequestWhenMissingRequiredFields() throws Exception {
+	void shouldForbidCreateSiteWhenMissingRequiredFields() throws Exception {
 		String invalidJson = """
 				{
 				    "pleiadesId": 12345,
@@ -175,7 +168,7 @@ class SiteControllerTests {
 		mockMvc.perform(post("/api/sites")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(invalidJson))
-				.andExpect(status().isBadRequest())
+				.andExpect(status().isForbidden())
 				.andDo(MockMvcResultHandlers.print());
 
 		verify(siteService, times(0)).save(any());
@@ -183,32 +176,28 @@ class SiteControllerTests {
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
-	void shouldReturnNotFoundWhenDeletingNonexistentSite() throws Exception {
-		doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found"))
-				.when(siteService).delete(9999L);
+	void shouldForbidDeletingNonexistentSite() throws Exception {
 
 		mockMvc.perform(delete("/api/sites/9999"))
-				.andExpect(status().isNotFound())
+				.andExpect(status().isForbidden())
 				.andDo(MockMvcResultHandlers.print());
 
-		verify(siteService, times(1)).delete(9999L);
+		verify(siteService, times(0)).delete(9999L);
 	}
 
 	@Test
 	@WithMockUser(roles = "USER")
-	void shouldUpdateSite() throws Exception {
+	void shouldForbidUpdateSite() throws Exception {
 		SiteDTO siteDTO = randomSiteGenerator.toDTO(site);
 		ObjectMapper objectMapper = new ObjectMapper();
-
-		when(siteService.update(eq(site.getId()), any(SiteDTO.class))).thenReturn(site);
 
 		mockMvc.perform(put("/api/sites/" + site.getId())
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(siteDTO)))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andDo(MockMvcResultHandlers.print());
 
-		verify(siteService, times(1)).update(eq(site.getId()), any(SiteDTO.class));
+		verify(siteService, times(0)).update(eq(site.getId()), any(SiteDTO.class));
 	}
 
 	@AfterEach

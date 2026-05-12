@@ -45,21 +45,21 @@ public class SiteController {
 
     // Protected Endpoints
 
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("denyAll()")
     @PostMapping
     public ResponseEntity<SiteDTO> createSite(@Valid @RequestBody SiteDTO siteDTO) {
         Site site = siteService.save(siteDTO);
         return ResponseEntity.ok(SiteMapper.toDto(site));
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("denyAll()")
     @PutMapping("/{id}")
     public ResponseEntity<SiteDTO> updateSite(@PathVariable Long id, @Valid @RequestBody SiteDTO siteDTO) {
         Site site = siteService.update(id, siteDTO);
         return ResponseEntity.ok(SiteMapper.toDto(site));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("denyAll()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSite(@PathVariable Long id) {
         siteService.delete(id);

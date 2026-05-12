@@ -51,21 +51,21 @@ public class RoadController {
 
     // --- Protected endpoints (USER / ADMIN) ---
 
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("denyAll()")
     @PostMapping
     public ResponseEntity<RoadDTO> createRoad(@Valid @RequestBody RoadDTO roadDTO) {
         Road savedRoad = roadService.save(roadDTO);
         return ResponseEntity.ok(RoadMapper.toDto(savedRoad));
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("denyAll()")
     @PutMapping("/{id}")
     public ResponseEntity<RoadDTO> updateRoad(@PathVariable long id, @Valid @RequestBody RoadDTO roadDTO) {
         Road updatedRoad = roadService.update(id, roadDTO);
         return ResponseEntity.ok(RoadMapper.toDto(updatedRoad));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("denyAll()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRoad(@PathVariable long id) {
         roadService.delete(id);

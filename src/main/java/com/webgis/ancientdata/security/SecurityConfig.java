@@ -59,13 +59,19 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll()
                         // API endpoints
                         .requestMatchers(HttpMethod.GET, SITES_URL).permitAll()
-                        .requestMatchers(HttpMethod.POST, SITES_URL).hasAnyRole(USER, ADMIN)
-                        .requestMatchers(HttpMethod.PUT, SITES_URL).hasAnyRole(USER, ADMIN)
-                        .requestMatchers(HttpMethod.DELETE, SITES_URL).hasRole(ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/api/sites/*/modern-reference").hasAnyRole(USER, ADMIN)
+                        .requestMatchers(HttpMethod.POST, SITES_URL).denyAll()
+                        .requestMatchers(HttpMethod.PUT, SITES_URL).denyAll()
+                        .requestMatchers(HttpMethod.DELETE, SITES_URL).denyAll()
                         .requestMatchers(HttpMethod.GET, ROAD_URL).permitAll()
-                        .requestMatchers(HttpMethod.POST, ROAD_URL).hasAnyRole(USER, ADMIN) // Only USER/ADMIN can add
-                        .requestMatchers(HttpMethod.PUT, ROAD_URL).hasAnyRole(USER, ADMIN) // Only USER/ADMIN can update
-                        .requestMatchers(HttpMethod.DELETE, ROAD_URL).hasRole(ADMIN) // Only ADMIN can delete
+                        .requestMatchers(HttpMethod.POST, "/api/roads/*/modern-reference").hasAnyRole(USER, ADMIN)
+                        .requestMatchers(HttpMethod.POST, ROAD_URL).denyAll()
+                        .requestMatchers(HttpMethod.PUT, ROAD_URL).denyAll()
+                        .requestMatchers(HttpMethod.DELETE, ROAD_URL).denyAll()
+                        .requestMatchers(HttpMethod.POST, "/api/suggestions").hasAnyRole(USER, ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/api/suggestions/my").hasAnyRole(USER, ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/api/suggestions/pending").hasRole(ADMIN)
+                        .requestMatchers(HttpMethod.PATCH, "/api/suggestions/*/review").hasRole(ADMIN)
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
