@@ -91,9 +91,43 @@ Test reports are written to `build/reports/tests/test/index.html`.
 
 A `Dockerfile` and `docker-compose.yml` are included for containerised deployment.
 
+### 1. Prepare `.env` for Docker Compose
+
+Copy `.env.example` to `.env` and customize all values (especially passwords):
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your own secrets:
+
+```dotenv
+# Backend
+DB_URL=jdbc:postgresql://db:5432/webGIS_DB
+DB_USER=webgis_client
+DB_PASSWORD=your_strong_db_password
+JWT_SECRET=your_base64_jwt_secret
+JWT_EXPIRATION=86400000
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:8080
+
+# Docker services
+POSTGRES_USER=root
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_DB=webGIS_DB
+GEOSERVER_ADMIN_PASSWORD=your_geoserver_password
+PGADMIN_DEFAULT_EMAIL=your-email@example.com
+PGADMIN_DEFAULT_PASSWORD=your_pgadmin_password
+```
+
+> ⚠️ **Never commit `.env` to version control.** The `.env` file is already listed in `.gitignore`.
+
+### 2. Start services
+
 ```bash
 docker compose up --build
 ```
+
+Docker Compose will automatically read variables from `.env` and pass them to each service.
 
 ---
 

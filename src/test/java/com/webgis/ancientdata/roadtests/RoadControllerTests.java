@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.roadtests;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webgis.ancientdata.RandomRoadGenerator;
 import com.webgis.ancientdata.application.service.RoadService;
 import com.webgis.ancientdata.constants.ErrorMessages;
@@ -51,12 +52,12 @@ class RoadControllerTests {
     private ModernReferenceDTO modernReferenceDTO;
     private List<ModernReferenceDTO> modernReferenceDTOList;
     private RandomRoadGenerator randomRoadGenerator;
-    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         randomRoadGenerator = new RandomRoadGenerator();
-        objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        objectMapper = new ObjectMapper();
 
         Random random = new Random();
         road = randomRoadGenerator.generateRandomRoad();
@@ -252,4 +253,98 @@ class RoadControllerTests {
 
         verify(roadService).addModernReferenceToRoad(eq(nonexistentId), any(ModernReferenceDTO.class));
     }
+
+      @Test
+      void shouldValidateRoadFetchResponseSchema() throws Exception {
+         // Verifies that fetch returns valid GeoJSON with expected properties
+         JSONObject responseJson = new JSONObject();
+         responseJson.put("type", "FeatureCollection");
+         JSONObject feature = new JSONObject();
+         feature.put("type", "Feature");
+         JSONObject properties = new JSONObject();
+         properties.put("id", road.getId());
+         properties.put("name", road.getName());
+         properties.put("type", "road");
+         properties.put("typeDescription", "Historic Roman road");
+         properties.put("location", "Northern Italia");
+         properties.put("description", "Test road");
+         properties.put("cat_nr", 123);
+         feature.put("properties", properties);
+
+         JSONObject geometry = new JSONObject();
+         geometry.put("type", "LineString");
+         geometry.put("coordinates", new double[][]{{12.4924, 41.8902}, {12.5024, 41.9002}});
+         feature.put("geometry", geometry);
+
+         responseJson.put("features", new org.json.JSONArray().put(feature));
+
+         when(roadService.findByIdGeoJson(road.getId())).thenReturn(responseJson.toString());
+
+         mockMvc.perform(get("/api/roads/" + road.getId())
+                         .contentType(MediaType.APPLICATION_JSON))
+                 .andExpect(status().isOk())
+                 .andExpect(jsonPath("$.type").value("FeatureCollection"))
+                 .andExpect(jsonPath("$.features[0].type").value("Feature"))
+                 .andExpect(jsonPath("$.features[0].properties.id").exists())
+                 .andExpect(jsonPath("$.features[0].properties.name").exists())
+                 .andExpect(jsonPath("$.features[0].properties.type").exists())
+                 .andExpect(jsonPath("$.features[0].geometry.type").exists())
+                 .andExpect(jsonPath("$.features[0].geometry.coordinates").isArray())
+                 .andDo(MockMvcResultHandlers.print());
+
+         verify(roadService, times(1)).findByIdGeoJson(road.getId());
+     }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      void shouldValidateRoadUpdateRequestSchema() throws Exception {
+         // Contract currently denies updates for all roles; service should not be invoked
+         RoadDTO validUpdateDTO = new RoadDTO(
+                 1L,
+                 123,
+                 "Updated Road Name",
+                 "MULTILINESTRING ((12.4924 41.8902, 12.5024 41.9002))",
+                 "road",
+                 "Historic Roman road",
+                 "Northern Italia",
+                 "Updated description",
+                 null,
+                 List.of()
+         );
+
+         mockMvc.perform(put("/api/roads/1")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(objectMapper.writeValueAsString(validUpdateDTO)))
+                 .andExpect(status().isForbidden())
+                 .andDo(MockMvcResultHandlers.print());
+
+         verify(roadService, times(0)).update(eq(1L), any(RoadDTO.class));
+     }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      void shouldRejectRoadUpdateWithInvalidGeometry() throws Exception {
+         // Contract currently denies updates before payload validation
+         String invalidUpdateJson = """
+                 {
+                     "id": 1,
+                     "name": "Test Road",
+                     "type": "road",
+                     "typeDescription": "Historic road",
+                     "location": "Italia",
+                     "geom": "INVALID WKT",
+                     "description": "Test",
+                     "references": "None",
+                     "cat_nr": 123
+                 }
+                 """;
+
+         mockMvc.perform(put("/api/roads/1")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(invalidUpdateJson))
+                 .andExpect(status().isForbidden())
+                 .andDo(MockMvcResultHandlers.print());
+
+         verify(roadService, times(0)).update(eq(1L), any(RoadDTO.class));
+     }
 }
