@@ -124,3 +124,58 @@ src/
 build.gradle
 ```
 
+---
+
+## Working with Claude in this repo
+
+Use `CLAUDE.md` in this repo as the default behavior contract, then start requests with a goal and explicit verification checks.
+
+### Copy/paste request template
+
+```markdown
+Goal:
+- <one concrete backend outcome>
+
+Scope (allowed files):
+- <file path 1>
+- <file path 2>
+
+Constraints:
+- Keep changes surgical; do not refactor unrelated code.
+- Match existing project style.
+
+Success criteria:
+- <observable behavior/test outcome>
+
+Verify:
+- ./gradlew test --tests <targeted.test.ClassName>
+- ./gradlew test
+
+Non-goals:
+- <explicitly list what should not be changed>
+```
+
+### Definition of done for backend tasks
+
+- Behavior is verifiable from tests or a reproducible manual check.
+- Diff only touches files needed for the goal.
+- New or changed behavior has corresponding tests where practical.
+- No secrets or environment values from `.env` are committed.
+
+### API contract-change mode (when endpoint/schema changes)
+
+Ask Claude to include all four items in its response:
+
+1. Backend contract delta (route, payload, validation, error format).
+2. Backward compatibility decision (compatible vs breaking) and rationale.
+3. Frontend impact note (what callers must change).
+4. Verification list (backend tests plus at least one end-to-end request example).
+
+### Quick verify commands
+
+```bash
+./gradlew test --tests "*<ClassNameOrPattern>*"
+./gradlew test
+./gradlew bootRun --args='--spring.profiles.active=dev'
+```
+
