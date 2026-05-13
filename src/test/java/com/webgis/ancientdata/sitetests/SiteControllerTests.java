@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -198,6 +199,104 @@ class SiteControllerTests {
 				.andDo(MockMvcResultHandlers.print());
 
 		verify(siteService, times(0)).update(eq(site.getId()), any(SiteDTO.class));
+	}
+
+	@Test
+	@WithMockUser(roles = "USER")
+	void shouldValidateSiteFetchResponseSchema() throws Exception {
+		// Verifies that fetch returns valid GeoJSON with expected properties
+		JSONObject responseJson = new JSONObject();
+		responseJson.put("type", "FeatureCollection");
+		JSONObject feature = new JSONObject();
+		feature.put("type", "Feature");
+		JSONObject properties = new JSONObject();
+		properties.put("id", site.getId());
+		properties.put("pleiadesId", 12345);
+		properties.put("name", site.getName());
+		properties.put("province", "Italia");
+		properties.put("siteType", "castellum");
+		properties.put("status", "known");
+		properties.put("references", "None");
+		properties.put("description", "Test site");
+		feature.put("properties", properties);
+
+		JSONObject geometry = new JSONObject();
+		geometry.put("type", "Point");
+		geometry.put("coordinates", new double[]{12.4924, 41.8902});
+		feature.put("geometry", geometry);
+
+		responseJson.put("features", new org.json.JSONArray().put(feature));
+
+		when(siteService.findByIdGeoJson(site.getId())).thenReturn(responseJson.toString());
+
+		mockMvc.perform(get("/api/sites/" + site.getId())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.type").value("FeatureCollection"))
+				.andExpect(jsonPath("$.features[0].type").value("Feature"))
+				.andExpect(jsonPath("$.features[0].properties.id").exists())
+				.andExpect(jsonPath("$.features[0].properties.pleiadesId").exists())
+				.andExpect(jsonPath("$.features[0].properties.name").exists())
+				.andExpect(jsonPath("$.features[0].properties.siteType").exists())
+				.andExpect(jsonPath("$.features[0].geometry.type").exists())
+				.andExpect(jsonPath("$.features[0].geometry.coordinates").isArray())
+				.andDo(MockMvcResultHandlers.print());
+
+		verify(siteService, times(1)).findByIdGeoJson(site.getId());
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void shouldValidateSiteUpdateRequestSchema() throws Exception {
+		// Contract currently denies updates for all roles; service should not be invoked
+		SiteDTO validUpdateDTO = new SiteDTO(
+				1L,
+				12345,
+				"Updated Site Name",
+				"POINT (12.4924 41.8902)",
+				"Italia",
+				"castellum",
+				"known",
+				"Updated references",
+				"Updated description"
+		);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		mockMvc.perform(put("/api/sites/1")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(validUpdateDTO)))
+				.andExpect(status().isForbidden())
+				.andDo(MockMvcResultHandlers.print());
+
+		verify(siteService, times(0)).update(eq(1L), any(SiteDTO.class));
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void shouldRejectSiteUpdateWithInvalidGeometry() throws Exception {
+		// Contract currently denies updates before payload validation
+		String invalidUpdateJson = """
+				{
+				    "id": 1,
+				    "pleiadesId": 12345,
+				    "name": "Test Site",
+				    "geom": "INVALID WKT",
+				    "province": "Italia",
+				    "siteType": "castellum",
+				    "status": "known",
+				    "references": "None",
+				    "description": "Test"
+				}
+				""";
+
+		mockMvc.perform(put("/api/sites/1")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(invalidUpdateJson))
+				.andExpect(status().isForbidden())
+				.andDo(MockMvcResultHandlers.print());
+
+		verify(siteService, times(0)).update(eq(1L), any(SiteDTO.class));
 	}
 
 	@AfterEach
