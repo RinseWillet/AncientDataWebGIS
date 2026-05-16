@@ -25,6 +25,7 @@ public class SecurityConfig {
 
     private static final String SITES_URL = "/api/sites/**";
     private static final String ROAD_URL = "/api/roads/**";
+    private static final String DASHBOARD_URL = "/api/dashboard/**";
     private static final String ADMIN = "ADMIN";
     private static final String USER = "USER";
 
@@ -64,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, SITES_URL).denyAll()
                         .requestMatchers(HttpMethod.DELETE, SITES_URL).denyAll()
                         .requestMatchers(HttpMethod.GET, ROAD_URL).permitAll()
+                        .requestMatchers(HttpMethod.GET, DASHBOARD_URL).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/roads/*/modern-reference").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.POST, ROAD_URL).denyAll()
                         .requestMatchers(HttpMethod.PUT, ROAD_URL).denyAll()
