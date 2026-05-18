@@ -27,6 +27,7 @@ It is structured to support:
 |---|---|---|
 | E0 | Platform Hardening | Remove blockers and reduce technical/security risk before feature growth |
 | E1 | Research Dashboard v1 | Deliver aggregate metrics for roads/sites/lengths |
+| E1.1x | Dashboard UX Hardening | Harden dashboard layout, charts, accessibility, and state management ✅ **COMPLETE (May 2026)** |
 | E2 | Photo & Media Integration | Link and present images/media for roads/sites |
 | E3 | Raster / GeoTIFF Delivery | Publish and consume large rasters via tile services |
 | E4 | Responsive UX for Field Use | Improve mobile/tablet workflows on map and list views |
@@ -191,4 +192,78 @@ Story details:
 7. `E1-3` Dashboard frontend page
 
 Deliverable target: secure baseline + first usable dashboard.
+
+---
+
+## 8) Completed Epics
+
+### E0 — Platform Hardening ✅
+
+**Status:** Complete
+
+**What was delivered:**
+- E0-1: Externalized docker-compose credentials; `.env` file with documented secrets management
+- E0-2: Normalized HTTPS/HTTP map layer URLs for mixed-content safety
+- E0-3: Resolved `pleiadesId` DTO naming consistency across site edit flows
+- E0-4: Added comprehensive API contract tests for road/site CRUD and validation error scenarios
+
+**Impact:**
+- Secure baseline established before major feature rollout
+- Safe for production deployment with proper credential rotation
+- Consistent API contracts documented and tested
+
+**Files/areas changed:**
+- `AncientDataWebGIS/docker-compose.yml` (env-based secrets)
+- `AncientDataWebGIS_FE/src/components/MapComponent/` (URL normalization)
+- Backend DTOs and serialization (pleiades naming fix)
+- Test suite for core endpoints
+
+---
+
+### E1 — Research Dashboard v1 ✅
+
+**Status:** Complete (E1-1, E1-2, E1-3 merged; E1-4, E1-5 deferred to future)
+
+**What was delivered:**
+- E1-1: `/api/dashboard/summary` endpoint combining roads and sites aggregate metrics
+- E1-2: PostGIS aggregations for total km and per-type km calculations
+- E1-3: Frontend dashboard page with KPI cards, pie/bar charts, loading/error/empty states
+
+**Impact:**
+- Data scientists and admins now have analytics visibility into dataset composition
+- Metrics auto-refresh on demand; responsive across breakpoints
+- Foundation for subsequent hardening (E1.1x) and filtering (E1-4/E1-5)
+
+**Files/areas changed:**
+- Backend: dashboard controller + PostGIS queries
+- Frontend: `AncientDataWebGIS_FE/src/pages/Dashboard.tsx`, `Dashboard.css`, `Dashboard.test.tsx`
+- API service layer: `DashboardService.ts`
+
+**Notes:**
+- E1-4 (date/type filters) and E1-5 (CSV export) remain in backlog; deferred pending UX hardening (E1.1x)
+
+---
+
+### E1.1x — Dashboard UX Hardening ✅
+
+**Status:** Complete (May 2026)
+
+**Detailed specification:** `AncientDataWebGIS/docs/features/E1.1x-dashboard-ux-hardening.md`
+
+**What was delivered:**
+- Metro-style grid layout (Key Metrics / Sites / Roads) with responsive stacking on mobile
+- Chart improvements: top-5 + "Other" pie for sites; horizontal bars for roads
+- Comprehensive number formatting (locale separators, 2dp km, title-case labels)
+- Skeleton loading placeholders + in-place retry (no page reload)
+- Full accessibility baseline (landmarks, aria-labels, 44×44 touch targets)
+- Complete test coverage for all 6 stories (E1.1x-1 through E1.1x-6)
+
+**Files changed:**
+- `AncientDataWebGIS_FE/src/pages/Dashboard.tsx`
+- `AncientDataWebGIS_FE/src/pages/Dashboard.css`
+- `AncientDataWebGIS_FE/src/pages/Dashboard.test.tsx`
+
+**Verified at:** 393 px (Fairphone 5), 768 px (tablet), 1280 px (laptop), 1920 px (external screen)
+
+**Known follow-up:** Horizontal margin/whitespace on ultra-wide screens; see spec for potential improvements (pagebox padding, fluid-width approach, CSS spacing tokens).
 
