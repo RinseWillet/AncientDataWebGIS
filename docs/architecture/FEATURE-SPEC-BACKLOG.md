@@ -55,7 +55,8 @@ It is structured to support:
 |---|---|---|---|---|---|
 | E1-4 | E1 | Add date/type filters on dashboard | Medium | M | E1-3 |
 | E1-5 | E1 | Add CSV export for dashboard aggregates | Medium | S | E1-3 |
-| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | High | M | E0-4 |
+| E2-0 | E2 | Define media storage foundation and delivery strategy (filesystem/NAS vs object storage), with operator runbook | High | M | E0-4 |
+| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | High | M | E2-0 |
 | E2-2 | E2 | Store media metadata (caption/license/source/author/date) | High | S | E2-1 |
 | E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | High | M | E2-1 |
 | E2-4 | E2 | Add cover thumbnail in `MapInfoCard` | Medium | S | E2-3 |
@@ -96,6 +97,7 @@ It is structured to support:
 - Dashboard frontend route is accessible and resilient (loading/error/empty states).
 
 ### P1 Done Criteria
+- Media storage strategy is selected and documented with operational steps (setup, backups, permissions, URL strategy).
 - Media entities can store multiple files per road/site with metadata.
 - Road/Site detail pages display media galleries with attribution.
 - Optional moderation flow exists for admin visibility control.
@@ -134,7 +136,8 @@ Story,E1-2,Add road length PostGIS aggregations,,E1,High,3,backend;postgis,"Comp
 Story,E1-3,Build dashboard frontend page,,E1,High,5,frontend;dashboard,"Create dashboard route with KPI cards and charts.","Loading/error/empty states implemented",E1-1
 Story,E1-4,Add dashboard filters,,E1,Medium,3,frontend;dashboard,"Add date/type filters for dashboard widgets.","Filter changes update displayed metrics",E1-3
 Story,E1-5,Add dashboard CSV export,,E1,Medium,2,frontend;backend,"Export current filtered dashboard state as CSV.","User can download CSV snapshot",E1-3
-Story,E2-1,Add media_asset data model and API,,E2,High,5,backend;db;media,"Create media entity linked to ROAD/SITE and CRUD endpoints.","Migration + API + tests merged",E0-4
+Story,E2-0,Define media storage foundation and runbook,,E2,High,3,backend;ops;media,"Choose storage backend and document setup/backup/security/URL strategy for media delivery.","Runbook approved and executable in target environment",E0-4
+Story,E2-1,Add media_asset data model and API,,E2,High,5,backend;db;media,"Create media entity linked to ROAD/SITE and CRUD endpoints.","Migration + API + tests merged",E2-0
 Story,E2-2,Support rich media metadata,,E2,High,2,backend;media,"Persist caption/license/source/author/date with media.","Metadata round-trips via API",E2-1
 Story,E2-3,Add galleries to RoadInfo and SiteInfo,,E2,High,5,frontend;media,"Render media collections with captions and attribution.","Gallery UX available on both entity pages",E2-1
 Story,E2-4,Add map info card cover image,,E2,Medium,2,frontend;map;media,"Show a cover thumbnail in map info card where available.","Selected feature displays thumbnail",E2-3
