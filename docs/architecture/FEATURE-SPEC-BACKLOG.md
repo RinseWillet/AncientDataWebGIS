@@ -243,7 +243,7 @@ Deliverable target: secure baseline + first usable dashboard.
 - API service layer: `DashboardService.ts`
 
 **Notes:**
-- E1-4 (date/type filters) and E1-5 (CSV export) remain in backlog; deferred pending UX hardening (E1.1x)
+- E1-4 (date/type filters) and E1-5 (CSV export) are implemented and functional (delivered during E1.1x hardening cycle).
 
 ---
 

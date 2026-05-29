@@ -7,12 +7,16 @@ services:
       - db
     ports:
       - 8080:8080
+    volumes:
+      - /volume1/docker/postgis_pgadmin_stack/ancientdata_media:/app/media:rw
     environment:
       - DATABASE_HOST=db
       - DATABASE_USER=${POSTGRES_USER}
       - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_NAME=${POSTGRES_DB}
       - DATABASE_PORT=5432
+      - MEDIA_STORAGE_PATH=/app/media
+      - MEDIA_BASE_URL=${MEDIA_BASE_URL:-http://localhost:8080/api/media/files}
 
   db:
     container_name: PostGIS
