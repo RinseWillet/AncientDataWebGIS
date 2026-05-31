@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -56,6 +57,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         // Allow static frontend resources
                         .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll()
@@ -81,7 +83,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/suggestions/my").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/suggestions/pending").hasRole(ADMIN)
                         .requestMatchers(HttpMethod.PATCH, "/api/suggestions/*/review").hasRole(ADMIN)
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register").hasRole(ADMIN)
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for JWT

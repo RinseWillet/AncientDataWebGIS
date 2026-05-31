@@ -60,7 +60,7 @@ class MediaServiceTests {
         saved.setStorageKey("site/42/uuid.jpg");
         saved.setMimeType("image/jpeg");
         saved.setFileSizeBytes(3L);
-        saved.setVisibilityStatus(VisibilityStatus.PENDING);
+        saved.setVisibilityStatus(VisibilityStatus.APPROVED);
         saved.setCreatedAt(Instant.now());
         saved.setUpdatedAt(Instant.now());
 
@@ -77,7 +77,7 @@ class MediaServiceTests {
 
         ArgumentCaptor<MediaAsset> captor = ArgumentCaptor.forClass(MediaAsset.class);
         verify(mediaAssetRepository).save(captor.capture());
-        assertEquals(VisibilityStatus.PENDING, captor.getValue().getVisibilityStatus());
+        assertEquals(VisibilityStatus.APPROVED, captor.getValue().getVisibilityStatus());
     }
 
     @Test

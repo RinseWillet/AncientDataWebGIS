@@ -55,12 +55,16 @@ It is structured to support:
 |---|---|---|---|---|---|
 | E1-4 | E1 | Add date/type filters on dashboard | Medium | M | E1-3 |
 | E1-5 | E1 | Add CSV export for dashboard aggregates | Medium | S | E1-3 |
-| E2-0 | E2 | Define media storage foundation and delivery strategy (filesystem/NAS vs object storage), with operator runbook | High | M | E0-4 |
-| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | High | M | E2-0 |
-| E2-2 | E2 | Store media metadata (caption/license/source/author/date) | High | S | E2-1 |
-| E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | High | M | E2-1 |
-| E2-4 | E2 | Add cover thumbnail in `MapInfoCard` | Medium | S | E2-3 |
-| E2-5 | E2 | Add admin media moderation flow | Medium | M | E2-1 |
+| E2-0 | E2 | Define media storage foundation and delivery strategy (filesystem/NAS vs object storage), with operator runbook | High | M | E0-4 | ✅ **COMPLETE** |
+| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | High | M | E2-0 | ✅ **COMPLETE** |
+| E2-2 | E2 | Store media metadata (caption/license/source/author/date) | High | S | E2-1 | ✅ **COMPLETE** |
+| E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | High | M | E2-1 | ✅ **COMPLETE** |
+| E2-4 | E2 | Add map info card cover image | Medium | S | E2-3 |
+| E2-5 | E2 | Add admin media moderation flow | Medium | M | E2-1 | ✅ **COMPLETE** (backend; frontend via E2-UI stories) |
+| E2-UI-1 | E2 | Admin upload component — MediaUploadForm with file picker, metadata fields, calls POST /api/media | High | M | E2-3 | ✅ **COMPLETE** |
+| E2-UI-2 | E2 | Admin media management — edit/delete controls on gallery thumbnails (PATCH/DELETE /api/media/{id}) | High | M | E2-UI-1 | ✅ **COMPLETE** |
+| E2-UI-3 | E2 | Admin view of pending/hidden media — admins see all statuses with badges via GET /api/media/admin | High | S | E2-UI-2 | ✅ **COMPLETE** |
+| E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | Medium | M | E2-UI-1 |
 
 ## P2 - Then
 
@@ -269,4 +273,44 @@ Deliverable target: secure baseline + first usable dashboard.
 **Verified at:** 393 px (Fairphone 5), 768 px (tablet), 1280 px (laptop), 1920 px (external screen)
 
 **Known follow-up:** Horizontal margin/whitespace on ultra-wide screens; see spec for potential improvements (pagebox padding, fluid-width approach, CSS spacing tokens).
+
+---
+
+### E2 — Photo & Media Integration ✅
+
+**Status:** Complete (May 2026)
+
+**What was delivered:**
+- E2-0: Media storage foundation — filesystem/NAS strategy with operator runbook (ADR-001)
+- E2-1: `media_asset` data model with polymorphic ROAD/SITE targeting, full CRUD API, Flyway migration
+- E2-2: Rich media metadata (caption, license, source, author, date taken) round-tripping via API
+- E2-3: MediaGallery component with lightbox, captions, and attribution in SiteInfo and RoadInfo pages
+- E2-5: Backend admin moderation (APPROVED/PENDING/HIDDEN visibility control)
+- E2-UI-1: MediaUploadForm component (file picker, metadata fields, calls POST /api/media)
+- E2-UI-2: Edit/delete controls on gallery thumbnails with confirmation dialog
+- E2-UI-3: Admin view of all media statuses with badges, using GET /api/media/admin
+
+**Impact:**
+- Admins can upload, edit metadata, and delete photos for any site or road via the browser
+- Visitors see approved photos in SiteInfo/RoadInfo galleries
+- Full flow: upload → filesystem storage → gallery display works end-to-end
+- Admin moderation: visibility control (APPROVED/PENDING/HIDDEN) with status badges
+
+**Files changed (frontend):**
+- `AncientDataWebGIS_FE/src/services/MediaService.ts` (upload, updateMetadata, deleteMedia, findByTargetAdmin)
+- `AncientDataWebGIS_FE/src/components/MediaGallery/MediaGallery.tsx` (admin controls, status badges, edit/delete)
+- `AncientDataWebGIS_FE/src/components/MediaGallery/MediaGallery.css` (badge and admin UI styles)
+- `AncientDataWebGIS_FE/src/components/MediaGallery/MediaUploadForm.tsx` (new upload form component)
+- `AncientDataWebGIS_FE/src/components/MediaGallery/MediaUploadForm.css` (upload form styles)
+- `AncientDataWebGIS_FE/src/pages/SiteInfo.tsx` (passes isAdmin to MediaGallery)
+- `AncientDataWebGIS_FE/src/pages/RoadInfo.tsx` (passes isAdmin to MediaGallery)
+
+**Tests:**
+- `MediaGallery.test.tsx`: 16 tests (original 6 + 10 admin feature tests)
+- `MediaUploadForm.test.tsx`: 6 tests (toggle, form fields, validation, submit, error states)
+- Backend: existing MediaController + MediaService tests cover all API flows
+
+**Outstanding (deferred):**
+- E2-4: Cover thumbnail in MapInfoCard (medium priority, not blocking deployment)
+- Google Drive backup automation (separate epic, documented in ADR-001)
 

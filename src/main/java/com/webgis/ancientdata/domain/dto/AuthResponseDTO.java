@@ -1,21 +1,18 @@
 package com.webgis.ancientdata.domain.dto;
 
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class AuthResponseDTO {
-    private String token;
-    private List<String> roles;
+    private final String token;
+    private final List<String> roles;
+    private final String username;
 
-    public AuthResponseDTO(String token, List<String> roles) {
+    public AuthResponseDTO(String token, List<String> roles, String username) {
         this.token = token;
         this.roles = roles;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public List<String> getRoles() {
-        return roles;
+        this.username = username;
     }
 }

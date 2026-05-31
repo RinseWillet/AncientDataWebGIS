@@ -79,7 +79,7 @@ public class MediaService {
         asset.setLicense(request.license());
         asset.setDateTaken(request.dateTaken());
         asset.setCover(request.isCover());
-        asset.setVisibilityStatus(VisibilityStatus.PENDING);
+        asset.setVisibilityStatus(VisibilityStatus.APPROVED);
         asset.setCreatedBy(request.createdBy());
 
         MediaAsset saved = mediaAssetRepository.save(asset);
@@ -115,6 +115,13 @@ public class MediaService {
     public MediaAssetDTO updateMetadata(MediaUpdateRequest request) {
         MediaAsset asset = mediaAssetRepository.findById(request.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.MEDIA_NOT_FOUND));
+
+        // Rejected = auto-delete (file + DB record)
+        if (request.visibilityStatus() == VisibilityStatus.REJECTED) {
+            delete(request.id());
+            logger.info("Media asset {} rejected and deleted", request.id());
+            return MediaAssetMapper.toDto(asset, mediaBaseUrl);
+        }
 
         if (request.caption() != null) asset.setCaption(request.caption());
         if (request.author() != null) asset.setAuthor(request.author());

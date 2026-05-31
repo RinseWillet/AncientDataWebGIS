@@ -66,3 +66,7 @@ CREATE TRIGGER trg_media_asset_updated_at
     BEFORE UPDATE ON media_asset
     FOR EACH ROW EXECUTE FUNCTION set_media_asset_updated_at();
 
+-- Grant access to the application user
+GRANT ALL PRIVILEGES ON TABLE media_asset TO webgis_client;
+GRANT USAGE, SELECT ON SEQUENCE media_asset_id_seq TO webgis_client;
+
