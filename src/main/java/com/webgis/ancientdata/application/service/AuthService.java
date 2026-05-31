@@ -64,7 +64,7 @@ public class AuthService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow();
         List<String> roles = List.of(user.getRole().name());
-        return new AuthResponseDTO(token, roles);
+        return new AuthResponseDTO(token, roles, user.getUsername());
     }
 
     public String generateToken(User user) {
