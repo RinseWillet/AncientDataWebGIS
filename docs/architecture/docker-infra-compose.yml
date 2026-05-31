@@ -1,0 +1,49 @@
+# Infrastructure stack — shared PostGIS + pgAdmin
+# Deploy on the NAS at: /volume1/docker/ancientdata/
+#
+# This stack is independent of the application and serves:
+#   - AncientData WebGIS (Spring Boot app)
+#   - QGIS desktop
+#   - Any other PostGIS client
+#
+# The application stack (docker-compose.yml in the project root) connects
+# to this DB via the NAS IP and port 2665.
+#
+# Usage:
+#   docker compose -f docker-infra-compose.yml up -d
+#
+version: '3.9'
+services:
+  db:
+    container_name: PostGIS
+    image: postgis/postgis:16-3.4
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - /volume1/docker/ancientdata/postgis_admin/postgis:/var/lib/postgresql/data:rw
+    ports:
+      - 2665:5432
+    restart: on-failure
+
+  pgadmin:
+    container_name: pgAdmin
+    image: dpage/pgadmin4:8.14
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5050
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: 5050
+    ports:
+      - 2660:5050
+    volumes:
+      - /volume1/docker/ancientdata/postgis_admin/pgadmin_data:/var/lib/pgadmin:rw
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
