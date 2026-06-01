@@ -143,6 +143,63 @@ Non-goals:
 - New or changed behavior has corresponding tests where practical.
 - No secrets or environment values from `.env` are committed.
 
+ 
+## Plan-First Workflow
+
+New features must be planned before implementation. This reduces rework, scope creep, and misaligned implementations.
+
+### When to plan
+
+- **Always plan:** Every new epic (E-level) must have a Copilot plan created and reviewed before any code is written.
+- **Recommended:** Individual stories (especially M/L-sized) benefit from a plan, particularly when they span both repos or introduce new API contracts.
+- **Skip for:** Trivial bug fixes, typo corrections, or single-file config changes where the change is self-evident.
+
+### How to plan
+
+1. Open Copilot chat and select **Plan** mode (or use `@workspace /plan`).
+2. Provide the story/epic context from `docs/features/FEATURE-SPEC-BACKLOG.md`.
+3. Review the generated plan — it should identify files to change, dependencies, and verification steps.
+4. Adjust the plan if needed, then confirm before switching to implementation.
+
+### Plan output expectations
+
+A good plan should include:
+- **Scope:** Which files/modules will be touched (backend, frontend, or both).
+- **Steps:** Ordered list of implementation steps.
+- **Dependencies:** What must exist before this work can start.
+- **Verification:** How to confirm the feature works (test commands, manual checks).
+- **ADR trigger:** Whether this change warrants a new ADR (see below).
+
+### When to create an ADR
+
+Create a new ADR in `docs/architecture/adr/` when a decision:
+- Introduces a new technology, library, or infrastructure component.
+- Changes the storage, serving, or backup strategy.
+- Alters the CI/CD pipeline structure.
+- Modifies the security model or auth flow.
+- Establishes a new architectural pattern that future work should follow.
+
+Use `docs/architecture/adr/ADR-TEMPLATE.md` as a starting point.
+
+## Documentation Pointers
+
+| Document | Location | Purpose |
+|----------|----------|---------|
+| ADR index | `docs/architecture/adr/README.md` | Central record of all architectural decisions |
+| Feature backlog | `docs/features/FEATURE-SPEC-BACKLOG.md` | Prioritized epic/story backlog |
+| Feature specs | `docs/features/README.md` | Index of per-epic specifications |
+| CI/CD decisions | `docs/ci-cd/CI-CD-DECISIONS.md` | Detailed CI/CD phase log (indexed as ADR-004) |
+| DB migration strategy | `docs/architecture/DB-MIGRATION-STRATEGY.md` | Schema change process (indexed as ADR-002) |
+| Data governance | `docs/architecture/DATA-GOVERNANCE-POLICY.md` | Write policy and suggestion workflow (indexed as ADR-003) |
+
+## Skills
+
+Reusable agent skills are stored as `STEAM_SKILL_{topic}.md` files. Skills encode step-by-step procedures for recurring tasks so agents can execute them reliably without re-deriving the process each time.
+
+- **Naming convention:** `STEAM_SKILL_{topic}.md` (e.g., `STEAM_SKILL_run-migrations.md`).
+- **Discovery:** Use the `#` file picker to search for `STEAM_SKILL_` across the workspace.
+- **Status:** No skills have been created yet. Candidate topics for future skill files will be identified as recurring patterns emerge during development.
+
 ## API Contract-Change Mode
 
 When an endpoint/schema changes, include all four items in the response:

@@ -169,12 +169,19 @@ Story,E5-3,Add synthwave map style profile,,E5,Medium,3,frontend;theme;map,"Tune
 
 ---
 
-## 6) Copilot Prompt Templates (Per Story)
+## 6) Copilot Workflow (Per Story)
 
-Use this format when implementing each story in small PRs:
+### Step 1: Plan (required for epics, recommended for M/L stories)
+
+Use Copilot **Plan** mode to generate an implementation plan before writing code.
+See `AGENTS.md` → "Plan-First Workflow" for details.
+
+### Step 2: Implement
+
+Use this prompt template when implementing each story in small PRs:
 
 ```text
-You are implementing story <STORY_ID> from FEATURE-SPEC-BACKLOG.md.
+You are implementing story <STORY_ID> from docs/features/FEATURE-SPEC-BACKLOG.md.
 
 Scope:
 - Only implement acceptance criteria for this story.
@@ -186,6 +193,7 @@ Required output:
 2) Test updates
 3) Short migration notes (if schema/config changed)
 4) Verification commands
+5) ADR needed? (yes/no — if yes, create one in docs/architecture/adr/)
 
 Story details:
 - Summary: <SUMMARY>
