@@ -23,15 +23,15 @@ It is structured to support:
 
 ## 2) Epics
 
-| Epic ID | Epic Name | Outcome |
-|---|---|---|
-| E0 | Platform Hardening | Remove blockers and reduce technical/security risk before feature growth |
-| E1 | Research Dashboard v1 | Deliver aggregate metrics for roads/sites/lengths |
-| E1.1x | Dashboard UX Hardening | Harden dashboard layout, charts, accessibility, and state management ✅ **COMPLETE (May 2026)** |
-| E2 | Photo & Media Integration | Link and present images/media for roads/sites |
-| E3 | Raster / GeoTIFF Delivery | Publish and consume large rasters via tile services |
-| E4 | Responsive UX for Field Use | Improve mobile/tablet workflows on map and list views |
-| E5 | Synthwave Theme (Optional) | Add alternate visual theme with persistent preference |
+| Epic ID | Epic Name | Status | Outcome |
+|---|---|---|---|
+| E0 | Platform Hardening | ✅ Done | Remove blockers and reduce technical/security risk before feature growth |
+| E1 | Research Dashboard v1 | ✅ Done | Deliver aggregate metrics for roads/sites/lengths |
+| E1.1x | Dashboard UX Hardening | ✅ Done | Harden dashboard layout, charts, accessibility, and state management |
+| E2 | Photo & Media Integration | In Progress | Link and present images/media for roads/sites |
+| E3 | Raster / GeoTIFF Delivery | To Do | Publish and consume large rasters via tile services |
+| E4 | Responsive UX for Field Use | To Do | Improve mobile/tablet workflows on map and list views |
+| E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 
 ---
 
@@ -39,54 +39,57 @@ It is structured to support:
 
 ## P0 - Start Here
 
-| Story ID | Epic | Story | Priority | Size | Dependencies |
-|---|---|---|---|---|---|
-| E0-1 | E0 | Replace hardcoded compose credentials with env-based secrets in `AncientDataWebGIS/docker-compose.yml` | Critical | S | None |
-| E0-2 | E0 | Normalize HTTP/HTTPS layer URLs in `AncientDataWebGIS_FE/src/components/MapComponent/MapContent.tsx` | High | S | E0-1 |
-| E0-3 | E0 | Fix `pleiadesid` vs `pleiadesId` end-to-end mismatch in site edit flow | High | S | None |
-| E0-4 | E0 | Add baseline API contract tests for road/site fetch + update flows | High | M | E0-3 |
-| E1-1 | E1 | Add `GET /api/dashboard/summary` combining road + site metrics | High | M | E0-4 |
-| E1-2 | E1 | Add PostGIS road length aggregation (km total + by type) | High | M | E1-1 |
-| E1-3 | E1 | Add frontend dashboard page with loading/error states | High | M | E1-1 |
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E0-1 | E0 | Replace hardcoded compose credentials with env-based secrets in `AncientDataWebGIS/docker-compose.yml` | ✅ Done | Critical | S | None |
+| E0-2 | E0 | Normalize HTTP/HTTPS layer URLs in `AncientDataWebGIS_FE/src/components/MapComponent/MapContent.tsx` | ✅ Done | High | S | E0-1 |
+| E0-3 | E0 | Fix `pleiadesid` vs `pleiadesId` end-to-end mismatch in site edit flow | ✅ Done | High | S | None |
+| E0-4 | E0 | Add baseline API contract tests for road/site fetch + update flows | ✅ Done | High | M | E0-3 |
+| E1-1 | E1 | Add `GET /api/dashboard/summary` combining road + site metrics | ✅ Done | High | M | E0-4 |
+| E1-2 | E1 | Add PostGIS road length aggregation (km total + by type) | ✅ Done | High | M | E1-1 |
+| E1-3 | E1 | Add frontend dashboard page with loading/error states | ✅ Done | High | M | E1-1 |
 
 ## P1 - Next
 
-| Story ID | Epic | Story | Priority | Size | Dependencies |
-|---|---|---|---|---|---|
-| E1-4 | E1 | Add date/type filters on dashboard | Medium | M | E1-3 |
-| E1-5 | E1 | Add CSV export for dashboard aggregates | Medium | S | E1-3 |
-| E2-0 | E2 | Define media storage foundation and delivery strategy (filesystem/NAS vs object storage), with operator runbook | High | M | E0-4 | ✅ **COMPLETE** |
-| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | High | M | E2-0 | ✅ **COMPLETE** |
-| E2-2 | E2 | Store media metadata (caption/license/source/author/date) | High | S | E2-1 | ✅ **COMPLETE** |
-| E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | High | M | E2-1 | ✅ **COMPLETE** |
-| E2-4 | E2 | Add map info card cover image | Medium | S | E2-3 |
-| E2-5 | E2 | Add admin media moderation flow | Medium | M | E2-1 | ✅ **COMPLETE** (backend; frontend via E2-UI stories) |
-| E2-UI-1 | E2 | Admin upload component — MediaUploadForm with file picker, metadata fields, calls POST /api/media | High | M | E2-3 | ✅ **COMPLETE** |
-| E2-UI-2 | E2 | Admin media management — edit/delete controls on gallery thumbnails (PATCH/DELETE /api/media/{id}) | High | M | E2-UI-1 | ✅ **COMPLETE** |
-| E2-UI-3 | E2 | Admin view of pending/hidden media — admins see all statuses with badges via GET /api/media/admin | High | S | E2-UI-2 | ✅ **COMPLETE** |
-| E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | Medium | M | E2-UI-1 |
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E1-4 | E1 | Add date/type filters on dashboard | ✅ Done | Medium | M | E1-3 |
+| E1-5 | E1 | Add CSV export for dashboard aggregates | ✅ Done | Medium | S | E1-3 |
+| E2-0 | E2 | Define media storage foundation and delivery strategy (filesystem/NAS vs object storage), with operator runbook | ✅ Done | High | M | E0-4 |
+| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | ✅ Done | High | M | E2-0 |
+| E2-2 | E2 | Store media metadata (caption/license/source/author/date) | ✅ Done | High | S | E2-1 |
+| E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | ✅ Done | High | M | E2-1 |
+| E2-4 | E2 | Add map info card cover image | To Do | Medium | S | E2-3 |
+| E2-5 | E2 | Add admin media moderation flow | ✅ Done | Medium | M | E2-1 |
+| E2-UI-1 | E2 | Admin upload component — MediaUploadForm with file picker, metadata fields, calls POST /api/media | ✅ Done | High | M | E2-3 |
+| E2-UI-2 | E2 | Admin media management — edit/delete controls on gallery thumbnails (PATCH/DELETE /api/media/{id}) | ✅ Done | High | M | E2-UI-1 |
+| E2-UI-3 | E2 | Admin view of pending/hidden media — admins see all statuses with badges via GET /api/media/admin | ✅ Done | High | S | E2-UI-2 |
+| E2-BACKUP-1 | E2 | Add Google Drive backup service — Spring service using Google Drive API v3 with service account auth to sync media directory | To Do | High | M | E2-1 |
+| E2-BACKUP-2 | E2 | Add scheduled sync task — configurable cron-based background sync of media files to Google Drive, with deletion mirroring | To Do | High | S | E2-BACKUP-1 |
+| E2-BACKUP-3 | E2 | Add manual sync trigger endpoint — `POST /api/admin/backup/media/sync` for admin-initiated backup | To Do | Medium | S | E2-BACKUP-1 |
+| E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | To Do | Medium | M | E2-UI-1 |
 
 ## P2 - Then
 
-| Story ID | Epic | Story | Priority | Size | Dependencies |
-|---|---|---|---|---|---|
-| E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | High | L | E0-1 |
-| E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | High | M | E3-1 |
-| E3-3 | E3 | Add layer manager (toggle/opacity/order) in map UI | High | M | E3-2 |
-| E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | High | L | E3-1 |
-| E3-5 | E3 | Add raster legend + metadata drawer | Medium | S | E3-3 |
-| E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | High | M | E1-3 |
-| E4-2 | E4 | Improve touch target spacing/sizing for controls | High | S | E4-1 |
-| E4-3 | E4 | Improve `DataList` mobile readability and interactions | Medium | M | E4-2 |
-| E4-4 | E4 | Add responsive QA matrix and regression checklist | High | S | E4-1 |
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | To Do | High | L | E0-1 |
+| E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | To Do | High | M | E3-1 |
+| E3-3 | E3 | Add layer manager (toggle/opacity/order) in map UI | To Do | High | M | E3-2 |
+| E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
+| E3-5 | E3 | Add raster legend + metadata drawer | To Do | Medium | S | E3-3 |
+| E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | To Do | High | M | E1-3 |
+| E4-2 | E4 | Improve touch target spacing/sizing for controls | To Do | High | S | E4-1 |
+| E4-3 | E4 | Improve `DataList` mobile readability and interactions | To Do | Medium | M | E4-2 |
+| E4-4 | E4 | Add responsive QA matrix and regression checklist | To Do | High | S | E4-1 |
 
 ## P3 - Optional
 
-| Story ID | Epic | Story | Priority | Size | Dependencies |
-|---|---|---|---|---|---|
-| E5-1 | E5 | Add theme tokens + switcher based on CSS variables in `AncientDataWebGIS_FE/src/App.css` | Medium | S | E0-2 |
-| E5-2 | E5 | Persist theme preference in local storage | Low | S | E5-1 |
-| E5-3 | E5 | Add synthwave map style profile | Medium | M | E5-1 |
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E5-1 | E5 | Add theme tokens + switcher based on CSS variables in `AncientDataWebGIS_FE/src/App.css` | To Do | Medium | S | E0-2 |
+| E5-2 | E5 | Persist theme preference in local storage | To Do | Low | S | E5-1 |
+| E5-3 | E5 | Add synthwave map style profile | To Do | Medium | M | E5-1 |
 
 ---
 
@@ -146,6 +149,10 @@ Story,E2-2,Support rich media metadata,,E2,High,2,backend;media,"Persist caption
 Story,E2-3,Add galleries to RoadInfo and SiteInfo,,E2,High,5,frontend;media,"Render media collections with captions and attribution.","Gallery UX available on both entity pages",E2-1
 Story,E2-4,Add map info card cover image,,E2,Medium,2,frontend;map;media,"Show a cover thumbnail in map info card where available.","Selected feature displays thumbnail",E2-3
 Story,E2-5,Add admin media moderation,,E2,Medium,3,admin;media,"Allow approve/reject/hide media visibility.","Admin can control visibility state",E2-1
+Story,E2-BACKUP-1,Add Google Drive backup service,,E2,High,5,backend;media;backup,"Spring service using Google Drive API v3 with service account auth to sync media directory to Google Drive.","Service authenticates and uploads files to configured folder",E2-1
+Story,E2-BACKUP-2,Add scheduled media backup sync,,E2,High,2,backend;media;backup,"Configurable cron-based background sync of media files to Google Drive with deletion mirroring.","New uploads sync on schedule; deletions reflected in backup",E2-BACKUP-1
+Story,E2-BACKUP-3,Add manual backup trigger endpoint,,E2,Medium,2,backend;media;backup;admin,"POST /api/admin/backup/media/sync endpoint for admin-initiated backup.","Admin can trigger manual sync via API",E2-BACKUP-1
+Story,E2-GEO-1,Photo geotagging,,E2,Medium,5,backend;frontend;media;geo,"Extract/store GPS from EXIF and allow manual placement; display geotagged photos as markers.","Geotagged photos appear on map",E2-UI-1
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
 Story,E3-3,Add map layer manager controls,,E3,High,5,frontend;map;raster,"Allow toggle, opacity, ordering for raster overlays.","Controls apply instantly and persist session state",E3-2
@@ -312,5 +319,6 @@ Deliverable target: secure baseline + first usable dashboard.
 
 **Outstanding (deferred):**
 - E2-4: Cover thumbnail in MapInfoCard (medium priority, not blocking deployment)
-- Google Drive backup automation (separate epic, documented in ADR-001)
+- E2-BACKUP-1/2/3: Automated Google Drive backup for media files (see ADR-001)
+- E2-GEO-1: Photo geotagging with EXIF extraction and map markers
 
