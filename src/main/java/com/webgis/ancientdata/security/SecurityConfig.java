@@ -28,6 +28,7 @@ public class SecurityConfig {
     private static final String ROAD_URL = "/api/roads/**";
     private static final String DASHBOARD_URL = "/api/dashboard/**";
     private static final String MEDIA_URL = "/api/media/**";
+    private static final String BACKUP_URL = "/api/backup/**";
     private static final String ADMIN = "ADMIN";
     private static final String USER = "USER";
 
@@ -75,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, MEDIA_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.PATCH, MEDIA_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.DELETE, MEDIA_URL).hasRole(ADMIN)
+                        .requestMatchers(HttpMethod.POST, BACKUP_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.POST, "/api/roads/*/modern-reference").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.POST, ROAD_URL).denyAll()
                         .requestMatchers(HttpMethod.PUT, ROAD_URL).denyAll()
