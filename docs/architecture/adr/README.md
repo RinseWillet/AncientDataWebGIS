@@ -15,6 +15,7 @@ An Architecture Decision Record captures a single decision, its context, the alt
 | [ADR-003](./ADR-003-data-governance-policy.md) | Data Governance Policy | Accepted | 2026-05-12 | This directory |
 | [ADR-004](./ADR-004-ci-cd-pipeline-design.md) | CI/CD Pipeline Design | Accepted | 2026-05-11 | This directory |
 | [ADR-005](./ADR-005-documentation-workflow.md) | Documentation & Planning Workflow | Accepted | 2026-06-01 | This directory |
+| [ADR-006](./ADR-006-media-backup-nas-sync.md) | Media Backup Strategy — NAS Filesystem Sync | Accepted | 2026-06-11 | This directory |
 
 ## How to create a new ADR
 

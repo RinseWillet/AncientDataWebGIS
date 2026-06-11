@@ -64,9 +64,12 @@ It is structured to support:
 | E2-UI-1 | E2 | Admin upload component — MediaUploadForm with file picker, metadata fields, calls POST /api/media | ✅ Done | High | M | E2-3 |
 | E2-UI-2 | E2 | Admin media management — edit/delete controls on gallery thumbnails (PATCH/DELETE /api/media/{id}) | ✅ Done | High | M | E2-UI-1 |
 | E2-UI-3 | E2 | Admin view of pending/hidden media — admins see all statuses with badges via GET /api/media/admin | ✅ Done | High | S | E2-UI-2 |
-| E2-BACKUP-1 | E2 | Add Google Drive backup service — Spring service using Google Drive API v3 with service account auth to sync media directory | To Do | High | M | E2-1 |
-| E2-BACKUP-2 | E2 | Add scheduled sync task — configurable cron-based background sync of media files to Google Drive, with deletion mirroring | To Do | High | S | E2-BACKUP-1 |
-| E2-BACKUP-3 | E2 | Add manual sync trigger endpoint — `POST /api/admin/backup/media/sync` for admin-initiated backup | To Do | Medium | S | E2-BACKUP-1 |
+| ~~E2-BACKUP-1~~ | E2 | ~~Add Google Drive backup service~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
+| ~~E2-BACKUP-2~~ | E2 | ~~Add scheduled Google Drive sync task~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
+| ~~E2-BACKUP-3~~ | E2 | ~~Add manual Google Drive sync trigger~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
+| E2-BACKUP-NAS-1 | E2 | Add NAS filesystem backup service — `NasBackupService` + `NasBackupConfig` syncing local media dir to a mounted NAS path | ✅ Done | High | M | E2-1 |
+| E2-BACKUP-NAS-2 | E2 | Scheduled NAS sync — cron-based background sync via `@Scheduled`, configurable via `backup.nas.sync-cron` env var | ✅ Done | High | S | E2-BACKUP-NAS-1 |
+| E2-BACKUP-NAS-3 | E2 | Manual sync trigger endpoint — `POST /api/backup/sync` (ADMIN) for on-demand backup, returns sync status | ✅ Done | Medium | S | E2-BACKUP-NAS-1 |
 | E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | To Do | Medium | M | E2-UI-1 |
 
 ## P2 - Then
@@ -149,9 +152,12 @@ Story,E2-2,Support rich media metadata,,E2,High,2,backend;media,"Persist caption
 Story,E2-3,Add galleries to RoadInfo and SiteInfo,,E2,High,5,frontend;media,"Render media collections with captions and attribution.","Gallery UX available on both entity pages",E2-1
 Story,E2-4,Add map info card cover image,,E2,Medium,2,frontend;map;media,"Show a cover thumbnail in map info card where available.","Selected feature displays thumbnail",E2-3
 Story,E2-5,Add admin media moderation,,E2,Medium,3,admin;media,"Allow approve/reject/hide media visibility.","Admin can control visibility state",E2-1
-Story,E2-BACKUP-1,Add Google Drive backup service,,E2,High,5,backend;media;backup,"Spring service using Google Drive API v3 with service account auth to sync media directory to Google Drive.","Service authenticates and uploads files to configured folder",E2-1
-Story,E2-BACKUP-2,Add scheduled media backup sync,,E2,High,2,backend;media;backup,"Configurable cron-based background sync of media files to Google Drive with deletion mirroring.","New uploads sync on schedule; deletions reflected in backup",E2-BACKUP-1
-Story,E2-BACKUP-3,Add manual backup trigger endpoint,,E2,Medium,2,backend;media;backup;admin,"POST /api/admin/backup/media/sync endpoint for admin-initiated backup.","Admin can trigger manual sync via API",E2-BACKUP-1
+Story,~~E2-BACKUP-1~~,~~Add Google Drive backup service~~ (superseded — see ADR-006),,E2,Won't Do,0,backend;media;backup;superseded,"Superseded by NAS filesystem sync approach (ADR-006).","n/a",E2-1
+Story,~~E2-BACKUP-2~~,~~Add scheduled Google Drive sync task~~ (superseded — see ADR-006),,E2,Won't Do,0,backend;media;backup;superseded,"Superseded by NAS filesystem sync approach (ADR-006).","n/a",~~E2-BACKUP-1~~
+Story,~~E2-BACKUP-3~~,~~Add manual Google Drive sync trigger~~ (superseded — see ADR-006),,E2,Won't Do,0,backend;media;backup;superseded,"Superseded by NAS filesystem sync approach (ADR-006).","n/a",~~E2-BACKUP-1~~
+Story,E2-BACKUP-NAS-1,Add NAS filesystem backup service,,E2,High,3,backend;media;backup,"NasBackupService + NasBackupConfig syncing local media dir to mounted NAS path. Enabled/disabled via backup.nas.enabled env var.","Service copies new/modified files to NAS mount; deletes orphan remote files; cron-configurable.",E2-1
+Story,E2-BACKUP-NAS-2,Scheduled NAS sync,,E2,High,1,backend;media;backup,"@Scheduled cron sync driven by backup.nas.sync-cron env var (default: Sunday 03:00 UTC).","Sync runs on schedule when enabled=true.",E2-BACKUP-NAS-1
+Story,E2-BACKUP-NAS-3,Manual NAS sync trigger endpoint,,E2,Medium,1,backend;media;backup;admin,"POST /api/backup/sync — ADMIN-only endpoint for on-demand backup trigger.","Admin can trigger sync via API; returns {status,message}.",E2-BACKUP-NAS-1
 Story,E2-GEO-1,Photo geotagging,,E2,Medium,5,backend;frontend;media;geo,"Extract/store GPS from EXIF and allow manual placement; display geotagged photos as markers.","Geotagged photos appear on map",E2-UI-1
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
@@ -305,11 +311,18 @@ Deliverable target: secure baseline + first usable dashboard.
 - E2-UI-2: Edit/delete controls on gallery thumbnails with confirmation dialog
 - E2-UI-3: Admin view of all media statuses with badges, using GET /api/media/admin
 
+- E2-BACKUP-NAS-1: `NasBackupService` + `NasBackupConfig` — Spring NAS filesystem sync service (enabled/disabled per env, bidirectional sync with orphan deletion)
+- E2-BACKUP-NAS-2: Cron-scheduled sync via `@Scheduled(cron = "${backup.nas.sync-cron:...}")`, configurable via env var
+- E2-BACKUP-NAS-3: `POST /api/backup/sync` (ADMIN) — manual trigger in `BackupController`
+
+**Note:** Original E2-BACKUP-1/2/3 (Google Drive API backup) were superseded before implementation. The adopted approach (Spring NAS filesystem sync) is documented in ADR-006.
+
 **Impact:**
 - Admins can upload, edit metadata, and delete photos for any site or road via the browser
 - Visitors see approved photos in SiteInfo/RoadInfo galleries
 - Full flow: upload → filesystem storage → gallery display works end-to-end
 - Admin moderation: visibility control (APPROVED/PENDING/HIDDEN) with status badges
+- Offsite backup via NAS mount sync, triggerable on demand or via cron
 
 **Files changed (frontend):**
 - `AncientDataWebGIS_FE/src/services/MediaService.ts` (upload, updateMetadata, deleteMedia, findByTargetAdmin)
@@ -327,6 +340,5 @@ Deliverable target: secure baseline + first usable dashboard.
 
 **Outstanding (deferred):**
 - E2-4: Cover thumbnail in MapInfoCard (medium priority, not blocking deployment)
-- E2-BACKUP-1/2/3: Automated Google Drive backup for media files (see ADR-001)
 - E2-GEO-1: Photo geotagging with EXIF extraction and map markers
 
