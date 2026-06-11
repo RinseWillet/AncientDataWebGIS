@@ -1,7 +1,7 @@
 package com.webgis.ancientdata.web.controller;
 
-import com.webgis.ancientdata.application.service.GoogleDriveBackupService;
-import com.webgis.ancientdata.config.GoogleDriveBackupConfig;
+import com.webgis.ancientdata.application.service.NasBackupService;
+import com.webgis.ancientdata.config.NasBackupConfig;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +14,10 @@ import java.util.Map;
 @RequestMapping("/api/backup")
 public class BackupController {
 
-    private final GoogleDriveBackupService backupService;
-    private final GoogleDriveBackupConfig backupConfig;
+    private final NasBackupService backupService;
+    private final NasBackupConfig backupConfig;
 
-    public BackupController(GoogleDriveBackupService backupService, GoogleDriveBackupConfig backupConfig) {
+    public BackupController(NasBackupService backupService, NasBackupConfig backupConfig) {
         this.backupService = backupService;
         this.backupConfig = backupConfig;
     }
@@ -27,7 +27,7 @@ public class BackupController {
     public ResponseEntity<Map<String, String>> triggerSync() {
         if (!backupConfig.isEnabled()) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error", "message", "Google Drive backup is not enabled"));
+                    .body(Map.of("status", "error", "message", "NAS backup is not enabled"));
         }
         backupService.sync();
         return ResponseEntity.ok(Map.of("status", "ok", "message", "Backup sync triggered"));
