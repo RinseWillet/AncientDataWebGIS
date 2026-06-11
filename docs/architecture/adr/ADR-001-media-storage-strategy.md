@@ -1,6 +1,6 @@
 # ADR-001: Media Storage Strategy
 
-**Status:** Accepted  
+**Status:** Accepted *(backup section superseded by [ADR-006](./ADR-006-media-backup-nas-sync.md))*  
 **Date:** 2026-05-29  
 **Decision makers:** Project owner  
 **Epic:** E2 Photo & Media Integration

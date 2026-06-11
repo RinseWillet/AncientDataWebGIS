@@ -13,7 +13,7 @@ services:
       - 8080:8080
     volumes:
       - /volume1/docker/ancientdata/media:/app/media:rw
-      - /volume1/docker/ancientdata/secrets:/app/secrets:ro
+      - /volume1/docker/ancientdata/backup:/backup:rw
     environment:
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_USER=${POSTGRES_USER}
@@ -22,10 +22,9 @@ services:
       - DATABASE_PORT=${DATABASE_PORT:-2665}
       - MEDIA_STORAGE_PATH=/app/media
       - MEDIA_BASE_URL=${MEDIA_BASE_URL:-http://localhost:8080/api/media/files}
-      - GDRIVE_BACKUP_ENABLED=${GDRIVE_BACKUP_ENABLED:-false}
-      - GDRIVE_SERVICE_ACCOUNT_KEY_PATH=${GDRIVE_SERVICE_ACCOUNT_KEY_PATH:-/app/secrets/gdrive-sa-key.json}
-      - GDRIVE_FOLDER_ID=${GDRIVE_FOLDER_ID:-}
-      - GDRIVE_SYNC_CRON=${GDRIVE_SYNC_CRON:-0 0 3 * * SUN}
+      - BACKUP_NAS_ENABLED=${BACKUP_NAS_ENABLED:-false}
+      - BACKUP_NAS_MOUNT_PATH=${BACKUP_NAS_MOUNT_PATH:-/backup/media}
+      - BACKUP_NAS_SYNC_CRON=${BACKUP_NAS_SYNC_CRON:-0 0 3 * * SUN}
 
   geoserver:
     container_name: GeoServer
