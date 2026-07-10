@@ -70,6 +70,7 @@ It is structured to support:
 | E2-BACKUP-NAS-1 | E2 | Add NAS filesystem backup service — `NasBackupService` + `NasBackupConfig` syncing local media dir to a mounted NAS path | ✅ Done | High | M | E2-1 |
 | E2-BACKUP-NAS-2 | E2 | Scheduled NAS sync — cron-based background sync via `@Scheduled`, configurable via `backup.nas.sync-cron` env var | ✅ Done | High | S | E2-BACKUP-NAS-1 |
 | E2-BACKUP-NAS-3 | E2 | Manual sync trigger endpoint — `POST /api/backup/sync` (ADMIN) for on-demand backup, returns sync status | ✅ Done | Medium | S | E2-BACKUP-NAS-1 |
+| E2-BACKUP-NAS-4 | E2 | Database backup (`DbBackupService`, pg_dump) + `backup_history` table + `GET /api/backup/status` + FE "Back up now" button with staleness indicator in `AdminPanel` | ✅ Done | Medium | M | E2-BACKUP-NAS-3 |
 | E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | To Do | Medium | M | E2-UI-1 |
 
 ## P2 - Then

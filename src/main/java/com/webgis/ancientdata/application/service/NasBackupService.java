@@ -1,6 +1,10 @@
 package com.webgis.ancientdata.application.service;
 
 import com.webgis.ancientdata.config.NasBackupConfig;
+import com.webgis.ancientdata.domain.model.BackupHistory;
+import com.webgis.ancientdata.domain.model.BackupOutcome;
+import com.webgis.ancientdata.domain.model.BackupType;
+import com.webgis.ancientdata.domain.repository.BackupHistoryRepository;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -23,13 +28,16 @@ public class NasBackupService {
     private static final Logger logger = LoggerFactory.getLogger(NasBackupService.class);
 
     private final NasBackupConfig config;
+    private final BackupHistoryRepository backupHistoryRepository;
     private final Path mediaRoot;
     Path nasBackupRoot;
 
     public NasBackupService(
             NasBackupConfig config,
+            BackupHistoryRepository backupHistoryRepository,
             @Value("${media.storage-path:./media}") String storagePath) {
         this.config = config;
+        this.backupHistoryRepository = backupHistoryRepository;
         this.mediaRoot = Paths.get(storagePath).toAbsolutePath().normalize();
     }
 
@@ -72,8 +80,11 @@ public class NasBackupService {
      * deletes remote files whose local counterpart no longer exists.
      */
     public void sync() {
+        Instant startedAt = Instant.now();
+
         if (nasBackupRoot == null || !Files.exists(nasBackupRoot)) {
             logger.warn("NAS backup mount not available — skipping sync");
+            recordHistory(startedAt, BackupOutcome.FAILURE, "NAS backup mount not available");
             return;
         }
 
@@ -83,9 +94,21 @@ public class NasBackupService {
             Set<String> localKeys = syncLocalFiles(remoteFiles);
             deleteOrphanedRemoteFiles(remoteFiles, localKeys);
             logger.info("NAS backup sync completed");
+            recordHistory(startedAt, BackupOutcome.SUCCESS, "Synced " + localKeys.size() + " file(s)");
         } catch (IOException e) {
             logger.error("NAS backup sync failed: {}", e.getMessage());
+            recordHistory(startedAt, BackupOutcome.FAILURE, "NAS backup sync failed: " + e.getMessage());
         }
+    }
+
+    private void recordHistory(Instant startedAt, BackupOutcome outcome, String message) {
+        BackupHistory history = new BackupHistory();
+        history.setBackupType(BackupType.MEDIA);
+        history.setOutcome(outcome);
+        history.setStartedAt(startedAt);
+        history.setFinishedAt(Instant.now());
+        history.setMessage(message);
+        backupHistoryRepository.save(history);
     }
 
     /**

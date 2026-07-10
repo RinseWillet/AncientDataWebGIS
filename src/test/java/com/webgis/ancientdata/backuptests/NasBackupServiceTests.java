@@ -2,6 +2,8 @@ package com.webgis.ancientdata.backuptests;
 
 import com.webgis.ancientdata.application.service.NasBackupService;
 import com.webgis.ancientdata.config.NasBackupConfig;
+import com.webgis.ancientdata.domain.model.BackupType;
+import com.webgis.ancientdata.domain.repository.BackupHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -11,10 +13,12 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class NasBackupServiceTests {
 
     private NasBackupConfig config;
+    private BackupHistoryRepository backupHistoryRepository;
     private NasBackupService service;
 
     @TempDir
@@ -29,7 +33,8 @@ class NasBackupServiceTests {
         config.setEnabled(false);
         config.setMountPath(nasBackupRoot.toString());
 
-        service = new NasBackupService(config, mediaRoot.toString());
+        backupHistoryRepository = mock(BackupHistoryRepository.class);
+        service = new NasBackupService(config, backupHistoryRepository, mediaRoot.toString());
     }
 
     @Test
@@ -54,6 +59,7 @@ class NasBackupServiceTests {
         try (Stream<Path> nasFiles = Files.list(nasBackupRoot)) {
             assertFalse(nasFiles.findAny().isPresent());
         }
+        verify(backupHistoryRepository).save(argThat(h -> h.getBackupType() == BackupType.MEDIA));
     }
 
     @Test
@@ -100,4 +106,6 @@ class NasBackupServiceTests {
         assertNull(newConfig.getSyncCron());
     }
 }
+
+
 

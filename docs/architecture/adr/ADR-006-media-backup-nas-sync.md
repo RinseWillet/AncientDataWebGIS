@@ -110,3 +110,23 @@ Key design points:
 - Retained (non-active): `docs/architecture/backup-media-to-gdrive.sh`
 - Smoke test: `docs/features/NAS-BACKUP-SMOKE-TEST.md`
 
+---
+
+## Addendum (2026-07-10): Database backup + manual trigger UI + status/staleness (E2-BACKUP-NAS-4)
+
+**Context:** ADR-006 only covered media file sync — the database itself was never backed up by the application; it relied solely on the external `scripts/backup.sh` run via NAS cron. There was also no way to trigger a backup from the UI, nor any way to see when the last backup ran.
+
+**Decision:** Extend the same in-app, credential-free approach used for media to the database:
+
+- **`DbBackupService`** shells out to `pg_dump` (added to the Docker image via `postgresql-client`), using the same `DATABASE_HOST/PORT/NAME/USER/PASSWORD` env vars as `scripts/backup.sh` (superuser credentials, broader read access than the app's own `DB_USER`). Writes a timestamped `.sql` file to `backup.db.output-path` (`/backup/db`). **No retention/cleanup is implemented** — dumps accumulate; cleanup is manual for now given current DB size.
+- **`backup_history` table** (new, manually-applied SQL per `DB-MIGRATION-STRATEGY.md` — see `docs/architecture/sql/backup_history.sql`) records every DB and media backup attempt (type, outcome, started/finished timestamps, message), including failures — so "never backed up" and "last attempt failed" are distinguishable.
+- **`POST /api/backup/sync`** now triggers both `DbBackupService` and `NasBackupService` and reports both outcomes.
+- **`GET /api/backup/status`** (new) reports the latest run per type plus an `isStale` flag, computed against `backup.staleness-threshold-hours` (default 192h/8 days — set slightly above the weekly media cron cadence so normal scheduling never falsely flags as stale). A type that has never run is always considered stale.
+- **Frontend:** `AdminPanel.tsx` gained a "Back up now" button (triggers both backups on demand — the primary motivation being "back this up immediately after a night of data entry") and a status panel showing last-backup time/outcome per type with a visual warning when stale.
+
+**Consequences:**
+- Positive: the DB is finally backed up through a path the app controls and can report on; admins get immediate, visible feedback instead of relying on log files.
+- Negative: no automated retention for app-triggered DB dumps yet (deferred, tracked as a follow-up); `pg_dump` invocation depends on network/DNS reachability to the shared PostGIS host from the app container, same as the existing JDBC connection.
+- This does not change the offsite/cloud-backup gap noted above (Alternative A) — dumps still land on the same NAS. Synology HyperBackup (or similar) remains the recommended path for true offsite redundancy.
+
+

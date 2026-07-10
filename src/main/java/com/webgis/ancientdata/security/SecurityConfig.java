@@ -77,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, MEDIA_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.DELETE, MEDIA_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.POST, BACKUP_URL).hasRole(ADMIN)
+                        .requestMatchers(HttpMethod.GET, BACKUP_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.POST, "/api/roads/*/modern-reference").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.POST, ROAD_URL).denyAll()
                         .requestMatchers(HttpMethod.PUT, ROAD_URL).denyAll()
@@ -89,7 +90,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register").hasRole(ADMIN)
                         .anyRequest().authenticated()
                 )
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for JWT
+                // CSRF protection defends against attacks that rely on browsers automatically
+                // attaching ambient credentials (session cookies) to forged cross-site requests.
+                // This API never issues cookies or uses HttpSession — sessionCreationPolicy is
+                // STATELESS (see below) and every request is authenticated solely via an explicit
+                // "Authorization: Bearer <jwt>" header (see JwtFilter), which the browser never
+                // attaches automatically and a third-party site cannot set on a forged request
+                // without already having compromised the token (e.g. via XSS, which CSRF
+                // protection would not prevent either). Disabling CSRF here is therefore safe.
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session for JWT
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {

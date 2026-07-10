@@ -4,21 +4,31 @@
 
 AncientDataWebGIS uses a **two-tier backup approach**:
 
-1. **Real-time media sync** (`NasBackupService`) — syncs media files to NAS on a schedule
-2. **Full backup script** — backs up both database and media as timestamped archives
+1. **In-app backup service** (`NasBackupService` + `DbBackupService`) — syncs media files and dumps the database, on a schedule or on-demand via the admin UI/API
+2. **Full backup script** — backs up both database and media as timestamped archives, run externally via NAS cron
 
 This ensures both continuous protection and point-in-time recovery.
 
 ---
 
-## Part 1: Real-Time Media Sync (Spring Service)
+## Part 1: In-App Backup Service (Spring)
 
 ### How It Works
 
-The `NasBackupService` runs on a configurable schedule (default: daily at 3 AM UTC) and:
-- Walks the local media directory (`/app/media`)
-- Copies new/modified files to the NAS mount (`/backup/media`)
-- Deletes orphaned files on NAS (if deleted locally)
+- **Media (`NasBackupService`)** — runs on a configurable schedule (default: weekly, Sunday 3 AM UTC):
+  - Walks the local media directory (`/app/media`)
+  - Copies new/modified files to the NAS mount (`/backup/media`)
+  - Deletes orphaned files on NAS (if deleted locally)
+- **Database (`DbBackupService`)** — on manual trigger only (no schedule):
+  - Runs `pg_dump` against the configured database
+  - Writes a timestamped `.sql` dump to `/backup/db`
+  - No automatic retention/cleanup — old dumps must be removed manually for now
+
+Both services record their outcome (success/failure, timestamp, message) in the `backup_history` table so status can be queried via the API.
+
+### Manual Trigger (Admin UI)
+
+Logged-in admins can click **"Back up now"** on the `/admin-panel` page to trigger both a database dump and a media sync immediately — useful right after a data-entry session, without waiting for the scheduled sync. The same page shows the last backup time for each type and flags it as stale if it exceeds `backup.staleness-threshold-hours` (default 192h / 8 days), or if no backup has ever run.
 
 ### Configuration
 
@@ -27,14 +37,29 @@ Set in `.env`:
 BACKUP_NAS_ENABLED=true
 BACKUP_NAS_MOUNT_PATH=/backup/media
 BACKUP_NAS_SYNC_CRON=0 0 3 * * SUN
+
+BACKUP_DB_ENABLED=true
+BACKUP_DB_OUTPUT_PATH=/backup/db
+
+BACKUP_STALENESS_THRESHOLD_HOURS=192
+
+DATABASE_HOST=...
+DATABASE_PORT=...
+DATABASE_NAME=...
+DATABASE_USER=...
+DATABASE_PASSWORD=...
 ```
+
+`DATABASE_*` are the credentials `pg_dump` connects with — typically the same superuser account used by `scripts/backup.sh` (not the app's own limited `DB_USER`/`DB_PASSWORD`), since a full dump needs broader read access.
+
+The Docker image includes the `postgresql-client` package so `pg_dump` is available at runtime (see `Dockerfile`).
 
 ### Local Testing Setup
 
-1. **Create NAS backup directory:**
+1. **Create NAS backup directories:**
    ```bash
-   mkdir -p /backup/media
-   chmod 755 /backup/media
+   mkdir -p /backup/media /backup/db
+   chmod 755 /backup/media /backup/db
    ```
 
 2. **Mount NAS locally (SMB)** — optional for dev:
@@ -49,17 +74,23 @@ BACKUP_NAS_SYNC_CRON=0 0 3 * * SUN
    ./gradlew bootRun --args='--spring.profiles.active=dev'
    ```
 
-4. **Trigger manual sync:**
+4. **Trigger manual sync (curl, or use the "Back up now" button in `/admin-panel`):**
    ```bash
    curl -X POST http://localhost:8080/api/backup/sync \
      -H "Authorization: Bearer <ADMIN_JWT>"
    ```
 
+5. **Check status:**
+   ```bash
+   curl http://localhost:8080/api/backup/status \
+     -H "Authorization: Bearer <ADMIN_JWT>"
+   ```
+
 ### Expected Behavior
 
-- **Enabled, mount exists:** Files sync automatically on schedule. Manual trigger works.
-- **Enabled, mount missing:** Warns in logs, gracefully skips sync.
-- **Disabled:** Service initializes but does nothing (logs message).
+- **Enabled, mount/DB reachable:** Files/DB sync automatically (media) or on-demand (both). Manual trigger works for both.
+- **Enabled, mount missing / pg_dump fails:** Warns in logs, records a FAILURE row in `backup_history`, gracefully skips.
+- **Disabled:** Service initializes but does nothing (logs message); `POST /api/backup/sync` reports the disabled type as an error in its response.
 
 ---
 
@@ -127,6 +158,14 @@ Script automatically keeps the last 7 backups and deletes older ones.
    mkdir -p /volume1/docker/ancientdata/backup
    mkdir -p /volume1/docker/ancientdata/backups
    chmod 755 /volume1/docker/ancientdata/backup{,s}
+   ```
+
+   The `ancientdata` container runs as a non-root user (UID/GID 1000 by default —
+   see `Dockerfile`). Ensure this UID/GID (or whatever you pass via
+   `--build-arg APP_UID/APP_GID`) has write access to the media/backup directories
+   bind-mounted below, e.g.:
+   ```bash
+   chown -R 1000:1000 /volume1/docker/ancientdata/media /volume1/docker/ancientdata/backup
    ```
 
 2. **Copy backup script to NAS:**
@@ -233,7 +272,9 @@ fi
 
 ## References
 
-- Spring Service: `src/main/java/com/webgis/ancientdata/application/service/NasBackupService.java`
-- Config: `src/main/java/com/webgis/ancientdata/config/NasBackupConfig.java`
-- Endpoint: `POST /api/backup/sync` (admin only)
+- Spring Services: `src/main/java/com/webgis/ancientdata/application/service/NasBackupService.java`, `DbBackupService.java`, `BackupStatusService.java`
+- Config: `src/main/java/com/webgis/ancientdata/config/NasBackupConfig.java`, `DbBackupConfig.java`
+- Endpoints: `POST /api/backup/sync`, `GET /api/backup/status` (admin only)
+- Schema: `docs/architecture/sql/backup_history.sql` (apply manually — see `docs/architecture/DB-MIGRATION-STRATEGY.md`)
+- Admin UI: `AncientDataWebGIS_FE/src/pages/AdminPanel.tsx`
 
