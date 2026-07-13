@@ -50,6 +50,12 @@ public class MediaAsset {
     @Column(name = "date_taken")
     private LocalDate dateTaken;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @Column(name = "is_cover", nullable = false)
     private boolean isCover;
 

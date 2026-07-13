@@ -11,6 +11,8 @@ public record MediaUpdateRequest(
         String source,
         String license,
         LocalDate dateTaken,
+        Double latitude,
+        Double longitude,
         Boolean isCover,
         VisibilityStatus visibilityStatus
 ) {}

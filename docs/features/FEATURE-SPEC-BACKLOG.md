@@ -71,7 +71,7 @@ It is structured to support:
 | E2-BACKUP-NAS-2 | E2 | Scheduled NAS sync — cron-based background sync via `@Scheduled`, configurable via `backup.nas.sync-cron` env var | ✅ Done | High | S | E2-BACKUP-NAS-1 |
 | E2-BACKUP-NAS-3 | E2 | Manual sync trigger endpoint — `POST /api/backup/sync` (ADMIN) for on-demand backup, returns sync status | ✅ Done | Medium | S | E2-BACKUP-NAS-1 |
 | E2-BACKUP-NAS-4 | E2 | Database backup (`DbBackupService`, pg_dump) + `backup_history` table + `GET /api/backup/status` + FE "Back up now" button with staleness indicator in `AdminPanel` | ✅ Done | Medium | M | E2-BACKUP-NAS-3 |
-| E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | To Do | Medium | M | E2-UI-1 |
+| E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | ✅ Done | Medium | M | E2-UI-1 |
 
 ## P2 - Then
 
@@ -159,7 +159,7 @@ Story,~~E2-BACKUP-3~~,~~Add manual Google Drive sync trigger~~ (superseded — s
 Story,E2-BACKUP-NAS-1,Add NAS filesystem backup service,,E2,High,3,backend;media;backup,"NasBackupService + NasBackupConfig syncing local media dir to mounted NAS path. Enabled/disabled via backup.nas.enabled env var.","Service copies new/modified files to NAS mount; deletes orphan remote files; cron-configurable.",E2-1
 Story,E2-BACKUP-NAS-2,Scheduled NAS sync,,E2,High,1,backend;media;backup,"@Scheduled cron sync driven by backup.nas.sync-cron env var (default: Sunday 03:00 UTC).","Sync runs on schedule when enabled=true.",E2-BACKUP-NAS-1
 Story,E2-BACKUP-NAS-3,Manual NAS sync trigger endpoint,,E2,Medium,1,backend;media;backup;admin,"POST /api/backup/sync — ADMIN-only endpoint for on-demand backup trigger.","Admin can trigger sync via API; returns {status,message}.",E2-BACKUP-NAS-1
-Story,E2-GEO-1,Photo geotagging,,E2,Medium,5,backend;frontend;media;geo,"Extract/store GPS from EXIF and allow manual placement; display geotagged photos as markers.","Geotagged photos appear on map",E2-UI-1
+Story,E2-GEO-1,Photo geotagging,,E2,Medium,5,backend;frontend;media;geo,"Extract/store GPS from EXIF and allow manual placement; display geotagged photos as markers.","Geotagged photos appear on map",✅ Done
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
 Story,E3-3,Add map layer manager controls,,E3,High,5,frontend;map;raster,"Allow toggle, opacity, ordering for raster overlays.","Controls apply instantly and persist session state",E3-2
@@ -341,5 +341,42 @@ Deliverable target: secure baseline + first usable dashboard.
 
 **Outstanding (deferred):**
 - E2-4: Cover thumbnail in MapInfoCard (medium priority, not blocking deployment)
-- E2-GEO-1: Photo geotagging with EXIF extraction and map markers
+
+---
+
+### E2-GEO-1 — Photo Geotagging ✅
+
+**Status:** Complete (July 2026)
+
+**What was delivered:**
+- Backend: nullable `latitude`/`longitude` columns added to `media_asset` (manual SQL script per externally-owned schema process, see `docs/architecture/sql/media_asset_add_geotag.sql`)
+- Backend: automatic GPS EXIF extraction on upload via `com.drewnoakes:metadata-extractor`, in `ExifGpsExtractor` + `MediaService.upload`
+- Backend: manual pin coordinates accepted on `POST /api/media` and `PATCH /api/media/{id}`; manual pin always takes precedence over EXIF, including on later edits
+- Frontend: `PhotoLocationPicker` component (click-to-place Leaflet map) integrated into `MediaUploadForm` and the `MediaGallery` edit dialog
+- Frontend: geotagged photos render as camera-pin markers in a new "Photos" map overlay on `RoadInfo`/`SiteInfo`, clicking a marker opens a popup with the photo and caption
+
+**Impact:**
+- Admins can either rely on a photo's built-in GPS data or manually pin the exact spot a photo was taken — especially useful for multi-kilometer road features where a single road/site geometry can't represent where along its length a photo was taken
+- Visitors see geotagged photos as markers directly on the road/site detail map
+
+**Files changed (backend):**
+- `docs/architecture/sql/media_asset_add_geotag.sql` (new — schema change script, requires DBA/QGIS application)
+- `build.gradle` (added `metadata-extractor` dependency)
+- `src/main/java/com/webgis/ancientdata/utils/ExifGpsExtractor.java` (new)
+- `src/main/java/com/webgis/ancientdata/domain/model/MediaAsset.java`, `domain/dto/MediaAssetDTO.java`, `domain/dto/MediaUploadRequest.java`, `domain/dto/MediaUpdateRequest.java`, `web/mapper/MediaAssetMapper.java`
+- `src/main/java/com/webgis/ancientdata/application/service/MediaService.java`, `web/controller/MediaController.java`
+
+**Files changed (frontend):**
+- `AncientDataWebGIS_FE/src/components/MediaGallery/PhotoLocationPicker.tsx` (new) + `.css`
+- `AncientDataWebGIS_FE/src/components/MediaGallery/MediaUploadForm.tsx`, `MediaGallery.tsx`
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapContent.tsx`, `MapBuilder.tsx`, `MapComponent.tsx`, `Styles/markerStyles.ts`, `MapContent.css`
+- `AncientDataWebGIS_FE/src/pages/RoadInfo.tsx`, `SiteInfo.tsx`
+- `AncientDataWebGIS_FE/src/services/MediaService.ts`, `src/types/media.ts`
+
+**Tests:**
+- Backend: `ExifGpsExtractorTests` (3 tests, using generated JPEG fixtures with/without GPS EXIF in `src/test/resources/media/`), plus new `MediaServiceTests`/`MediaControllerTests` cases for EXIF extraction, manual pin, and manual-pin-overrides-EXIF precedence
+- Frontend: new `MediaUploadForm.test.tsx`/`MediaGallery.test.tsx` cases for the location picker toggle, upload with manual coordinates, `onAssetsChange` callback, and edit-form geotag updates
+
+**Deployment note:** The schema change (`media_asset_add_geotag.sql`) must be applied to the shared PostGIS container by whoever manages the database before this feature is live in an environment (see `DB-MIGRATION-STRATEGY.md`).
+
 

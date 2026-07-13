@@ -68,7 +68,7 @@ class MediaServiceTests {
 
         MediaAssetDTO result = mediaService.upload(new MediaUploadRequest(
                 file, TargetType.SITE, 42L,
-                null, null, null, null, null, false, "admin"));
+                null, null, null, null, null, null, null, false, "admin"));
 
         assertNotNull(result);
         assertEquals(1L, result.id());
@@ -86,7 +86,7 @@ class MediaServiceTests {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "photo.jpg", "image/jpeg", new byte[]{});
         MediaUploadRequest request = new MediaUploadRequest(file, TargetType.SITE, 42L,
-                null, null, null, null, null, false, "admin");
+                null, null, null, null, null, null, null, false, "admin");
 
         assertThrows(ResponseStatusException.class, () -> mediaService.upload(request));
     }
@@ -97,7 +97,7 @@ class MediaServiceTests {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "doc.pdf", "application/pdf", new byte[]{1, 2, 3});
         MediaUploadRequest request = new MediaUploadRequest(file, TargetType.SITE, 42L,
-                null, null, null, null, null, false, "admin");
+                null, null, null, null, null, null, null, false, "admin");
 
         assertThrows(ResponseStatusException.class, () -> mediaService.upload(request));
     }
@@ -166,9 +166,99 @@ class MediaServiceTests {
         when(mediaAssetRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         MediaAssetDTO result = mediaService.updateMetadata(new MediaUpdateRequest(
-                1L, "New caption", null, null, null, null, null, VisibilityStatus.APPROVED));
+                1L, "New caption", null, null, null, null, null, null, null, VisibilityStatus.APPROVED));
 
         assertEquals("New caption", result.caption());
         assertEquals("APPROVED", result.visibilityStatus());
+    }
+
+    @Test
+    void upload_photoWithExifGps_setsCoordinatesFromExif() throws Exception {
+        setBaseUrl();
+        byte[] bytes = readTestFixture("photo-with-gps.jpg");
+        MockMultipartFile file = new MockMultipartFile("file", "photo-with-gps.jpg", "image/jpeg", bytes);
+
+        when(mediaStorageService.store(anyString(), anyString(), any())).thenReturn("site/42/uuid.jpg");
+        when(mediaAssetRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        mediaService.upload(new MediaUploadRequest(
+                file, TargetType.SITE, 42L,
+                null, null, null, null, null, null, null, false, "admin"));
+
+        ArgumentCaptor<MediaAsset> captor = ArgumentCaptor.forClass(MediaAsset.class);
+        verify(mediaAssetRepository).save(captor.capture());
+        assertNotNull(captor.getValue().getLatitude());
+        assertNotNull(captor.getValue().getLongitude());
+        assertEquals(52.0907, captor.getValue().getLatitude(), 0.001);
+        assertEquals(5.1214, captor.getValue().getLongitude(), 0.001);
+    }
+
+    @Test
+    void upload_manualPin_overridesExifGps() throws Exception {
+        setBaseUrl();
+        byte[] bytes = readTestFixture("photo-with-gps.jpg");
+        MockMultipartFile file = new MockMultipartFile("file", "photo-with-gps.jpg", "image/jpeg", bytes);
+
+        when(mediaStorageService.store(anyString(), anyString(), any())).thenReturn("site/42/uuid.jpg");
+        when(mediaAssetRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        mediaService.upload(new MediaUploadRequest(
+                file, TargetType.SITE, 42L,
+                null, null, null, null, null, 10.0, 20.0, false, "admin"));
+
+        ArgumentCaptor<MediaAsset> captor = ArgumentCaptor.forClass(MediaAsset.class);
+        verify(mediaAssetRepository).save(captor.capture());
+        assertEquals(10.0, captor.getValue().getLatitude());
+        assertEquals(20.0, captor.getValue().getLongitude());
+    }
+
+    @Test
+    void upload_photoWithoutExifGps_leavesCoordinatesNull() throws Exception {
+        setBaseUrl();
+        byte[] bytes = readTestFixture("photo-without-gps.jpg");
+        MockMultipartFile file = new MockMultipartFile("file", "photo-without-gps.jpg", "image/jpeg", bytes);
+
+        when(mediaStorageService.store(anyString(), anyString(), any())).thenReturn("site/42/uuid.jpg");
+        when(mediaAssetRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        mediaService.upload(new MediaUploadRequest(
+                file, TargetType.SITE, 42L,
+                null, null, null, null, null, null, null, false, "admin"));
+
+        ArgumentCaptor<MediaAsset> captor = ArgumentCaptor.forClass(MediaAsset.class);
+        verify(mediaAssetRepository).save(captor.capture());
+        assertNull(captor.getValue().getLatitude());
+        assertNull(captor.getValue().getLongitude());
+    }
+
+    @Test
+    void updateMetadata_manualPin_setsCoordinates() {
+        setBaseUrl();
+        MediaAsset asset = new MediaAsset();
+        asset.setId(1L);
+        asset.setTargetType(TargetType.SITE);
+        asset.setTargetId(42L);
+        asset.setStorageKey("site/42/a.jpg");
+        asset.setMimeType("image/jpeg");
+        asset.setFileSizeBytes(100L);
+        asset.setVisibilityStatus(VisibilityStatus.APPROVED);
+        asset.setCreatedAt(Instant.now());
+        asset.setUpdatedAt(Instant.now());
+
+        when(mediaAssetRepository.findById(1L)).thenReturn(Optional.of(asset));
+        when(mediaAssetRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        MediaAssetDTO result = mediaService.updateMetadata(new MediaUpdateRequest(
+                1L, null, null, null, null, null, 51.5, 4.5, null, null));
+
+        assertEquals(51.5, result.latitude());
+        assertEquals(4.5, result.longitude());
+    }
+
+    private byte[] readTestFixture(String name) throws Exception {
+        try (var in = getClass().getClassLoader().getResourceAsStream("media/" + name)) {
+            assertNotNull(in, "Test fixture not found: " + name);
+            return in.readAllBytes();
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.webgis.ancientdata.domain.model.MediaAsset;
 import com.webgis.ancientdata.domain.model.TargetType;
 import com.webgis.ancientdata.domain.model.VisibilityStatus;
 import com.webgis.ancientdata.domain.repository.MediaAssetRepository;
+import com.webgis.ancientdata.utils.ExifGpsExtractor;
 import com.webgis.ancientdata.web.mapper.MediaAssetMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -78,6 +80,7 @@ public class MediaService {
         asset.setSource(request.source());
         asset.setLicense(request.license());
         asset.setDateTaken(request.dateTaken());
+        applyGeotag(asset, request.file(), request.latitude(), request.longitude());
         asset.setCover(request.isCover());
         asset.setVisibilityStatus(VisibilityStatus.APPROVED);
         asset.setCreatedBy(request.createdBy());
@@ -128,6 +131,9 @@ public class MediaService {
         if (request.source() != null) asset.setSource(request.source());
         if (request.license() != null) asset.setLicense(request.license());
         if (request.dateTaken() != null) asset.setDateTaken(request.dateTaken());
+        // Manual pin always wins over any previously auto-extracted EXIF value
+        if (request.latitude() != null) asset.setLatitude(request.latitude());
+        if (request.longitude() != null) asset.setLongitude(request.longitude());
         if (request.isCover() != null) asset.setCover(request.isCover());
         if (request.visibilityStatus() != null) asset.setVisibilityStatus(request.visibilityStatus());
 
@@ -169,5 +175,23 @@ public class MediaService {
             case "image/webp" -> ".webp";
             default -> "";
         };
+    }
+
+    // Manual pin (if provided by the client) always takes precedence over EXIF.
+    private void applyGeotag(MediaAsset asset, MultipartFile file, Double manualLatitude, Double manualLongitude) {
+        if (manualLatitude != null && manualLongitude != null) {
+            asset.setLatitude(manualLatitude);
+            asset.setLongitude(manualLongitude);
+            return;
+        }
+
+        try (InputStream inputStream = file.getInputStream()) {
+            ExifGpsExtractor.extract(inputStream).ifPresent(geoPoint -> {
+                asset.setLatitude(geoPoint.latitude());
+                asset.setLongitude(geoPoint.longitude());
+            });
+        } catch (IOException e) {
+            logger.warn("Could not read uploaded file for EXIF GPS extraction: {}", e.getMessage());
+        }
     }
 }

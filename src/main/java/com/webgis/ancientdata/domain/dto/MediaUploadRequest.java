@@ -14,6 +14,8 @@ public record MediaUploadRequest(
         String source,
         String license,
         LocalDate dateTaken,
+        Double latitude,
+        Double longitude,
         boolean isCover,
         String createdBy
 ) {}

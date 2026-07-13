@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -43,9 +44,11 @@ class MediaControllerTests {
             1L, "SITE", 42L,
             "http://localhost:8081/api/media/files/site/42/abc.jpg",
             "A Roman temple", "John", "fieldwork", "CC-BY-4.0",
-            LocalDate.of(2025, 6, 15), true, "APPROVED",
+            LocalDate.of(2025, Month.JUNE, 15), 52.09, 5.12, true, "APPROVED",
             Instant.now(), Instant.now()
     );
+
+
 
     // --- Public GET ---
 
@@ -159,7 +162,7 @@ class MediaControllerTests {
                 1L, "SITE", 42L,
                 "http://localhost:8081/api/media/files/site/42/abc.jpg",
                 "Updated caption", "John", "fieldwork", "CC-BY-4.0",
-                LocalDate.of(2025, 6, 15), true, "APPROVED",
+                LocalDate.of(2025, Month.JUNE, 15), 52.09, 5.12, true, "APPROVED",
                 Instant.now(), Instant.now()
         );
 

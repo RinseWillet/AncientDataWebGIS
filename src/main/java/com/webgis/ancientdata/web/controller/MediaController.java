@@ -39,6 +39,8 @@ public class MediaController {
             @RequestParam(value = "source", required = false) String source,
             @RequestParam(value = "license", required = false) String license,
             @RequestParam(value = "dateTaken", required = false) LocalDate dateTaken,
+            @RequestParam(value = "latitude", required = false) Double latitude,
+            @RequestParam(value = "longitude", required = false) Double longitude,
             @RequestParam(value = "isCover", defaultValue = "false") boolean isCover,
             Authentication authentication) {
 
@@ -46,7 +48,7 @@ public class MediaController {
 
         MediaAssetDTO dto = mediaService.upload(new MediaUploadRequest(
                 file, targetType, targetId,
-                caption, author, source, license, dateTaken, isCover,
+                caption, author, source, license, dateTaken, latitude, longitude, isCover,
                 createdBy));
 
         return ResponseEntity.ok(dto);
@@ -93,11 +95,13 @@ public class MediaController {
             @RequestParam(value = "source", required = false) String source,
             @RequestParam(value = "license", required = false) String license,
             @RequestParam(value = "dateTaken", required = false) LocalDate dateTaken,
+            @RequestParam(value = "latitude", required = false) Double latitude,
+            @RequestParam(value = "longitude", required = false) Double longitude,
             @RequestParam(value = "isCover", required = false) Boolean isCover,
             @RequestParam(value = "visibilityStatus", required = false) VisibilityStatus visibilityStatus) {
 
         MediaAssetDTO dto = mediaService.updateMetadata(new MediaUpdateRequest(
-                id, caption, author, source, license, dateTaken, isCover, visibilityStatus));
+                id, caption, author, source, license, dateTaken, latitude, longitude, isCover, visibilityStatus));
         return ResponseEntity.ok(dto);
     }
 

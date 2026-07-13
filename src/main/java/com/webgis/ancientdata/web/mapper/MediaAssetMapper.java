@@ -20,6 +20,8 @@ public class MediaAssetMapper {
                 entity.getSource(),
                 entity.getLicense(),
                 entity.getDateTaken(),
+                entity.getLatitude(),
+                entity.getLongitude(),
                 entity.isCover(),
                 entity.getVisibilityStatus().name(),
                 entity.getCreatedAt(),
