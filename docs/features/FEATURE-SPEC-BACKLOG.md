@@ -180,7 +180,7 @@ Story,E2-GEO-1,Photo geotagging,,E2,Medium,5,backend;frontend;media;geo,"Extract
 Story,E6-1,Fix stale Dependabot dependency-graph submission,,E6,Critical,2,ci;security,"Remove deprecated ci.yml (wrong JDK, unpinned actions); add correct dependency-submission job to backend-ci.yml.","Workflow submits graph on JDK 21 with pinned action ref",✅ Done
 Story,E6-2,Re-verify alerts against resolved versions,,E6,Critical,2,security;dependencies,"Confirm dependency graph is fresh on main and re-check each open alert against ./gradlew dependencies output.","All alerts confirmed real or closed as stale",✅ Done
 Story,E6-3,Triage jackson-databind alert,,E6,High,1,security;dependencies,"Confirm Spring Boot BOM-managed jackson-databind version is patched, or pin explicitly if not.","jackson-databind alert closed or explicitly pinned to safe version",✅ Done
-Story,E6-4,Triage critical Tomcat alerts,,E6,Critical,2,security;dependencies,"Confirm tomcat-embed-core 10.1.54 (or later) resolves CVEs #15/#62/#65/#67, upgrade if not.","All 4 Tomcat alerts closed or explicitly resolved with upgrade",E6-2
+Story,E6-4,Triage critical Tomcat alerts,,E6,Critical,2,security;dependencies,"Confirm tomcat-embed-core 10.1.54 (or later) resolves CVEs #15/#62/#65/#67, upgrade if not.","All 4 Tomcat alerts closed or explicitly resolved with upgrade",✅ Done
 Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;process;docs,"Add a recurring process/checklist for reviewing Dependabot alerts.","Cadence documented in docs (e.g. CI-CD-DECISIONS.md or this backlog)",E6-4
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
@@ -427,6 +427,32 @@ Deliverable target: secure baseline + first usable dashboard.
 - `Backend CI` run `29500726122` on commit `520c0bb`: `test-build` and `dependency-submission` jobs both `success`.
 - `./gradlew test` green throughout; no `build.gradle` changes required.
 
-**Outstanding:** E6-4 (triage 4 critical `tomcat-embed-core` alerts #15/#62/#65/#67) and E6-5 (document recurring triage cadence).
+**Outstanding:** E6-5 (document recurring triage cadence).
+
+---
+
+### E6-4 — Tomcat Critical CVE Triage ✅
+
+**Status:** Complete (July 2026)
+
+**What was found:** Cross-referenced the 4 critical Tomcat alerts against the GitHub Advisory Database (public API, no auth needed):
+
+| Alert | CVE | GHSA | Fixed in (10.1.x line) | Status vs our 10.1.54 |
+|---|---|---|---|---|
+| #15 Potential RCE via partial PUT | CVE-2025-24813 | GHSA-83qj-6fr2-vhqg | 10.1.35 | ✅ Already fixed (10.1.54 > 10.1.35) |
+| #62 HTTP/2 request headers not validated | CVE-2026-41293 | GHSA-r29c-68gh-xp6x | 10.1.55 | ❌ Vulnerable (10.1.54 < 10.1.55) |
+| #65 Digest authenticator authenticates any unknown user | CVE-2026-43512 | GHSA-h6fc-48rj-7qqh | 10.1.55 | ❌ Vulnerable (10.1.54 < 10.1.55) |
+| #67 Security constraints not correctly applied | CVE-2026-43515 | GHSA-5m62-pw8w-7w9f | 10.1.55 | ❌ Vulnerable (10.1.54 < 10.1.55) |
+
+**What was delivered:**
+- Confirmed Spring Boot **3.5.16**'s BOM manages `tomcat.version` **10.1.55**, which fixes all 3 remaining CVEs.
+- Bumped `build.gradle` plugin version `org.springframework.boot` from `3.5.14` → `3.5.16` (patch-only bump, same minor line).
+- Verified via `./gradlew dependencies` that `tomcat-embed-core` now resolves to `10.1.55`.
+- `./gradlew test` and `./gradlew build` both green after the bump.
+
+**Files changed:**
+- `build.gradle` (Spring Boot plugin version bump only)
+
+**Impact:** All 4 critical Tomcat alerts are now resolved on `main` once this change merges and the dependency graph refreshes.
 
 
