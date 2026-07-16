@@ -29,6 +29,7 @@ It is structured to support:
 | E1 | Research Dashboard v1 | ✅ Done | Deliver aggregate metrics for roads/sites/lengths |
 | E1.1x | Dashboard UX Hardening | ✅ Done | Harden dashboard layout, charts, accessibility, and state management |
 | E2 | Photo & Media Integration | In Progress | Link and present images/media for roads/sites |
+| E6 | Security & Dependency Hardening | To Do | Resolve open Dependabot alerts and confirm a clean dependency graph before NAS deployment |
 | E3 | Raster / GeoTIFF Delivery | To Do | Publish and consume large rasters via tile services |
 | E4 | Responsive UX for Field Use | To Do | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
@@ -73,6 +74,16 @@ It is structured to support:
 | E2-BACKUP-NAS-4 | E2 | Database backup (`DbBackupService`, pg_dump) + `backup_history` table + `GET /api/backup/status` + FE "Back up now" button with staleness indicator in `AdminPanel` | ✅ Done | Medium | M | E2-BACKUP-NAS-3 |
 | E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | ✅ Done | Medium | M | E2-UI-1 |
 
+## P0.5 - Security Hardening (Pre-Deployment)
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E6-1 | E6 | Fix stale/broken Dependabot dependency-graph submission (JDK mismatch, unpinned actions in old `ci.yml`) | ✅ Done | Critical | S | None |
+| E6-2 | E6 | Confirm dependency graph refreshes on `main` and re-verify all open alerts against actually-resolved versions | To Do | Critical | S | E6-1 |
+| E6-3 | E6 | Triage `jackson-databind` manifest alert — confirm Spring Boot BOM version is safe or pin explicitly | To Do | High | S | E6-2 |
+| E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | To Do | Critical | S | E6-2 |
+| E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | To Do | Medium | S | E6-4 |
+
 ## P2 - Then
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
@@ -106,6 +117,12 @@ It is structured to support:
 - Contract tests cover core read/update routes and common error scenarios.
 - Dashboard endpoint returns typed payload with stable schema.
 - Dashboard frontend route is accessible and resilient (loading/error/empty states).
+
+### P0.5 Done Criteria
+- Dependency graph on `main` is fresh (submitted via JDK 21, pinned action ref).
+- Zero open High/Critical/Critical-severity Dependabot alerts, or each remaining alert explicitly triaged and documented as a false positive/accepted risk.
+- Recurring dependency-alert triage cadence documented.
+- Gates NAS deployment: deployment should not proceed while E6 stories are open.
 
 ### P1 Done Criteria
 - Media storage strategy is selected and documented with operational steps (setup, backups, permissions, URL strategy).
@@ -160,6 +177,11 @@ Story,E2-BACKUP-NAS-1,Add NAS filesystem backup service,,E2,High,3,backend;media
 Story,E2-BACKUP-NAS-2,Scheduled NAS sync,,E2,High,1,backend;media;backup,"@Scheduled cron sync driven by backup.nas.sync-cron env var (default: Sunday 03:00 UTC).","Sync runs on schedule when enabled=true.",E2-BACKUP-NAS-1
 Story,E2-BACKUP-NAS-3,Manual NAS sync trigger endpoint,,E2,Medium,1,backend;media;backup;admin,"POST /api/backup/sync — ADMIN-only endpoint for on-demand backup trigger.","Admin can trigger sync via API; returns {status,message}.",E2-BACKUP-NAS-1
 Story,E2-GEO-1,Photo geotagging,,E2,Medium,5,backend;frontend;media;geo,"Extract/store GPS from EXIF and allow manual placement; display geotagged photos as markers.","Geotagged photos appear on map",✅ Done
+Story,E6-1,Fix stale Dependabot dependency-graph submission,,E6,Critical,2,ci;security,"Remove deprecated ci.yml (wrong JDK, unpinned actions); add correct dependency-submission job to backend-ci.yml.","Workflow submits graph on JDK 21 with pinned action ref",✅ Done
+Story,E6-2,Re-verify alerts against resolved versions,,E6,Critical,2,security;dependencies,"Confirm dependency graph is fresh on main and re-check each open alert against ./gradlew dependencies output.","All alerts confirmed real or closed as stale",E6-1
+Story,E6-3,Triage jackson-databind alert,,E6,High,1,security;dependencies,"Confirm Spring Boot BOM-managed jackson-databind version is patched, or pin explicitly if not.","jackson-databind alert closed or explicitly pinned to safe version",E6-2
+Story,E6-4,Triage critical Tomcat alerts,,E6,Critical,2,security;dependencies,"Confirm tomcat-embed-core 10.1.54 (or later) resolves CVEs #15/#62/#65/#67, upgrade if not.","All 4 Tomcat alerts closed or explicitly resolved with upgrade",E6-2
+Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;process;docs,"Add a recurring process/checklist for reviewing Dependabot alerts.","Cadence documented in docs (e.g. CI-CD-DECISIONS.md or this backlog)",E6-4
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
 Story,E3-3,Add map layer manager controls,,E3,High,5,frontend;map;raster,"Allow toggle, opacity, ordering for raster overlays.","Controls apply instantly and persist session state",E3-2
@@ -221,6 +243,8 @@ Story details:
 7. `E1-3` Dashboard frontend page
 
 Deliverable target: secure baseline + first usable dashboard.
+
+**Pre-deployment gate:** Before NAS deployment and before starting E3+, complete `E6-2` through `E6-5` (Security & Dependency Hardening). See P0.5 section above.
 
 ---
 
