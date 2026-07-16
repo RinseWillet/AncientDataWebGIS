@@ -79,8 +79,8 @@ It is structured to support:
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
 | E6-1 | E6 | Fix stale/broken Dependabot dependency-graph submission (JDK mismatch, unpinned actions in old `ci.yml`) | ✅ Done | Critical | S | None |
-| E6-2 | E6 | Confirm dependency graph refreshes on `main` and re-verify all open alerts against actually-resolved versions | To Do | Critical | S | E6-1 |
-| E6-3 | E6 | Triage `jackson-databind` manifest alert — confirm Spring Boot BOM version is safe or pin explicitly | To Do | High | S | E6-2 |
+| E6-2 | E6 | Confirm dependency graph refreshes on `main` and re-verify all open alerts against actually-resolved versions | ✅ Done | Critical | S | E6-1 |
+| E6-3 | E6 | Triage `jackson-databind` manifest alert — confirm Spring Boot BOM version is safe or pin explicitly | ✅ Done | High | S | E6-2 |
 | E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | To Do | Critical | S | E6-2 |
 | E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | To Do | Medium | S | E6-4 |
 
@@ -178,8 +178,8 @@ Story,E2-BACKUP-NAS-2,Scheduled NAS sync,,E2,High,1,backend;media;backup,"@Sched
 Story,E2-BACKUP-NAS-3,Manual NAS sync trigger endpoint,,E2,Medium,1,backend;media;backup;admin,"POST /api/backup/sync — ADMIN-only endpoint for on-demand backup trigger.","Admin can trigger sync via API; returns {status,message}.",E2-BACKUP-NAS-1
 Story,E2-GEO-1,Photo geotagging,,E2,Medium,5,backend;frontend;media;geo,"Extract/store GPS from EXIF and allow manual placement; display geotagged photos as markers.","Geotagged photos appear on map",✅ Done
 Story,E6-1,Fix stale Dependabot dependency-graph submission,,E6,Critical,2,ci;security,"Remove deprecated ci.yml (wrong JDK, unpinned actions); add correct dependency-submission job to backend-ci.yml.","Workflow submits graph on JDK 21 with pinned action ref",✅ Done
-Story,E6-2,Re-verify alerts against resolved versions,,E6,Critical,2,security;dependencies,"Confirm dependency graph is fresh on main and re-check each open alert against ./gradlew dependencies output.","All alerts confirmed real or closed as stale",E6-1
-Story,E6-3,Triage jackson-databind alert,,E6,High,1,security;dependencies,"Confirm Spring Boot BOM-managed jackson-databind version is patched, or pin explicitly if not.","jackson-databind alert closed or explicitly pinned to safe version",E6-2
+Story,E6-2,Re-verify alerts against resolved versions,,E6,Critical,2,security;dependencies,"Confirm dependency graph is fresh on main and re-check each open alert against ./gradlew dependencies output.","All alerts confirmed real or closed as stale",✅ Done
+Story,E6-3,Triage jackson-databind alert,,E6,High,1,security;dependencies,"Confirm Spring Boot BOM-managed jackson-databind version is patched, or pin explicitly if not.","jackson-databind alert closed or explicitly pinned to safe version",✅ Done
 Story,E6-4,Triage critical Tomcat alerts,,E6,Critical,2,security;dependencies,"Confirm tomcat-embed-core 10.1.54 (or later) resolves CVEs #15/#62/#65/#67, upgrade if not.","All 4 Tomcat alerts closed or explicitly resolved with upgrade",E6-2
 Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;process;docs,"Add a recurring process/checklist for reviewing Dependabot alerts.","Cadence documented in docs (e.g. CI-CD-DECISIONS.md or this backlog)",E6-4
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
@@ -402,5 +402,31 @@ Deliverable target: secure baseline + first usable dashboard.
 - Frontend: new `MediaUploadForm.test.tsx`/`MediaGallery.test.tsx` cases for the location picker toggle, upload with manual coordinates, `onAssetsChange` callback, and edit-form geotag updates
 
 **Deployment note:** The schema change (`media_asset_add_geotag.sql`) must be applied to the shared PostGIS container by whoever manages the database before this feature is live in an environment (see `DB-MIGRATION-STRATEGY.md`).
+
+---
+
+### E6-1/E6-2/E6-3 — Dependency Graph Fix + Alert Triage ✅
+
+**Status:** Complete (July 2026)
+
+**What was delivered:**
+- E6-1: Removed deprecated `.github/workflows/ci.yml` (JDK 17, unpinned `@master`/floating action refs); added a `dependency-submission` job to `backend-ci.yml` using JDK 21 and a pinned `gradle/actions/dependency-submission@v4` ref, running on push to `main`.
+- E6-2: Confirmed the fix merged to `main` (PR #86) and the `Backend CI` workflow's `dependency-submission` job completed successfully on the merge commit (`520c0bb`), refreshing the dependency graph. Re-verified every dependency flagged in the original alert against `./gradlew dependencies` output on `main`:
+  - `spring-web`/`spring-webmvc`/`spring-context` → 6.2.18 (alert flagged < 6.1.12/13/14)
+  - `tomcat-embed-core` → 10.1.54 (alert flagged < 10.1.34)
+  - `logback-core` → 1.5.32 (alert flagged < 1.5.13)
+  - `spring-boot` → 3.5.14, `jackson-core` → 2.21.3, `json-smart` → 2.5.2, `xmlunit-core` → 2.10.4, `commons-lang3` → 3.20.0, `org.json` → 20251224 — all above safe thresholds
+  - `commons-compress` and `activemq-artemis` are not present in the dependency graph at all (false positives)
+- E6-3: Confirmed `jackson-databind` resolves to **2.21.2** (Spring Boot 3.5.14 BOM-managed, not a direct dependency), well above any version affected by known jackson-databind CVEs (e.g. 2.9.x/2.12.x/2.13.x-era deserialization issues). No explicit pin needed.
+
+**Impact:**
+- Dependency graph submitted to GitHub is now accurate and current, sourced from a JDK 21 build matching the project's actual toolchain.
+- Confirmed all originally-flagged alerts were caused by the stale graph, not real vulnerabilities in the resolved dependency tree.
+
+**Verification:**
+- `Backend CI` run `29500726122` on commit `520c0bb`: `test-build` and `dependency-submission` jobs both `success`.
+- `./gradlew test` green throughout; no `build.gradle` changes required.
+
+**Outstanding:** E6-4 (triage 4 critical `tomcat-embed-core` alerts #15/#62/#65/#67) and E6-5 (document recurring triage cadence).
 
 
