@@ -363,6 +363,28 @@ Use this structure for new entries:
 
 ---
 
+## Phase I - Sub-path hosting for NAS reverse-proxy deployment (2026-07-22)
+
+### What changed
+- Added `VITE_BASE_PATH` (used as Vite's `base` in `AncientDataWebGIS_FE/vite.config.js`) and `VITE_API_BASE_URL` env vars to the `Build frontend` step in `docker-image.yml`, set to `/webGIS/` and `/webGIS/api` respectively.
+- No backend code changes: the reverse proxy strips the `/webGIS` prefix before forwarding to the container, so the Spring Boot app is unaffected and keeps serving from its root context path.
+
+### Why
+- The app is being deployed on the NAS behind a single public domain (`rinsewillet.net`), reachable at `rinsewillet.net/webGIS`, alongside a landing page (`/`) and an arcade app (`/arcade`) behind the same reverse proxy.
+- `HashRouter` is already used client-side (`main.tsx`), so no additional SPA-fallback routing is required for deep links under the sub-path.
+- See `ancientdataworkspace/deploy/` for the full reverse-proxy/tunnel stack this build feeds into.
+
+### Risk level
+- Low
+
+### Rollback
+- Remove the `env:` block from the `Build frontend` step; the app reverts to root-path hosting (`base: '/'`, `VITE_API_BASE_URL` unset → defaults to `/api`).
+
+### Notes
+- Local/standalone `npm run build` (no env vars set) is unaffected — still builds for root-path hosting.
+
+---
+
 ## Update checklist for future phase PRs
 
 - [ ] Add a new phase section with date.

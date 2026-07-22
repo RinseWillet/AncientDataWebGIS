@@ -4,13 +4,27 @@
 # Required .env vars:
 #   DATABASE_HOST, DATABASE_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB,
 #   GEOSERVER_ADMIN_PASSWORD, MEDIA_BASE_URL
+#
+# Port exposure policy (see ancientdataworkspace/deploy/README.md "Database &
+# GeoServer access (QGIS)" section for full rationale):
+#   - `ancientdata`: NEVER publishes a host port. It's only reached via the
+#     shared `webgis-edge` network by the reverse-proxy stack in
+#     `ancientdataworkspace/deploy/docker-compose.yml` — public exposure only
+#     happens through the reverse proxy / Cloudflare Tunnel.
+#   - `geoserver`: publishes a host port (LAN-reachable) for direct QGIS/admin
+#     access. This is NOT the same as internet exposure — do NOT forward this
+#     port on the router. Reach it either directly on the home LAN, or
+#     remotely via Cloudflare Zero Trust WARP Private Network routing (same
+#     free Tunnel already set up for the website).
 version: '3.9'
 services:
   ancientdata:
     image: rinsedev/ancientdata
     restart: on-failure
-    ports:
-      - 8080:8080
+    expose:
+      - "8080"
+    networks:
+      - webgis-edge
     volumes:
       - /volume1/docker/ancientdata/media:/app/media:rw
       - /volume1/docker/ancientdata/backup:/backup:rw
@@ -38,5 +52,15 @@ services:
     volumes:
       - /volume1/docker/ancientdata/geoserver:/opt/geoserver/data_dir:rw
     ports:
-      - 2675:8080
+      - "2675:8080"
+    networks:
+      - webgis-edge
     restart: on-failure
+
+networks:
+  webgis-edge:
+    external: true
+
+
+
+

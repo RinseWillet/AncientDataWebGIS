@@ -38,6 +38,11 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend-src
+        # Built for production hosting behind the reverse proxy at
+        # https://rinsewillet.net/webGIS/ — see ancientdataworkspace/deploy.
+        env:
+          VITE_BASE_PATH: /webGIS/
+          VITE_API_BASE_URL: /webGIS/api
         run: |
           npm ci
           npm run build
