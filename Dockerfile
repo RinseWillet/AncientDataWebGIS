@@ -1,5 +1,5 @@
-# Use Eclipse Temurin JRE 21 (modern, actively maintained OpenJDK distribution)
-FROM eclipse-temurin:21-jre
+# Use Eclipse Temurin JRE 25 (modern, actively maintained OpenJDK LTS distribution)
+FROM eclipse-temurin:25-jre
 
 # Set working directory
 WORKDIR /app

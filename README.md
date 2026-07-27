@@ -1,9 +1,9 @@
 # AncientData WebGIS — Backend
 
-Spring Boot 3 REST API with PostGIS spatial data support, JWT authentication, and Flyway migrations.
+Spring Boot 4 REST API with PostGIS spatial data support, JWT authentication, and Flyway migrations.
 
-- **Java 21**
-- **Spring Boot 3.5.x**
+- **Java 25**
+- **Spring Boot 4.1.x**
 - **PostgreSQL + PostGIS**
 - **Gradle wrapper** (`./gradlew`)
 
@@ -13,7 +13,7 @@ Spring Boot 3 REST API with PostGIS spatial data support, JWT authentication, an
 
 | Tool | Version |
 |------|---------|
-| Java (JDK) | 21 |
+| Java (JDK) | 25 |
 | Gradle | via `./gradlew` (no install needed) |
 | PostgreSQL | remote or local with PostGIS |
 
