@@ -35,9 +35,9 @@ Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, sim
 
 ## Architecture Overview
 
-Spring Boot 3 REST API serving archaeological spatial data (sites, roads, modern/ancient references) with PostGIS geometry, JWT auth, and Flyway-managed schema.
+Spring Boot 4 REST API serving archaeological spatial data (sites, roads, modern/ancient references) with PostGIS geometry, JWT auth, and Flyway-managed schema.
 
-- **Stack:** Java 21, Spring Boot 3.5.x, Spring Data JPA + Hibernate Spatial, PostgreSQL/PostGIS, Flyway, JTS, Lombok, JJWT.
+- **Stack:** Java 25, Spring Boot 4.1.x, Spring Data JPA + Hibernate Spatial, PostgreSQL/PostGIS, Flyway, JTS, Lombok, JJWT.
 - **Base path:** `/api` (e.g. `/api/sites`, `/api/roads`).
 - **Layering (`com.webgis.ancientdata`):**
   - `web/controller` — REST endpoints; `web/mapper` — entity↔DTO; `web/exception` — `GlobalExceptionHandler`.
