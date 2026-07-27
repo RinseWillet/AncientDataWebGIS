@@ -17,6 +17,7 @@ An Architecture Decision Record captures a single decision, its context, the alt
 | [ADR-005](./ADR-005-documentation-workflow.md) | Documentation & Planning Workflow | Accepted | 2026-06-01 | This directory |
 | [ADR-006](./ADR-006-media-backup-nas-sync.md) | Media Backup Strategy — NAS Filesystem Sync | Accepted | 2026-06-11 | This directory |
 | [ADR-007](./ADR-007-photo-geotagging.md) | Photo Geotagging — EXIF Extraction Library and Manual-Pin Precedence | Accepted | 2026-07-10 | This directory |
+| [ADR-008](./ADR-008-support-window-confirmation.md) | Spring Boot / Java Support-Window Confirmation (Spike 1) | Proposed | 2026-07-27 | This directory |
 
 ## How to create a new ADR
 
