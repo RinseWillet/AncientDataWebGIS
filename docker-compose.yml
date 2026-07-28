@@ -44,6 +44,9 @@ services:
       - BACKUP_STALENESS_THRESHOLD_HOURS=${BACKUP_STALENESS_THRESHOLD_HOURS:-192}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
 
   geoserver:
     container_name: GeoServer
