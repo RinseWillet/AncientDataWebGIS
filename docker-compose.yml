@@ -42,6 +42,7 @@ services:
       - BACKUP_DB_ENABLED=${BACKUP_DB_ENABLED:-false}
       - BACKUP_DB_OUTPUT_PATH=${BACKUP_DB_OUTPUT_PATH:-/backup/db}
       - BACKUP_STALENESS_THRESHOLD_HOURS=${BACKUP_STALENESS_THRESHOLD_HOURS:-192}
+      - JWT_SECRET=${JWT_SECRET}
 
   geoserver:
     container_name: GeoServer
