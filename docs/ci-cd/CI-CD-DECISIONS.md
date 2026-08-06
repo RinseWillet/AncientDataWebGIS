@@ -385,6 +385,46 @@ Use this structure for new entries:
 
 ---
 
+## Phase J - Dependency alert triage cadence (2026-08-05)
+
+### What changed
+- Documented a recurring process for reviewing GitHub Dependabot dependency alerts, closing out `E6-5` in `docs/features/FEATURE-SPEC-BACKLOG.md`.
+
+### Why
+- E6-1 through E6-4 fixed the stale dependency-graph submission and triaged every open alert at the time (see backlog "Completed Epics" section), but without a recurring cadence the graph/alerts can silently go stale again, as happened before E6-1.
+
+### Risk level
+- Low (process/documentation only, no code or workflow changes)
+
+### Rollback
+- N/A - documentation only.
+
+### Recurring cadence (going forward)
+
+**Monthly, first week of the month** (or immediately after any Dependabot alert email/notification):
+
+1. Confirm the dependency graph is fresh:
+   - Check the `dependency-submission` job's latest run in the `Backend CI` workflow (GitHub Actions tab) succeeded on the latest `main` commit.
+   - If the workflow file or `main` hasn't been touched in a while, trigger it manually (`workflow_dispatch`) or push a no-op commit to refresh the graph.
+2. Re-verify actual resolved versions locally before trusting any alert:
+   ```bash
+   ./gradlew dependencies --configuration runtimeClasspath > /tmp/deps.txt
+   grep -i "<flagged-artifact-name>" /tmp/deps.txt
+   ```
+   Compare the resolved version against the CVE's "fixed in" version from the GitHub Advisory Database (`https://github.com/advisories/<GHSA-id>`), not just the alert's raw text (BOM-managed versions often differ from what the alert first flags).
+3. For each open alert:
+   - If the resolved version already meets/exceeds the fixed version → close as "already resolved" with a one-line note (see E6-1/E6-2/E6-3 entries in the backlog for the format).
+   - If the resolved version is genuinely vulnerable → bump the dependency (direct pin) or the managing BOM (e.g. `org.springframework.boot` plugin version) and re-run `./gradlew test`.
+   - If the flagged artifact isn't present in the dependency graph at all → close as a false positive.
+4. Record the outcome for any newly-triaged Critical/High alert as a short dated entry in this file (same style as Phase context above) or in the backlog's "Completed Epics" section if it maps to an existing story.
+5. Frontend (`AncientDataWebGIS_FE`) `npm audit` / Dependabot alerts should be checked on the same cadence; use `npm ci && npm audit --omit=dev` to check resolved versions against advisories.
+
+### Notes
+- This cadence assumes the `dependency-submission` job (added in E6-1) continues running on every push to `main` — if that workflow step is ever removed or fails silently, the graph will go stale again and this checklist becomes unreliable until it's fixed.
+- See `docs/features/FEATURE-SPEC-BACKLOG.md` "E6 — Dependency Graph Fix + Alert Triage" for prior full triage history.
+
+---
+
 ## Update checklist for future phase PRs
 
 - [ ] Add a new phase section with date.

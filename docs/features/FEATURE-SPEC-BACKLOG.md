@@ -28,10 +28,10 @@ It is structured to support:
 | E0 | Platform Hardening | ✅ Done | Remove blockers and reduce technical/security risk before feature growth |
 | E1 | Research Dashboard v1 | ✅ Done | Deliver aggregate metrics for roads/sites/lengths |
 | E1.1x | Dashboard UX Hardening | ✅ Done | Harden dashboard layout, charts, accessibility, and state management |
-| E2 | Photo & Media Integration | In Progress | Link and present images/media for roads/sites |
-| E6 | Security & Dependency Hardening | To Do | Resolve open Dependabot alerts and confirm a clean dependency graph before NAS deployment |
+| E2 | Photo & Media Integration | ✅ Done | Link and present images/media for roads/sites |
+| E6 | Security & Dependency Hardening | ✅ Done | Resolve open Dependabot alerts and confirm a clean dependency graph before NAS deployment |
 | E3 | Raster / GeoTIFF Delivery | To Do | Publish and consume large rasters via tile services |
-| E4 | Responsive UX for Field Use | To Do | Improve mobile/tablet workflows on map and list views |
+| E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 
 ---
@@ -60,7 +60,7 @@ It is structured to support:
 | E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | ✅ Done | High | M | E2-0 |
 | E2-2 | E2 | Store media metadata (caption/license/source/author/date) | ✅ Done | High | S | E2-1 |
 | E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | ✅ Done | High | M | E2-1 |
-| E2-4 | E2 | Add map info card cover image | To Do | Medium | S | E2-3 |
+| E2-4 | E2 | Add map info card cover image | ✅ Done | Medium | S | E2-3 |
 | E2-5 | E2 | Add admin media moderation flow | ✅ Done | Medium | M | E2-1 |
 | E2-UI-1 | E2 | Admin upload component — MediaUploadForm with file picker, metadata fields, calls POST /api/media | ✅ Done | High | M | E2-3 |
 | E2-UI-2 | E2 | Admin media management — edit/delete controls on gallery thumbnails (PATCH/DELETE /api/media/{id}) | ✅ Done | High | M | E2-UI-1 |
@@ -93,10 +93,10 @@ It is structured to support:
 | E3-3 | E3 | Add layer manager (toggle/opacity/order) in map UI | To Do | High | M | E3-2 |
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
 | E3-5 | E3 | Add raster legend + metadata drawer | To Do | Medium | S | E3-3 |
-| E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | To Do | High | M | E1-3 |
-| E4-2 | E4 | Improve touch target spacing/sizing for controls | To Do | High | S | E4-1 |
-| E4-3 | E4 | Improve `DataList` mobile readability and interactions | To Do | Medium | M | E4-2 |
-| E4-4 | E4 | Add responsive QA matrix and regression checklist | To Do | High | S | E4-1 |
+| E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | ✅ Done | High | M | E1-3 |
+| E4-2 | E4 | Improve touch target spacing/sizing for controls | ✅ Done | High | S | E4-1 |
+| E4-3 | E4 | Improve `DataList` mobile readability and interactions | ✅ Done | Medium | M | E4-2 |
+| E4-4 | E4 | Add responsive QA matrix and regression checklist | ✅ Done | High | S | E4-1 |
 
 ## P3 - Optional
 
@@ -168,7 +168,7 @@ Story,E2-0,Define media storage foundation and runbook,,E2,High,3,backend;ops;me
 Story,E2-1,Add media_asset data model and API,,E2,High,5,backend;db;media,"Create media entity linked to ROAD/SITE and CRUD endpoints.","Migration + API + tests merged",E2-0
 Story,E2-2,Support rich media metadata,,E2,High,2,backend;media,"Persist caption/license/source/author/date with media.","Metadata round-trips via API",E2-1
 Story,E2-3,Add galleries to RoadInfo and SiteInfo,,E2,High,5,frontend;media,"Render media collections with captions and attribution.","Gallery UX available on both entity pages",E2-1
-Story,E2-4,Add map info card cover image,,E2,Medium,2,frontend;map;media,"Show a cover thumbnail in map info card where available.","Selected feature displays thumbnail",E2-3
+Story,E2-4,Add map info card cover image,,E2,Medium,2,frontend;map;media,"Show a cover thumbnail in map info card where available.","Selected feature displays thumbnail",✅ Done
 Story,E2-5,Add admin media moderation,,E2,Medium,3,admin;media,"Allow approve/reject/hide media visibility.","Admin can control visibility state",E2-1
 Story,~~E2-BACKUP-1~~,~~Add Google Drive backup service~~ (superseded — see ADR-006),,E2,Won't Do,0,backend;media;backup;superseded,"Superseded by NAS filesystem sync approach (ADR-006).","n/a",E2-1
 Story,~~E2-BACKUP-2~~,~~Add scheduled Google Drive sync task~~ (superseded — see ADR-006),,E2,Won't Do,0,backend;media;backup;superseded,"Superseded by NAS filesystem sync approach (ADR-006).","n/a",~~E2-BACKUP-1~~
@@ -181,16 +181,16 @@ Story,E6-1,Fix stale Dependabot dependency-graph submission,,E6,Critical,2,ci;se
 Story,E6-2,Re-verify alerts against resolved versions,,E6,Critical,2,security;dependencies,"Confirm dependency graph is fresh on main and re-check each open alert against ./gradlew dependencies output.","All alerts confirmed real or closed as stale",✅ Done
 Story,E6-3,Triage jackson-databind alert,,E6,High,1,security;dependencies,"Confirm Spring Boot BOM-managed jackson-databind version is patched, or pin explicitly if not.","jackson-databind alert closed or explicitly pinned to safe version",✅ Done
 Story,E6-4,Triage critical Tomcat alerts,,E6,Critical,2,security;dependencies,"Confirm tomcat-embed-core 10.1.54 (or later) resolves CVEs #15/#62/#65/#67, upgrade if not.","All 4 Tomcat alerts closed or explicitly resolved with upgrade",✅ Done
-Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;process;docs,"Add a recurring process/checklist for reviewing Dependabot alerts.","Cadence documented in docs (e.g. CI-CD-DECISIONS.md or this backlog)",E6-4
+Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;process;docs,"Add a recurring process/checklist for reviewing Dependabot alerts.","Cadence documented in docs (e.g. CI-CD-DECISIONS.md or this backlog)",✅ Done
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
 Story,E3-3,Add map layer manager controls,,E3,High,5,frontend;map;raster,"Allow toggle, opacity, ordering for raster overlays.","Controls apply instantly and persist session state",E3-2
 Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",E3-1
 Story,E3-5,Add raster legend and metadata drawer,,E3,Medium,2,frontend;raster,"Show active raster legend and attribution details.","Legend/metadata visible for active layer",E3-3
-Story,E4-1,Mobile bottom-sheet map details,,E4,High,5,frontend;ux;mobile,"Replace side info card with bottom-sheet on narrow viewports.","Usable and stable on target mobile breakpoints",E1-3
-Story,E4-2,Improve touch targets and spacing,,E4,High,2,frontend;ux;mobile,"Ensure controls meet touch-size guidance.","Interactive controls are comfortably tappable",E4-1
-Story,E4-3,Improve DataList mobile UX,,E4,Medium,3,frontend;ux;mobile,"Refine table/list behavior for small screens.","Readability and actions remain usable",E4-2
-Story,E4-4,Add responsive QA matrix,,E4,High,2,qa;ux;mobile,"Create repeatable responsive regression checklist.","Checklist adopted in release flow",E4-1
+Story,E4-1,Mobile bottom-sheet map details,,E4,High,5,frontend;ux;mobile,"Replace side info card with bottom-sheet on narrow viewports.","Usable and stable on target mobile breakpoints",✅ Done
+Story,E4-2,Improve touch targets and spacing,,E4,High,2,frontend;ux;mobile,"Ensure controls meet touch-size guidance.","Interactive controls are comfortably tappable",✅ Done
+Story,E4-3,Improve DataList mobile UX,,E4,Medium,3,frontend;ux;mobile,"Refine table/list behavior for small screens.","Readability and actions remain usable",✅ Done
+Story,E4-4,Add responsive QA matrix,,E4,High,2,qa;ux;mobile,"Create repeatable responsive regression checklist.","Checklist adopted in release flow",✅ Done
 Story,E5-1,Add theme switcher and tokens,,E5,Medium,2,frontend;theme,"Implement synthwave-ready theme token system and switcher.","Theme switches globally without breaking readability",E0-2
 Story,E5-2,Persist selected theme,,E5,Low,1,frontend;theme,"Save and load theme preference from storage.","Preference survives reload",E5-1
 Story,E5-3,Add synthwave map style profile,,E5,Medium,3,frontend;theme;map,"Tune map colors/icons for synthwave mode.","Map remains legible in synthwave",E5-1
@@ -335,6 +335,7 @@ Deliverable target: secure baseline + first usable dashboard.
 - E2-UI-1: MediaUploadForm component (file picker, metadata fields, calls POST /api/media)
 - E2-UI-2: Edit/delete controls on gallery thumbnails with confirmation dialog
 - E2-UI-3: Admin view of all media statuses with badges, using GET /api/media/admin
+- E2-4: `MapInfoCard` cover thumbnail — fetches approved media for the selected site/road (`MediaService.findByTarget`) and renders the `isCover` asset (falling back to the first available photo) above the feature details
 
 - E2-BACKUP-NAS-1: `NasBackupService` + `NasBackupConfig` — Spring NAS filesystem sync service (enabled/disabled per env, bidirectional sync with orphan deletion)
 - E2-BACKUP-NAS-2: Cron-scheduled sync via `@Scheduled(cron = "${backup.nas.sync-cron:...}")`, configurable via env var
@@ -357,14 +358,15 @@ Deliverable target: secure baseline + first usable dashboard.
 - `AncientDataWebGIS_FE/src/components/MediaGallery/MediaUploadForm.css` (upload form styles)
 - `AncientDataWebGIS_FE/src/pages/SiteInfo.tsx` (passes isAdmin to MediaGallery)
 - `AncientDataWebGIS_FE/src/pages/RoadInfo.tsx` (passes isAdmin to MediaGallery)
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapInfoCard.tsx` (E2-4: fetches and renders cover/first photo above feature details)
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapInfoCard.css` (E2-4: `.infoCard-coverImage` thumbnail styling)
 
 **Tests:**
 - `MediaGallery.test.tsx`: 16 tests (original 6 + 10 admin feature tests)
 - `MediaUploadForm.test.tsx`: 6 tests (toggle, form fields, validation, submit, error states)
+- `MapInfoCard.test.tsx`: added 4 tests for cover image (isCover match, fallback to first photo, no-media case, correct `targetType`/`id` passed to `MediaService.findByTarget`)
 - Backend: existing MediaController + MediaService tests cover all API flows
 
-**Outstanding (deferred):**
-- E2-4: Cover thumbnail in MapInfoCard (medium priority, not blocking deployment)
 
 ---
 
@@ -427,7 +429,7 @@ Deliverable target: secure baseline + first usable dashboard.
 - `Backend CI` run `29500726122` on commit `520c0bb`: `test-build` and `dependency-submission` jobs both `success`.
 - `./gradlew test` green throughout; no `build.gradle` changes required.
 
-**Outstanding:** E6-5 (document recurring triage cadence).
+**Outstanding:** None — see E6-5 below.
 
 ---
 
@@ -455,4 +457,51 @@ Deliverable target: secure baseline + first usable dashboard.
 
 **Impact:** All 4 critical Tomcat alerts are now resolved on `main` once this change merges and the dependency graph refreshes.
 
+---
+
+### E6-5 — Dependency Alert Triage Cadence ✅
+
+**Status:** Complete (August 2026)
+
+**What was delivered:**
+- Documented a recurring (monthly, or on-alert) triage process in `docs/ci-cd/CI-CD-DECISIONS.md` (Phase J): confirm dependency graph freshness, cross-check resolved versions via `./gradlew dependencies` against the GitHub Advisory Database, close/upgrade/false-positive each alert, and record newly-triaged Critical/High alerts.
+
+**Impact:**
+- Epic E6 is now fully complete; the dependency-alert process is no longer a one-off cleanup but a repeatable checklist for future maintainers.
+
+**Files changed:**
+- `docs/ci-cd/CI-CD-DECISIONS.md` (new Phase J section)
+
+---
+
+### E4 — Responsive UX for Field Use ✅
+
+**Status:** Complete (August 2026)
+
+**Detailed specification:** `AncientDataWebGIS/docs/features/E4-responsive-ux-field-use.md`
+
+**What was delivered:**
+- E4-1: `BottomSheetCard` component — mobile (≤600px) map info card now behaves as a proper bottom sheet (half/full snap states, tap-to-expand, swipe-down-to-dismiss); desktop/tablet behaviour unchanged.
+- E4-2: Touch-target audit and fixes across `MapInfoCard` (close button, details button), the bottom-sheet drag handle, Leaflet's native zoom/layers controls (mobile only), and `DataList` pagination buttons — all now meet the ≥44×44px guideline.
+- E4-3: Confirmed/closed out `DataList` mobile readability (scrollable table wrapper and responsive font/padding steps were already in place from a prior pass); pagination touch-target fix from E4-2 closes the remaining gap.
+- E4-4: Documented a responsive QA breakpoint matrix and a manual regression checklist for future changes touching map/nav/list components.
+- Fixed a pre-existing test-infrastructure gap: jsdom doesn't implement `PointerEvent`, which silently broke `fireEvent.pointerDown/Move/Up` coordinate propagation in tests. Added a small `PointerEvent` polyfill to `src/test/setupTests.js`.
+
+**Impact:**
+- Field researchers on phones/tablets get a native-feeling bottom-sheet interaction instead of a cramped fixed side panel.
+- All interactive map/list controls are comfortably tappable on touch devices.
+- Future responsive changes have a documented breakpoint matrix and checklist to test against.
+
+**Files changed:**
+- `AncientDataWebGIS_FE/src/components/MapComponent/BottomSheetCard.tsx` (new), `BottomSheetCard.css` (new), `BottomSheetCard.test.tsx` (new)
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapInfoCard.tsx`, `MapInfoCard.css`
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapComponent.css`
+- `AncientDataWebGIS_FE/src/pages/DataList.css`
+- `AncientDataWebGIS_FE/src/test/setupTests.js` (PointerEvent polyfill)
+- `AncientDataWebGIS/docs/features/E4-responsive-ux-field-use.md` (new)
+
+**Tests:**
+- `BottomSheetCard.test.tsx`: 4 tests (render/handle, half↔full toggle, drag-past-threshold dismiss, small-drag no-op)
+- `MapInfoCard.test.tsx`: existing 6 tests pass unchanged with the new `BottomSheetCard` wrapper
+- Full frontend suite: 78/78 tests passing after these changes
 
