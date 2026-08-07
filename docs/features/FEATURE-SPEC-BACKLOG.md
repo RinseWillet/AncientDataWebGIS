@@ -34,6 +34,7 @@ It is structured to support:
 | E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
+| E8 | Interactive Book / Research Narrative | To Do | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer |
 
 ---
 
@@ -107,6 +108,22 @@ It is structured to support:
 | E5-2 | E5 | Persist theme preference in local storage | To Do | Low | S | E5-1 |
 | E5-3 | E5 | Add synthwave map style profile | To Do | Medium | M | E5-1 |
 
+## E8 — Interactive Book / Research Narrative
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E8-1 | E8 | Add Markdown content loader infra (`react-markdown` dep, `import.meta.glob`-based chapter loader for `src/content/book/*.md`) | To Do | High | S | None |
+| E8-2 | E8 | Add `Figure`/caption image renderer resolving bundled QGIS map assets from `src/assets/book/` | To Do | High | S | E8-1 |
+| E8-3 | E8 | Add `BookChapter` page + `/book/:slug` route (lazy-loaded, matches existing `App.tsx` route conventions) | To Do | High | M | E8-1 |
+| E8-4 | E8 | Add `chapters.ts` manifest + `TableOfContents` sidebar/nav component | To Do | Medium | M | E8-3 |
+| E8-5 | E8 | Add `ChapterNav` prev/next chapter footer component | To Do | Medium | S | E8-4 |
+| E8-6 | E8 | Responsive CSS pass for book chapters (prose max-width via `ch` units, image scaling, breakpoints matching existing `InfoPage.css` conventions) | To Do | High | S | E8-3 |
+| E8-7 | E8 | Migrate first 1-2 chapters from author's existing written content into `src/content/book/` as a working smoke test | To Do | High | M | E8-1, E8-2, E8-3, E8-6 |
+| E8-8 | E8 | Document git-push-as-backup expectation for book content in frontend `README.md`/`AGENTS.md` | To Do | Medium | S | E8-1 |
+| E8-9 | E8 | Verify/document that a `media/book/` convention (for data-linked photos, if used) is swept by the existing NAS backup sync — verification only, no new backend code | To Do | Low | S | None |
+| E8-10 | E8 | **(Deferred)** Upgrade Markdown pipeline to MDX for embedded live components (`<SiteLink>`, `<InlineMap>`, `<InlinePhotoGallery>`) enabling deep links from prose into the map/data explorer | Deferred | Medium | L | E8-7 |
+
+
 ## Dev Tooling (Out of priority wave — infra/developer experience)
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
@@ -148,6 +165,13 @@ It is structured to support:
 ### P3 Done Criteria
 - Theme switch works globally and persists.
 - Synthwave mode remains legible for map and text UI.
+
+### E8 Done Criteria
+- Chapters are written as Markdown files under `src/content/book/`, rendered via a dynamic `/book/:slug` route.
+- QGIS-generated map images render inline with captions, scale responsively, and are resolved via bundled asset imports (no manual path/hash management).
+- A table of contents and prev/next chapter navigation exist so chapters read like a book.
+- Book content is versioned via git (push-to-remote is the documented backup expectation); any data-linked photos routed through the media pipeline are covered by the existing NAS/DB backup services.
+- MDX upgrade (live embedded components) is explicitly deferred and tracked as E8-10, not silently dropped.
 
 ---
 
