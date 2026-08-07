@@ -16,7 +16,7 @@ This file is the single entry point for feature/epic specifications and planning
 | E2.0 | Media Storage Foundation and Operator Runbook | ✅ Done | [E2.0-media-storage-foundation.md](./E2.0-media-storage-foundation.md) |
 | E2 | Photo & Media Integration (Analysis) | ✅ Done | [E2-photo-media-integration-analysis.md](./E2-photo-media-integration-analysis.md) |
 | E4 | Responsive UX for Field Use | ✅ Done | [E4-responsive-ux-field-use.md](./E4-responsive-ux-field-use.md) |
-| E8 | Interactive Book / Research Narrative | To Do | [E8-interactive-book.md](./E8-interactive-book.md) |
+| E8 | Interactive Book / Research Narrative | 🚧 In Progress | [E8-interactive-book.md](./E8-interactive-book.md) |
 
 ## Notes
 
