@@ -33,6 +33,7 @@ It is structured to support:
 | E3 | Raster / GeoTIFF Delivery | To Do | Publish and consume large rasters via tile services |
 | E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
+| E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
 
 ---
 
@@ -106,6 +107,15 @@ It is structured to support:
 | E5-2 | E5 | Persist theme preference in local storage | To Do | Low | S | E5-1 |
 | E5-3 | E5 | Add synthwave map style profile | To Do | Medium | M | E5-1 |
 
+## Dev Tooling (Out of priority wave — infra/developer experience)
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E7-1 | E7 | Document Cloudflare WARP remote-DB access convention (LAN-IP-only `DB_URL`) in backend `README.md` | ✅ Done | Medium | S | None |
+| E7-2 | E7 | Add optional `docker-compose.local-dev.yml` throwaway PostGIS container + `local-dev` Spring profile | ✅ Done | Medium | M | None |
+| E7-3 | E7 | Add `docs/architecture/sql/local-dev-seed.sql` synthetic schema/seed mirror for offline dev | ✅ Done | Medium | S | E7-2 |
+| E7-4 | E7 | Document both remote/offline dev paths in `.env.example` and record decision in `ADR-010` | ✅ Done | Low | S | E7-1, E7-2 |
+
 ---
 
 ## 4) Acceptance Criteria (Per Priority Wave)
@@ -155,6 +165,7 @@ Epic,E2,Photo & Media Integration,Photo & Media Integration,,High,,ancientdata;m
 Epic,E3,Raster / GeoTIFF Delivery,Raster / GeoTIFF Delivery,,High,,ancientdata;raster,"Serve historical maps/plans/DEM through tiled services.","Raster catalog + layer manager + DEM strategy criteria met",E0
 Epic,E4,Responsive UX for Field Use,Responsive UX for Field Use,,High,,ancientdata;ux;mobile,"Improve map/list usability on tablet and mobile.","Bottom-sheet and touch target criteria met",E1
 Epic,E5,Synthwave Theme (Optional),Synthwave Theme (Optional),,Medium,,ancientdata;theme,"Add optional visual theme mode with persistence.","Theme toggle/persistence criteria met",E0
+Epic,E7,Remote & Offline Dev Environment,Remote & Offline Dev Environment,,Medium,,ancientdata;devx,"Enable developing/smoke-testing away from the home LAN, with or without network access.","WARP path and local-dev fallback both documented and working",-
 Story,E0-1,Externalize compose credentials,,E0,Critical,2,security;config,"Replace hardcoded credentials in docker-compose with env vars and document .env usage.","No plaintext credentials committed; startup works with env values",-
 Story,E0-2,Normalize HTTPS map layer URLs,,E0,High,2,frontend;map,"Ensure all map tile/WMS URLs are HTTPS-safe or proxied.","No mixed-content errors in HTTPS context",E0-1
 Story,E0-3,Fix pleiades DTO naming mismatch,,E0,High,2,frontend;backend;api,"Align `pleiadesId` naming across DTOs/forms/services.","Site updates persist the intended field correctly",-
@@ -194,6 +205,10 @@ Story,E4-4,Add responsive QA matrix,,E4,High,2,qa;ux;mobile,"Create repeatable r
 Story,E5-1,Add theme switcher and tokens,,E5,Medium,2,frontend;theme,"Implement synthwave-ready theme token system and switcher.","Theme switches globally without breaking readability",E0-2
 Story,E5-2,Persist selected theme,,E5,Low,1,frontend;theme,"Save and load theme preference from storage.","Preference survives reload",E5-1
 Story,E5-3,Add synthwave map style profile,,E5,Medium,3,frontend;theme;map,"Tune map colors/icons for synthwave mode.","Map remains legible in synthwave",E5-1
+Story,E7-1,Document Cloudflare WARP remote-DB access convention,,E7,Medium,1,docs;devx,"Document LAN-IP-only DB_URL convention and WARP remote access in backend README.","README section explains WARP and never-forward-DB-port convention",✅ Done
+Story,E7-2,Add local-dev throwaway PostGIS container + profile,,E7,Medium,3,devx;docker;backend,"docker-compose.local-dev.yml + application-local-dev.properties for fully offline development.","docker compose -f docker-compose.local-dev.yml up -d works; local-dev profile boots app",✅ Done
+Story,E7-3,Add local-dev synthetic schema/seed script,,E7,Medium,1,devx;sql,"docs/architecture/sql/local-dev-seed.sql mirrors schema with synthetic rows, clearly marked non-authoritative.","Seed script auto-applies on container first start",✅ Done
+Story,E7-4,Document remote/offline dev paths + ADR,,E7,Low,1,docs;devx,".env.example documents both paths; ADR-010 records the decision and alternatives considered.","ADR-010 Accepted; .env.example updated",✅ Done
 ```
 
 ---
@@ -504,4 +519,52 @@ Deliverable target: secure baseline + first usable dashboard.
 - `BottomSheetCard.test.tsx`: 4 tests (render/handle, half↔full toggle, drag-past-threshold dismiss, small-drag no-op)
 - `MapInfoCard.test.tsx`: existing 6 tests pass unchanged with the new `BottomSheetCard` wrapper
 - Full frontend suite: 78/78 tests passing after these changes
+
+---
+
+### E7 — Remote & Offline Dev Environment ✅
+
+**Status:** Complete (August 2026)
+
+**Trigger:** A local smoke test away from the home LAN (office) failed with a
+`SocketTimeoutException` because `.env`'s `DB_URL` had drifted to the NAS's public IP —
+a port that's intentionally never forwarded externally.
+
+**What was delivered:**
+- Root-caused the failure and fixed local `.env` to use the NAS's LAN IP convention.
+- Documented two supported ways to develop away from home in backend `README.md`
+  ("Developing Away From Home / Office"):
+  1. **Cloudflare WARP** (recommended) — reuses the Tunnel/Private Network routing
+     already configured for GeoServer/QGIS access (`ancientdataworkspace/deploy/README.md`
+     §8); no `.env`/code changes needed once WARP is set up.
+  2. **Local throwaway PostGIS container** (fully offline fallback) — new
+     `docker-compose.local-dev.yml` + `local-dev` Spring profile
+     (`application-local-dev.properties`) + synthetic schema/seed mirror
+     (`docs/architecture/sql/local-dev-seed.sql`), clearly marked as never a schema
+     authority (per ADR-002).
+- `.env.example` updated with the LAN-IP-only convention and the local-dev alternative,
+  so this is discoverable without re-deriving it from a stack trace next time.
+- Recorded the decision, alternatives considered (router port-forward, Flyway-managed
+  local schema, WireGuard), and consequences in `docs/architecture/adr/ADR-010-remote-offline-dev-environment.md`.
+- Hardened `.gitignore` (`.env.*` with `!.env.example`) after finding stray
+  `.env.bak`/`.env.local-dev-test` files with a real JWT secret sitting untracked in
+  the working tree.
+
+**Impact:**
+- Development and smoke-testing can continue away from home, either against real data
+  (via WARP) or fully offline (via the local-dev container) — no more silent `.env`
+  drift toward an always-unreachable public IP.
+- This is infrastructure/developer-experience work, not a NAS-wide concern: the shared
+  WARP Tunnel setup already lived in `ancientdataworkspace/deploy/README.md` and needed
+  no duplication; only the app-specific offline fallback belonged in this repo.
+
+**Files changed:**
+- `README.md` ("Developing Away From Home / Office" section)
+- `.env.example` (LAN-IP convention + local-dev alternative)
+- `.gitignore` (`.env.*` pattern, keeping `.env.example` tracked)
+- `docker-compose.local-dev.yml` (new)
+- `src/main/resources/application-local-dev.properties` (new)
+- `docs/architecture/sql/local-dev-seed.sql` (new)
+- `docs/architecture/adr/ADR-010-remote-offline-dev-environment.md` (new)
+
 

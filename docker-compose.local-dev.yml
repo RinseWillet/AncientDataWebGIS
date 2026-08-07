@@ -1,0 +1,42 @@
+# Optional local-dev PostGIS stack — for developing away from home/the office
+# when the real NAS database isn't reachable (no home LAN, no Cloudflare WARP
+# set up yet). Spins up a throwaway Postgres+PostGIS container seeded with a
+# handful of synthetic rows (see docs/architecture/sql/local-dev-seed.sql).
+#
+# This is NOT a replacement for the real shared database — see ADR-002 /
+# DB-MIGRATION-STRATEGY.md. The schema mirrored here is for local functional
+# testing only; the QGIS-managed container remains the schema authority.
+#
+# Usage:
+#   docker compose -f docker-compose.local-dev.yml up -d
+#   # then run the backend with: ./gradlew bootRun --args='--spring.profiles.active=local-dev'
+#   # (make sure .env's DB_URL points at jdbc:postgresql://localhost:5433/webGIS_DB_dev)
+#
+# Tear down (including the seeded data volume, for a fully fresh reseed):
+#   docker compose -f docker-compose.local-dev.yml down -v
+
+services:
+  local-dev-db:
+    image: postgis/postgis:16-3.4
+    container_name: ancientdata-local-dev-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=webgis_client
+      - POSTGRES_PASSWORD=local_dev_only
+      - POSTGRES_DB=webGIS_DB_dev
+    ports:
+      # 5433, not 5432/2665, to avoid clashing with any other local Postgres
+      # or a WARP-tunneled route to the real NAS database.
+      - "5433:5432"
+    volumes:
+      - ancientdata-local-dev-db-data:/var/lib/postgresql/data
+      - ./docs/architecture/sql/local-dev-seed.sql:/docker-entrypoint-initdb.d/01-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webgis_client -d webGIS_DB_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ancientdata-local-dev-db-data:
+

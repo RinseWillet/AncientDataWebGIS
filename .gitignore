@@ -1,5 +1,7 @@
 #environment properties
 .env
+.env.*
+!.env.example
 
 HELP.md
 .gradle
@@ -9,6 +11,10 @@ build/
 !**/src/test/**/build/
 #src/main/resources/application.properties
 logs/
+
+# local media storage (dev/prod uploads live here, never committed)
+media/
+media-local-dev/
 
 ### STS ###
 .apt_generated
