@@ -1,9 +1,9 @@
 # E8 — Interactive Book / Research Narrative
 
-**Status:** To Do
+**Status:** 🚧 In Progress (core reading experience delivered August 2026; E8-8/E8-9 docs still open)
 **Epic parent:** E8 Interactive Book / Research Narrative
 **Scope:** long-form Markdown content chapters, embedded QGIS-generated images, chapter navigation/TOC, responsive prose styling
-**Out of scope (deferred to E8-10):** MDX/embedded live React components (deep in-text links to `/atlas/site_:id`, inline live maps, inline photo galleries pulled from the media API)
+**Out of scope (deferred to E8-10, E8-13):** MDX/embedded live React components; bulk `.docx` manuscript ingestion
 **Related ADR:** `docs/architecture/adr/ADR-011-book-content-storage-and-backup.md`
 
 ---
@@ -11,6 +11,8 @@
 ## Background
 
 The project owner has ~20 pages of already-written long-form research narrative (prehistoric roads, Roman road-building, methodology, etc.) that currently has no home in the app beyond the hard-coded `About.tsx` paragraph block. The goal is to give this content a proper "book" reading experience that sits alongside the interactive map/data explorer, starting with the two things needed immediately: **large text blocks** and **inserting QGIS-generated map images with captions**. Deep cross-linking from prose into live map/data views (e.g. `<SiteLink id={123}>`) is a valuable future step but is explicitly deferred (E8-10) to keep this epic's first delivery small and dependency-light.
+
+Once the Book existed as a proper home for long-form content, `About.tsx`'s original wall of text (the project's original research summary) was migrated there as `01-introduction.md` (E8-7). This freed `About` to become a short, focused project-introduction page (photo, project origin story, tech stack, GitHub links — E8-11), and gave an opening to also turn the previously single-paragraph `News` page into a proper dated changelog, with the `rinsewillet.net` deployment as its first real entry (E8-12).
 
 ---
 
@@ -93,9 +95,12 @@ See `ADR-011-book-content-storage-and-backup.md` for the full decision record. S
 
 ## Stories
 
-See `FEATURE-SPEC-BACKLOG.md` § "E8 — Interactive Book / Research Narrative" for the full story table (E8-1 through E8-9, plus deferred E8-10).
+See `FEATURE-SPEC-BACKLOG.md` § "E8 — Interactive Book / Research Narrative" for the full story table and the "Completed Epics" write-up of what's been delivered so far (E8-1 through E8-7, E8-11, E8-12).
 
 ## Outstanding / deferred
 
-- **E8-10 (Deferred):** MDX upgrade for embedded live components (`<SiteLink>`, `<InlineMap>`, `<InlinePhotoGallery>`) enabling prose to deep-link directly into `/atlas/site_:id` and `/datalist/siteinfo/:id`, or embed a live `MapComponent`/`MediaGallery` inline. Not started; revisit once the base Markdown reading experience (E8-1 through E8-7) is live and the author wants richer in-text interactivity.
+- **E8-8 / E8-9:** Document the git-push-as-backup expectation, and verify/document NAS coverage for any future `media/book/` data-linked photos. Not yet done — no code changes required, documentation only.
+- **E8-10 (Deferred):** MDX upgrade for embedded live components (`<SiteLink>`, `<InlineMap>`, `<InlinePhotoGallery>`) enabling prose to deep-link directly into `/atlas/site_:id` and `/datalist/siteinfo/:id`, or embed a live `MapComponent`/`MediaGallery` inline. Not started; revisit once the base Markdown reading experience wants richer in-text interactivity.
+- **E8-13 (Deferred):** Ingest the author's existing ~20-page `.docx` manuscript into further `src/content/book/*.md` chapters. Candidate approach: `pandoc manuscript.docx -o chapter.md --extract-media=./src/assets/book` to get a first-pass Markdown conversion plus extracted images, followed by a manual per-chapter review/cleanup pass (heading levels, captions, stray formatting artifacts) before publishing each chapter. Not started — pending the author sharing the manuscript file.
+
 

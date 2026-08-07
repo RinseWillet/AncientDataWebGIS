@@ -34,7 +34,7 @@ It is structured to support:
 | E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
-| E8 | Interactive Book / Research Narrative | To Do | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer |
+| E8 | Interactive Book / Research Narrative | 🚧 In Progress | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer |
 
 ---
 
@@ -112,16 +112,20 @@ It is structured to support:
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
-| E8-1 | E8 | Add Markdown content loader infra (`react-markdown` dep, `import.meta.glob`-based chapter loader for `src/content/book/*.md`) | To Do | High | S | None |
-| E8-2 | E8 | Add `Figure`/caption image renderer resolving bundled QGIS map assets from `src/assets/book/` | To Do | High | S | E8-1 |
-| E8-3 | E8 | Add `BookChapter` page + `/book/:slug` route (lazy-loaded, matches existing `App.tsx` route conventions) | To Do | High | M | E8-1 |
-| E8-4 | E8 | Add `chapters.ts` manifest + `TableOfContents` sidebar/nav component | To Do | Medium | M | E8-3 |
-| E8-5 | E8 | Add `ChapterNav` prev/next chapter footer component | To Do | Medium | S | E8-4 |
-| E8-6 | E8 | Responsive CSS pass for book chapters (prose max-width via `ch` units, image scaling, breakpoints matching existing `InfoPage.css` conventions) | To Do | High | S | E8-3 |
-| E8-7 | E8 | Migrate first 1-2 chapters from author's existing written content into `src/content/book/` as a working smoke test | To Do | High | M | E8-1, E8-2, E8-3, E8-6 |
+| E8-1 | E8 | Add Markdown content loader infra (`react-markdown` dep, `import.meta.glob`-based chapter loader for `src/content/book/*.md`) | ✅ Done | High | S | None |
+| E8-2 | E8 | Add `Figure`/caption image renderer resolving bundled QGIS map assets from `src/assets/book/` | ✅ Done | High | S | E8-1 |
+| E8-3 | E8 | Add `BookChapter` page + `/book/:slug` route (lazy-loaded, matches existing `App.tsx` route conventions) | ✅ Done | High | M | E8-1 |
+| E8-4 | E8 | Add `chapters.ts` manifest + `TableOfContents` sidebar/nav component | ✅ Done | Medium | M | E8-3 |
+| E8-5 | E8 | Add `ChapterNav` prev/next chapter footer component | ✅ Done | Medium | S | E8-4 |
+| E8-6 | E8 | Responsive CSS pass for book chapters (prose max-width via `ch` units, image scaling, breakpoints matching existing `InfoPage.css` conventions) | ✅ Done | High | S | E8-3 |
+| E8-7 | E8 | Migrate first 1-2 chapters from author's existing written content into `src/content/book/` as a working smoke test | ✅ Done | High | M | E8-1, E8-2, E8-3, E8-6 |
 | E8-8 | E8 | Document git-push-as-backup expectation for book content in frontend `README.md`/`AGENTS.md` | To Do | Medium | S | E8-1 |
 | E8-9 | E8 | Verify/document that a `media/book/` convention (for data-linked photos, if used) is swept by the existing NAS backup sync — verification only, no new backend code | To Do | Low | S | None |
 | E8-10 | E8 | **(Deferred)** Upgrade Markdown pipeline to MDX for embedded live components (`<SiteLink>`, `<InlineMap>`, `<InlinePhotoGallery>`) enabling deep links from prose into the map/data explorer | Deferred | Medium | L | E8-7 |
+| E8-11 | E8 | Redesign `About` page as a lightweight project intro (photo, "how this project came about", tech stack, GitHub repo links) now that long-form research content lives in the Book | ✅ Done | Medium | S | E8-7 |
+| E8-12 | E8 | Convert `News` page into a dated changelog list; publish the `rinsewillet.net` deployment announcement | ✅ Done | Low | S | None |
+| E8-13 | E8 | **(Deferred)** Manuscript ingestion workflow — convert the author's existing ~20-page `.docx` manuscript into `src/content/book/*.md` chapters (e.g. via `pandoc`), with a review pass per chapter | Deferred | Medium | L | E8-7 |
+
 
 
 ## Dev Tooling (Out of priority wave — infra/developer experience)
@@ -590,5 +594,42 @@ a port that's intentionally never forwarded externally.
 - `src/main/resources/application-local-dev.properties` (new)
 - `docs/architecture/sql/local-dev-seed.sql` (new)
 - `docs/architecture/adr/ADR-010-remote-offline-dev-environment.md` (new)
+
+---
+
+### E8 — Interactive Book / Research Narrative 🚧 (In Progress)
+
+**Status:** Core reading experience delivered (August 2026); E8-8, E8-9 (docs/verification) still open; E8-10, E8-13 explicitly deferred.
+
+**Detailed specification:** `AncientDataWebGIS/docs/features/E8-interactive-book.md`
+**Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-011-book-content-storage-and-backup.md`
+
+**What was delivered:**
+- E8-1: `react-markdown` dependency + `import.meta.glob`-based Markdown chapter loader (`src/content/book/*.md`)
+- E8-2: `MarkdownImage` component — resolves bundled QGIS/illustration assets by filename, renders `<figure>`+`<figcaption>` from the Markdown title syntax
+- E8-3: `BookChapter` page + `/book/:slug` lazy-loaded route; "Research" nav link added to `NavbarHook`
+- E8-4/E8-5: `chapters.ts` manifest + `TableOfContents` sidebar + `ChapterNav` prev/next footer
+- E8-6: Responsive CSS pass (`Book.css`) — `70ch` prose max-width, scaling images, breakpoints matching `InfoPage.css` conventions
+- E8-7: First two chapters migrated/drafted (`01-introduction.md` — the former `About.tsx` narrative content — and a `02-prehistoric-roads.md` placeholder demonstrating the image-caption syntax)
+- E8-11: `About` page redesigned as a lightweight project intro (photo, "how this project came about", tech stack, GitHub repo links to both `AncientDataWebGIS_FE` and `AncientDataWebGIS`), now that the long-form research narrative lives in the Book
+- E8-12: `News` page converted to a dated changelog list; published the `rinsewillet.net` deployment announcement as the newest entry
+
+**Impact:**
+- Long-form research content has a proper home with chapter navigation and captioned images, separate from the app's short informational pages.
+- `About` and `News` are now focused, maintainable pages instead of a hard-coded wall of text.
+
+**Files changed (frontend):**
+- `AncientDataWebGIS_FE/src/content/book/chapters.ts`, `01-introduction.md`, `02-prehistoric-roads.md` (new)
+- `AncientDataWebGIS_FE/src/components/Book/MarkdownImage.tsx`, `TableOfContents.tsx`, `ChapterNav.tsx`, `Book.css` (new)
+- `AncientDataWebGIS_FE/src/pages/BookChapter.tsx` (new)
+- `AncientDataWebGIS_FE/src/pages/About.tsx`, `About.css` (new) — redesigned
+- `AncientDataWebGIS_FE/src/pages/News.tsx`, `News.css` (new) — redesigned as changelog
+- `AncientDataWebGIS_FE/src/App.tsx` (`/book/:slug` route), `src/components/NavBarHook/NavbarHook.tsx` ("Research" link)
+
+**Outstanding:**
+- E8-8: document the git-push-as-backup expectation in `README.md`/`AGENTS.md`.
+- E8-9: verify/document NAS backup coverage for any future `media/book/` data-linked photos.
+- E8-10 (deferred): MDX upgrade for embedded live components.
+- E8-13 (deferred): ingest the author's ~20-page `.docx` manuscript into further chapters (conversion workflow not yet defined — candidate approach: `pandoc manuscript.docx -o chapter.md`, followed by a manual per-chapter review/cleanup pass and image extraction).
 
 
