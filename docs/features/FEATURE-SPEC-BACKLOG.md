@@ -36,6 +36,7 @@ It is structured to support:
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
 | E8 | Interactive Book / Research Narrative | 🚧 In Progress | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer |
+| E10 | Site & Road Type Registry Consolidation | To Do | Replace the scattered site/road type label, icon, and style definitions with one typed, single-source-of-truth registry, so adding/renaming/restyling a type (e.g. a new "watermill" site type) is a single-file change |
 
 ---
 
@@ -125,6 +126,14 @@ It is structured to support:
 | E5-1 | E5 | Add theme tokens + switcher based on CSS variables in `AncientDataWebGIS_FE/src/App.css` | To Do | Medium | S | E0-2 |
 | E5-2 | E5 | Persist theme preference in local storage | To Do | Low | S | E5-1 |
 | E5-3 | E5 | Add synthwave map style profile | To Do | Medium | M | E5-1 |
+| E10-1 | E10 | Consolidate site type label/icon definitions (currently split across `utils/siteTypes.ts`, `siteIcons.ts`, `Styles/markerStyles.ts`) into one typed `siteTypesConfig.ts`, sourced by `MapContent`, `MapInfoCard`, `SiteInfo`, and `MapLegend` | To Do | Medium | M | E9-5 |
+| E10-2 | E10 | Consolidate road type label/style definitions into one typed source, building on `roadStyleEntries`/`roadStyleDifferentiator` (`utils/roadTypes.ts`, added in E9-5) as the starting point | To Do | Medium | S | E9-5 |
+| E10-3 | E10 | Document the "add a new site/road type" workflow (e.g. a comment block in the new config file(s) or a short `AGENTS.md` section) now that it is a single-file change | To Do | Low | S | E10-1, E10-2 |
+
+**E10 implementation notes:**
+- Trigger: raised during E9-5 smoke testing — site type labels/icons/styles are currently spread across `utils/siteTypes.ts` (`siteTypeLabels`), `siteIcons.ts` (`siteIconMap`), and `Styles/markerStyles.ts` (`siteTypeIconUrls`, plus the underlying `Icon` constructors), so adding a new type (e.g. "watermill") means touching 3+ files and keeping their keys in sync by hand. `E9-5` already did the equivalent consolidation for road styles (`roadStyleEntries`/`roadStyleDifferentiator` in `utils/roadTypes.ts`) — `E10-2` is mostly confirming/extending that, not starting from scratch.
+- `siteType` is a free-form `String` in the backend (`Site.java`/`SiteDTO.java`), not a closed enum — this is a frontend-only consolidation with no backend/schema change required to add a new type.
+- Model after the `layersConfig.ts` pattern from `E9-3`: one typed array/record as the source of truth, with existing call sites (`siteTypeConverter`, `getSiteIcon`, `MapLegend`, `MapContent`'s `pointToLayer`) refactored to derive from it rather than maintaining parallel maps.
 
 ## E8 — Interactive Book / Research Narrative
 
@@ -195,6 +204,7 @@ It is structured to support:
 ### P3 Done Criteria
 - Theme switch works globally and persists.
 - Synthwave mode remains legible for map and text UI.
+- A new site or road type (icon, label, style) can be added or changed by editing one config file/entry, with no other file requiring a matching manual edit.
 
 ### E8 Done Criteria
 - Chapters are written as Markdown files under `src/content/book/`, rendered via a dynamic `/book/:slug` route.
@@ -221,6 +231,7 @@ Epic,E9,Map Clarity & Layer Control Redesign,Map Clarity & Layer Control Redesig
 Epic,E4,Responsive UX for Field Use,Responsive UX for Field Use,,High,,ancientdata;ux;mobile,"Improve map/list usability on tablet and mobile.","Bottom-sheet and touch target criteria met",E1
 Epic,E5,Synthwave Theme (Optional),Synthwave Theme (Optional),,Medium,,ancientdata;theme,"Add optional visual theme mode with persistence.","Theme toggle/persistence criteria met",E0
 Epic,E7,Remote & Offline Dev Environment,Remote & Offline Dev Environment,,Medium,,ancientdata;devx,"Enable developing/smoke-testing away from the home LAN, with or without network access.","WARP path and local-dev fallback both documented and working",-
+Epic,E10,Site & Road Type Registry Consolidation,Site & Road Type Registry Consolidation,,Medium,,ancientdata;frontend;map;devx,"Replace scattered site/road type label/icon/style definitions with one typed single-source-of-truth registry per type.","P3 Done Criteria (type registry bullet) met",E9
 Story,E0-1,Externalize compose credentials,,E0,Critical,2,security;config,"Replace hardcoded credentials in docker-compose with env vars and document .env usage.","No plaintext credentials committed; startup works with env values",-
 Story,E0-2,Normalize HTTPS map layer URLs,,E0,High,2,frontend;map,"Ensure all map tile/WMS URLs are HTTPS-safe or proxied.","No mixed-content errors in HTTPS context",E0-1
 Story,E0-3,Fix pleiades DTO naming mismatch,,E0,High,2,frontend;backend;api,"Align `pleiadesId` naming across DTOs/forms/services.","Site updates persist the intended field correctly",-
@@ -266,6 +277,9 @@ Story,E4-4,Add responsive QA matrix,,E4,High,2,qa;ux;mobile,"Create repeatable r
 Story,E5-1,Add theme switcher and tokens,,E5,Medium,2,frontend;theme,"Implement synthwave-ready theme token system and switcher.","Theme switches globally without breaking readability",E0-2
 Story,E5-2,Persist selected theme,,E5,Low,1,frontend;theme,"Save and load theme preference from storage.","Preference survives reload",E5-1
 Story,E5-3,Add synthwave map style profile,,E5,Medium,3,frontend;theme;map,"Tune map colors/icons for synthwave mode.","Map remains legible in synthwave",E5-1
+Story,E10-1,Consolidate site type registry,,E10,Medium,5,frontend;map;devx,"Merge siteTypeLabels/siteIconMap/siteTypeIconUrls into one typed siteTypesConfig.ts consumed by MapContent/MapInfoCard/SiteInfo/MapLegend.","Adding a new site type requires editing only one file",E9-5
+Story,E10-2,Consolidate road type registry,,E10,Medium,2,frontend;map;devx,"Confirm/extend roadStyleEntries/roadStyleDifferentiator (utils/roadTypes.ts) as the single source for road type labels/styles.","Adding a new road type requires editing only one file",E9-5
+Story,E10-3,Document type registry workflow,,E10,Low,1,docs;devx,"Document how to add/rename/restyle a site or road type now that it is a single-file change.","Workflow documented in the config file or AGENTS.md",E10-1;E10-2
 Story,E7-1,Document Cloudflare WARP remote-DB access convention,,E7,Medium,1,docs;devx,"Document LAN-IP-only DB_URL convention and WARP remote access in backend README.","README section explains WARP and never-forward-DB-port convention",✅ Done
 Story,E7-2,Add local-dev throwaway PostGIS container + profile,,E7,Medium,3,devx;docker;backend,"docker-compose.local-dev.yml + application-local-dev.properties for fully offline development.","docker compose -f docker-compose.local-dev.yml up -d works; local-dev profile boots app",✅ Done
 Story,E7-3,Add local-dev synthetic schema/seed script,,E7,Medium,1,devx;sql,"docs/architecture/sql/local-dev-seed.sql mirrors schema with synthetic rows, clearly marked non-authoritative.","Seed script auto-applies on container first start",✅ Done
