@@ -88,7 +88,7 @@ It is structured to support:
 | E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | To Do | Critical | S | E6-2 |
 | E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | To Do | Medium | S | E6-4 |
 
-## P1.5 - Map Clarity & Layer Redesign (Blocks E3)
+## P1.5 - Map Clarity & Layer Redesign (✅ Done — unblocked E3)
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
@@ -188,7 +188,7 @@ It is structured to support:
 - Road/Site detail pages display media galleries with attribution.
 - Optional moderation flow exists for admin visibility control.
 
-### P1.5 Done Criteria (E9 — gates P2/E3)
+### P1.5 Done Criteria (E9 — ✅ met, gate cleared for P2/E3)
 - Home page map shows only sites/roads on a single fixed Positron base tile: no layer-control chrome, no click-to-select/`MapInfoCard`.
 - RoadInfo/SiteInfo maps keep their existing base-layer picker but no longer open `MapInfoCard` on click of other markers/roads.
 - Atlas's Leaflet grouped-layer control is fully replaced by a custom, collapsible, BEM-styled left `LayerPanel` sourced from `layersConfig.ts`; only groups with real entries render (no placeholder/disabled UI for not-yet-built layers).
