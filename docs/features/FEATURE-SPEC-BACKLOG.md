@@ -30,7 +30,8 @@ It is structured to support:
 | E1.1x | Dashboard UX Hardening | ✅ Done | Harden dashboard layout, charts, accessibility, and state management |
 | E2 | Photo & Media Integration | ✅ Done | Link and present images/media for roads/sites |
 | E6 | Security & Dependency Hardening | ✅ Done | Resolve open Dependabot alerts and confirm a clean dependency graph before NAS deployment |
-| E3 | Raster / GeoTIFF Delivery | To Do | Publish and consume large rasters via tile services |
+| E9 | Map Clarity & Layer Control Redesign | To Do | Restrict selection/base-layer chrome to the Atlas, add a legend, and replace the bulky Leaflet grouped-layer control with a custom collapsible side panel — **blocks E3** |
+| E3 | Raster / GeoTIFF Delivery | To Do | Publish and consume large rasters via tile services (depends on E9) |
 | E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
@@ -86,15 +87,32 @@ It is structured to support:
 | E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | To Do | Critical | S | E6-2 |
 | E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | To Do | Medium | S | E6-4 |
 
+## P1.5 - Map Clarity & Layer Redesign (Blocks E3)
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E9-1 | E9 | Add `selectable`/`showLayerChrome` props threaded through `MapComponent` → `MapBuilder` → `MapContent` | To Do | High | M | E0-2 |
+| E9-2 | E9 | Disable click-to-select (`MapInfoCard`) on Home/RoadInfo/SiteInfo maps; Home also drops all layer chrome down to a single fixed Positron tile | To Do | High | S | E9-1 |
+| E9-3 | E9 | Extract layer definitions from `BaseLayers.tsx` into a typed, group-driven `layersConfig.ts` (Topographical / Aerial Imagery / Historical Maps) | To Do | High | M | E0-2 |
+| E9-4 | E9 | Build a fully custom, BEM-styled, collapsible `LayerPanel` left sidebar for Atlas, rendered from `layersConfig.ts` + the sites/roads/photos overlay group, replacing the Leaflet grouped-layer control | To Do | High | L | E9-3 |
+| E9-5 | E9 | Build `MapLegend` component (site type icons/labels, road style key) with a hook to surface a DEM color-ramp explanation once a Physical/DEM layer exists | To Do | Medium | M | E9-3 |
+| E9-6 | E9 | Update/add tests (`Home`, `RoadInfo`, `SiteInfo`, `Atlas`, `LayerPanel`, `MapLegend`) and document the E3 dependency gate | To Do | High | S | E9-4, E9-5 |
+
+**E9 implementation notes (lock in design decisions from planning, not just re-derivable from code):**
+- `E9-1`: Add `selectable?: boolean` (default `true`) and `showLayerChrome?: boolean` (default `true`) to `MapComponentProps`/`MapBuilderProps`/`MapContentProps`. `selectable=false` must skip attaching `onEachFeature`'s `click` handler on both the sites and roads `GeoJSON` layers in `MapContent.tsx` (so `clickSite`/`clickRoad` never fire → `setShowInfoCard`/`MapInfoCard` never triggers). `showLayerChrome=false` must skip rendering `<BaseLayers />` and the `<LayersControl>` wrapper entirely, replacing them with a single unconditionally-rendered `<TileLayer>` using the Positron URL/attribution already defined in `BaseLayers.tsx`'s `baseLayerConfigs`, plus unwrapped (always-rendered, non-toggleable) `<GeoJSON>` for sites/roads/photos.
+- `E9-2`: `Home.tsx` passes `selectable={false} showLayerChrome={false}`. `RoadInfo.tsx`/`SiteInfo.tsx` pass `selectable={false}` only (keep existing `<BaseLayers />`/`<LayersControl>`). `Atlas.jsx` passes neither (both stay at their `true` default).
+- `E9-4`: This fully replaces the `leaflet-groupedlayercontrol` control (`BaseLayers.tsx`) in Atlas — not a restyle of it. `BaseLayers.tsx` and the `leaflet-groupedlayercontrol` dependency become dead code/removable once `E9-4` ships (confirm no other page still needs `<BaseLayers />` before deleting — `RoadInfo`/`SiteInfo` still use it per `E9-2`, so keep the component, just stop using it in `Atlas`).
+- `E9-4`: A config group (e.g. "Physical") must not render its sidebar section at all while `layersConfig.ts` has zero entries tagged with that group — no disabled/greyed-out placeholder rows.
+
 ## P2 - Then
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
-| E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | To Do | High | L | E0-1 |
+| E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | To Do | High | L | E0-1, E9-4 |
 | E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | To Do | High | M | E3-1 |
-| E3-3 | E3 | Add layer manager (toggle/opacity/order) in map UI | To Do | High | M | E3-2 |
+| E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | To Do | High | M | E3-2, E9-4 |
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
-| E3-5 | E3 | Add raster legend + metadata drawer | To Do | Medium | S | E3-3 |
+| E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | To Do | Medium | S | E3-3, E9-5 |
 | E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | ✅ Done | High | M | E1-3 |
 | E4-2 | E4 | Improve touch target spacing/sizing for controls | ✅ Done | High | S | E4-1 |
 | E4-3 | E4 | Improve `DataList` mobile readability and interactions | ✅ Done | Medium | M | E4-2 |
@@ -161,10 +179,18 @@ It is structured to support:
 - Road/Site detail pages display media galleries with attribution.
 - Optional moderation flow exists for admin visibility control.
 
+### P1.5 Done Criteria (E9 — gates P2/E3)
+- Home page map shows only sites/roads on a single fixed Positron base tile: no layer-control chrome, no click-to-select/`MapInfoCard`.
+- RoadInfo/SiteInfo maps keep their existing base-layer picker but no longer open `MapInfoCard` on click of other markers/roads.
+- Atlas's Leaflet grouped-layer control is fully replaced by a custom, collapsible, BEM-styled left `LayerPanel` sourced from `layersConfig.ts`; only groups with real entries render (no placeholder/disabled UI for not-yet-built layers).
+- Atlas displays a `MapLegend` covering all site type icons/labels and road style keys; the legend's DEM color-ramp section is wired to activate once a Physical/DEM layer exists, but stays inert until E3 adds one.
+- `E3-1`/`E3-3`/`E3-5` are documented as depending on this epic's `layersConfig.ts`/`LayerPanel`/`MapLegend` output.
+
 ### P2 Done Criteria
 - Raster layers are discoverable via API catalog and controllable in UI.
 - DEM serving is tiled and performs acceptably at target zoom ranges.
 - Mobile/tablet map interactions are practical (bottom-sheet + touch targets).
+- Depends on E9: raster/DEM layers slot into the `LayerPanel`'s Physical group and `MapLegend`'s DEM hook rather than a new ad-hoc control.
 
 ### P3 Done Criteria
 - Theme switch works globally and persists.
@@ -190,7 +216,8 @@ Issue Type,ID,Summary,Epic Name,Epic Link,Priority,Story Points,Labels,Descripti
 Epic,E0,Platform Hardening,Platform Hardening,,Highest,,ancientdata;hardening,"Remove security/config blockers before major features.","All P0 hardening criteria met",-
 Epic,E1,Research Dashboard v1,Research Dashboard v1,,High,,ancientdata;dashboard,"Expose and visualize roads/sites/length metrics.","Dashboard API and UI criteria met",E0
 Epic,E2,Photo & Media Integration,Photo & Media Integration,,High,,ancientdata;media,"Store and display image/media assets linked to entities.","Media model + gallery + metadata criteria met",E0
-Epic,E3,Raster / GeoTIFF Delivery,Raster / GeoTIFF Delivery,,High,,ancientdata;raster,"Serve historical maps/plans/DEM through tiled services.","Raster catalog + layer manager + DEM strategy criteria met",E0
+Epic,E3,Raster / GeoTIFF Delivery,Raster / GeoTIFF Delivery,,High,,ancientdata;raster,"Serve historical maps/plans/DEM through tiled services.","Raster catalog + layer manager + DEM strategy criteria met",E0;E9
+Epic,E9,Map Clarity & Layer Control Redesign,Map Clarity & Layer Control Redesign,,High,,ancientdata;frontend;map;ux,"Restrict selection/base-layer chrome to the Atlas, add a legend, and replace the Leaflet grouped-layer control with a custom collapsible side panel.","P1.5 Done Criteria met; E3 raster layers can slot into the resulting LayerPanel/MapLegend",E0
 Epic,E4,Responsive UX for Field Use,Responsive UX for Field Use,,High,,ancientdata;ux;mobile,"Improve map/list usability on tablet and mobile.","Bottom-sheet and touch target criteria met",E1
 Epic,E5,Synthwave Theme (Optional),Synthwave Theme (Optional),,Medium,,ancientdata;theme,"Add optional visual theme mode with persistence.","Theme toggle/persistence criteria met",E0
 Epic,E7,Remote & Offline Dev Environment,Remote & Offline Dev Environment,,Medium,,ancientdata;devx,"Enable developing/smoke-testing away from the home LAN, with or without network access.","WARP path and local-dev fallback both documented and working",-
@@ -221,11 +248,17 @@ Story,E6-2,Re-verify alerts against resolved versions,,E6,Critical,2,security;de
 Story,E6-3,Triage jackson-databind alert,,E6,High,1,security;dependencies,"Confirm Spring Boot BOM-managed jackson-databind version is patched, or pin explicitly if not.","jackson-databind alert closed or explicitly pinned to safe version",✅ Done
 Story,E6-4,Triage critical Tomcat alerts,,E6,Critical,2,security;dependencies,"Confirm tomcat-embed-core 10.1.54 (or later) resolves CVEs #15/#62/#65/#67, upgrade if not.","All 4 Tomcat alerts closed or explicitly resolved with upgrade",✅ Done
 Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;process;docs,"Add a recurring process/checklist for reviewing Dependabot alerts.","Cadence documented in docs (e.g. CI-CD-DECISIONS.md or this backlog)",✅ Done
-Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1
+Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1;E9-4
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
-Story,E3-3,Add map layer manager controls,,E3,High,5,frontend;map;raster,"Allow toggle, opacity, ordering for raster overlays.","Controls apply instantly and persist session state",E3-2
+Story,E3-3,Add Physical group entries to LayerPanel,,E3,High,5,frontend;map;raster,"Add toggle/opacity/order controls for raster overlays as a Physical group in the E9 LayerPanel.","Controls apply instantly and persist session state",E3-2;E9-4
 Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",E3-1
-Story,E3-5,Add raster legend and metadata drawer,,E3,Medium,2,frontend;raster,"Show active raster legend and attribution details.","Legend/metadata visible for active layer",E3-3
+Story,E3-5,Wire DEM color ramp into MapLegend,,E3,Medium,2,frontend;raster,"Feed DEM color-ramp data into the E9 MapLegend's DEM hook + attribution details.","Legend/metadata visible for active DEM layer",E3-3;E9-5
+Story,E9-1,Add selectable/showLayerChrome props,,E9,High,3,frontend;map,"Thread selectable/showLayerChrome props through MapComponent -> MapBuilder -> MapContent.","Props control click-to-select and layer chrome independently",E0-2
+Story,E9-2,Disable selection on Home/RoadInfo/SiteInfo maps,,E9,High,2,frontend;map;ux,"Home map drops to a single fixed Positron tile with no chrome; all three pages disable click-to-select MapInfoCard.","No MapInfoCard opens from these pages' maps; Home shows only sites/roads on Positron",E9-1
+Story,E9-3,Extract layersConfig.ts,,E9,High,3,frontend;map,"Extract BaseLayers.tsx layer definitions into a typed, group-driven layersConfig.ts.","New layers/groups addable via config only, no component changes",E0-2
+Story,E9-4,Build custom LayerPanel sidebar,,E9,High,8,frontend;map;ux,"Fully custom, BEM-styled, collapsible left sidebar for Atlas replacing the Leaflet grouped-layer control, grouped by layersConfig.ts + sites/roads/photos.","Only groups with real entries render; per-session collapse state; Atlas map area unobstructed when collapsed",E9-3
+Story,E9-5,Build MapLegend with DEM hook,,E9,Medium,5,frontend;map;ux,"Legend covering site type icons/labels and road style keys, with a DEM color-ramp section wired to activate once a Physical/DEM layer exists.","Legend visible in Atlas; DEM section inert until a real DEM layer is added",E9-3
+Story,E9-6,Update tests and document E3 dependency gate,,E9,High,3,test;docs,"Update/add tests for Home/RoadInfo/SiteInfo/Atlas/LayerPanel/MapLegend; document E3's dependency on E9 outputs.","All new/changed behavior covered by tests; backlog reflects the dependency gate",E9-4;E9-5
 Story,E4-1,Mobile bottom-sheet map details,,E4,High,5,frontend;ux;mobile,"Replace side info card with bottom-sheet on narrow viewports.","Usable and stable on target mobile breakpoints",✅ Done
 Story,E4-2,Improve touch targets and spacing,,E4,High,2,frontend;ux;mobile,"Ensure controls meet touch-size guidance.","Interactive controls are comfortably tappable",✅ Done
 Story,E4-3,Improve DataList mobile UX,,E4,Medium,3,frontend;ux;mobile,"Refine table/list behavior for small screens.","Readability and actions remain usable",✅ Done
@@ -288,6 +321,8 @@ Story details:
 Deliverable target: secure baseline + first usable dashboard.
 
 **Pre-deployment gate:** Before NAS deployment and before starting E3+, complete `E6-2` through `E6-5` (Security & Dependency Hardening). See P0.5 section above.
+
+**E3 dependency gate:** Do not start `E3` stories until `E9` (Map Clarity & Layer Control Redesign) is complete — `E3-1`, `E3-3`, and `E3-5` build directly on the `layersConfig.ts`/`LayerPanel`/`MapLegend` outputs of E9. See P1.5 section above.
 
 ---
 
