@@ -110,10 +110,11 @@ It is structured to support:
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
 | E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | ✅ Done | High | L | E0-1, E9-4 |
-| E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | To Do | High | M | E3-1 |
+| E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | ✅ Done | High | M | E3-1 |
 | E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | To Do | High | M | E3-2, E9-4 |
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
 | E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | To Do | Medium | S | E3-3, E9-5 |
+| E3-6 | E3 | **(Deferred)** DB-backed, admin-manageable raster catalog (replacing E3-2's static Java list) with CRUD endpoints/UI, once the ~20+ planned historical map/DEM layers make PR-per-layer editing an actual bottleneck | To Do | Low | L | E3-2 |
 | E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | ✅ Done | High | M | E1-3 |
 | E4-2 | E4 | Improve touch target spacing/sizing for controls | ✅ Done | High | S | E4-1 |
 | E4-3 | E4 | Improve `DataList` mobile readability and interactions | ✅ Done | Medium | M | E4-2 |
@@ -264,6 +265,7 @@ Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose a
 Story,E3-3,Add Physical group entries to LayerPanel,,E3,High,5,frontend;map;raster,"Add toggle/opacity/order controls for raster overlays as a Physical group in the E9 LayerPanel.","Controls apply instantly and persist session state",E3-2;E9-4
 Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",E3-1
 Story,E3-5,Wire DEM color ramp into MapLegend,,E3,Medium,2,frontend;raster,"Feed DEM color-ramp data into the E9 MapLegend's DEM hook + attribution details.","Legend/metadata visible for active DEM layer",E3-3;E9-5
+Story,E3-6,(Deferred) DB-backed admin-manageable raster catalog,,E3,Low,8,backend;raster;deferred,"Replace E3-2's static Java catalog list with a DB table + admin CRUD endpoints/UI, once PR-per-layer editing becomes an actual bottleneck at ~20+ published layers.","Deferred — not started",E3-2
 Story,E9-1,Add selectable/showLayerChrome props,,E9,High,3,frontend;map,"Thread selectable/showLayerChrome props through MapComponent -> MapBuilder -> MapContent.","Props control click-to-select and layer chrome independently",✅ Done
 Story,E9-2,Disable selection on Home/RoadInfo/SiteInfo maps,,E9,High,2,frontend;map;ux,"Home map drops to a single fixed Positron tile with no chrome; all three pages disable click-to-select MapInfoCard.","No MapInfoCard opens from these pages' maps; Home shows only sites/roads on Positron",✅ Done
 Story,E9-3,Extract layersConfig.ts,,E9,High,3,frontend;map,"Extract BaseLayers.tsx layer definitions into a typed, group-driven layersConfig.ts.","New layers/groups addable via config only, no component changes",✅ Done
@@ -729,7 +731,7 @@ a port that's intentionally never forwarded externally.
 
 ### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
 
-**Status:** E3-1 delivered (August 2026); E3-2 through E3-5 not started.
+**Status:** E3-1, E3-2 delivered (August 2026); E3-3 through E3-5 not started. E3-6 deferred (backlog stub only).
 
 **Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-012-raster-publishing-pipeline.md`
 **Runbook:** `AncientDataWebGIS/docs/features/E3.1-raster-publishing-pipeline.md`
@@ -762,6 +764,34 @@ a port that's intentionally never forwarded externally.
 **Outstanding / manual follow-up (not yet done by the project owner):**
 - Confirm NAS backup coverage of `/volume1/docker/ancientdata/geoserver` (see runbook's "Backup" section).
 - Configure GeoServer's proxy base URL so `GetCapabilities` documents self-reference the public `/api/raster` path rather than GeoServer's internal address (needed before any external client consumes GetCapabilities directly — E3-2's catalog endpoint sidesteps this for now).
-- No raster has actually been published yet — E3-2/E3-3 will need at least one real layer to wire up and test against.
+
+---
+
+**What was delivered (E3-2):**
+- Added `GET /api/raster/catalog`, a public read-only endpoint returning a JSON array of published raster layers: `name`, `source` (GeoServer `workspace:layer`, usable directly as a WMS `layers` param against `/api/raster/<workspace>/wms`), `bounds` (WGS84 south/west/north/east), `zoom` (curated min/max), and `attribution` — the exact field set named in the story.
+- **Storage decision (discussed and confirmed with the project owner, no ADR needed — see below):** GeoServer's WMS `GetCapabilities` doesn't carry attribution or a sensible tile-pyramid zoom range, so this metadata can't be a live pass-through; it needs to be curated somewhere this backend owns. Considered three options: (A) a small static/curated list in Java, (B) a new backend-owned DB table (would need a manual SQL script per `DB-MIGRATION-STRATEGY.md`, since Flyway is disabled and schema is externally owned), (C) a hybrid pulling bounds live from GeoServer capabilities while curating name/attribution/zoom locally. Chose **(A)** — a static `List<RasterLayerDTO>` in `RasterCatalogService` — mirroring the frontend's own `layersConfig.ts` precedent (E9-3). The project owner confirmed ~20+ historical maps/DEM-like layers are planned; a static list holds that many entries fine as *data* — the thing that would actually get painful is the *edit workflow* (PR + redeploy per layer), and that's a separate, larger concern (DB table + auth-gated CRUD + admin UI) than this story's scope. Publishing a raster into GeoServer already requires several manual GDAL/admin steps per the E3.1 runbook, so one more code-reviewed edit isn't a new bottleneck yet at current scale.
+- Deferred the DB-backed/admin-editable version of this catalog as a new backlog story, **E3-6** (Low priority, not started) — to be picked up once the redeploy-per-layer workflow is actually the bottleneck, not pre-built speculatively.
+- Seeded the catalog with the two real published layers (`ancientdata:1818-de-man-a2`/`a3`), using bounds/title values the project owner read directly from GeoServer's layer "Publishing" tab (Lat/Lon Bounding Box, already WGS84) and a shared attribution string ("1818 De Man - Nijmegen"); zoom 12–19 for both (city-scale historical map).
+- `GET /api/raster/catalog` shares the `RASTER_URL` (`/api/raster/**`) permitAll rule already in `SecurityConfig` from E3-1 — no security config change needed. Verified via a full-context `MockMvc` test that the specific `/catalog` route resolves to the new controller rather than falling through to `RasterProxyController`'s `/api/raster/**` catch-all (which would otherwise try to forward it to GeoServer and 502).
+
+**Impact:**
+- E3-3 (frontend `LayerPanel` Physical group) now has a concrete catalog endpoint to fetch and map into `layersConfig.ts`-shaped entries.
+- Two real historical map layers are discoverable end-to-end (GeoServer → proxy → catalog), ready for E3-3 to wire up.
+
+**Files changed (backend):**
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerDTO.java` (new), `RasterBoundsDTO.java` (new), `RasterZoomDTO.java` (new)
+- `src/main/java/com/webgis/ancientdata/application/service/RasterCatalogService.java` (new — holds the curated static catalog)
+- `src/main/java/com/webgis/ancientdata/web/controller/RasterCatalogController.java` (new — `GET /api/raster/catalog`)
+- `docs/features/FEATURE-SPEC-BACKLOG.md` (this write-up; added deferred `E3-6` backlog stub)
+
+**Tests:**
+- `RasterCatalogServiceTests` (2 tests): catalog contains both published De Man sheets by `source`; every entry has non-blank name/source/attribution, valid bounds (south < north, west < east), and valid zoom (min ≤ max).
+- `RasterCatalogControllerTests` (2 tests): `GET /api/raster/catalog` returns 200 with the expected JSON shape (name/source/bounds/zoom/attribution) and — using a mocked, `verifyNoInteractions`-asserted `RasterProxyService` — proves the request never falls through to the raster proxy; endpoint reachable without authentication.
+- Full backend suite: `./gradlew test` green (all existing + 4 new tests).
+
+**ADR:** Not needed — no new storage mechanism, library, or security/CI-CD strategy was introduced (a static Java list is not new tech), per the ADR criteria in `AGENTS.md`. The storage-approach discussion is recorded in this write-up instead.
+
+**Outstanding / manual follow-up (E3-2):**
+- None for the two seeded layers (real bounds/attribution/zoom provided by the project owner). Each future published layer needs a new `RasterLayerDTO` entry added to `RasterCatalogService` by hand until/unless `E3-6` is picked up.
 
 
