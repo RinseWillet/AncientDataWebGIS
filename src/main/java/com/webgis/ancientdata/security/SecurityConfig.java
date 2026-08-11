@@ -29,6 +29,7 @@ public class SecurityConfig {
     private static final String DASHBOARD_URL = "/api/dashboard/**";
     private static final String MEDIA_URL = "/api/media/**";
     private static final String BACKUP_URL = "/api/backup/**";
+    private static final String RASTER_URL = "/api/raster/**";
     private static final String ADMIN = "ADMIN";
     private static final String USER = "USER";
 
@@ -56,7 +57,7 @@ public class SecurityConfig {
 
     @SuppressWarnings("unused")
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
         httpSecurity
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
@@ -83,6 +84,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, MEDIA_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.POST, BACKUP_URL).hasRole(ADMIN)
                         .requestMatchers(HttpMethod.GET, BACKUP_URL).hasRole(ADMIN)
+                        .requestMatchers(HttpMethod.GET, RASTER_URL).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/suggestions").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/suggestions/my").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/suggestions/pending").hasRole(ADMIN)
@@ -99,7 +101,7 @@ public class SecurityConfig {
                 // attaches automatically and a third-party site cannot set on a forged request
                 // without already having compromised the token (e.g. via XSS, which CSRF
                 // protection would not prevent either). Disabling CSRF here is therefore safe.
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // NOSONAR java:S4502 - safe, see justification above
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session for JWT
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
