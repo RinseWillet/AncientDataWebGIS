@@ -25,7 +25,10 @@ class RasterProxyServiceTests {
     void setUp() throws IOException {
         stubGeoServer = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         stubGeoServer.createContext("/geoserver/ancientdata/wms", exchange -> {
-            byte[] body = ("query=" + exchange.getRequestURI().getQuery()).getBytes(StandardCharsets.UTF_8);
+            // getRawQuery() (not getQuery()) — asserts on the exact bytes received on the
+            // wire, so encoding/double-encoding bugs are visible rather than silently
+            // decoded away by URI's own query accessor.
+            byte[] body = ("query=" + exchange.getRequestURI().getRawQuery()).getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "image/png");
             exchange.sendResponseHeaders(200, body.length);
             try (OutputStream os = exchange.getResponseBody()) {
@@ -58,6 +61,17 @@ class RasterProxyServiceTests {
         assertEquals("image/png", response.getHeaders().getContentType().toString());
         assertNotNull(response.getBody());
         assertEquals("query=service=WMS&request=GetMap", new String(response.getBody(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void forward_DoesNotDoubleEncodeAlreadyEncodedQueryParams() {
+        // bbox commas arrive pre-encoded as %2C (e.g. from a browser-built WMS GetMap URL).
+        // A naive uri(String) call would re-encode the literal "%" into "%25", corrupting it
+        // into "%252C" — GeoServer would then see one coordinate instead of four.
+        ResponseEntity<byte[]> response = service.forward("/ancientdata/wms", "bbox=1%2C2%2C3%2C4");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("query=bbox=1%2C2%2C3%2C4", new String(response.getBody(), StandardCharsets.UTF_8));
     }
 
     @Test

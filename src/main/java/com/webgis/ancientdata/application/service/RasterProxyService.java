@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.net.URI;
+
 /**
  * Forwards read-only OGC service requests (WMS/WMTS/GWC) to the internal
  * GeoServer container. GeoServer's admin REST API and web admin UI stay
@@ -42,7 +44,12 @@ public class RasterProxyService {
         String targetUrl = config.getInternalUrl() + subPath + (queryString != null ? "?" + queryString : "");
 
         try {
-            return restClient.get().uri(targetUrl).exchange((_, response) -> {
+            // subPath/queryString are already percent-encoded as received from the client.
+            // uri(URI) is used instead of uri(String) so RestClient treats it as a fully
+            // composed URI and forwards it verbatim, rather than as a template it re-encodes
+            // (which would double-encode e.g. "%2C" into "%252C" and corrupt query params).
+            URI uri = URI.create(targetUrl);
+            return restClient.get().uri(uri).exchange((_, response) -> {
                 byte[] body = response.getBody().readAllBytes();
 
                 HttpHeaders headers = new HttpHeaders();
@@ -53,6 +60,9 @@ public class RasterProxyService {
 
                 return new ResponseEntity<>(body, headers, response.getStatusCode());
             });
+        } catch (IllegalArgumentException e) {
+            logger.warn("Malformed raster proxy request {}: {}", subPath, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (RestClientException e) {
             logger.error("GeoServer unreachable for {}: {}", subPath, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
