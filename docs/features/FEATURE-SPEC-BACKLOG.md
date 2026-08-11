@@ -31,7 +31,7 @@ It is structured to support:
 | E2 | Photo & Media Integration | ✅ Done | Link and present images/media for roads/sites |
 | E6 | Security & Dependency Hardening | ✅ Done | Resolve open Dependabot alerts and confirm a clean dependency graph before NAS deployment |
 | E9 | Map Clarity & Layer Control Redesign | ✅ Done | Restrict selection/base-layer chrome to the Atlas, add a legend, and replace the bulky Leaflet grouped-layer control with a custom collapsible side panel — **unblocks E3** |
-| E3 | Raster / GeoTIFF Delivery | To Do | Publish and consume large rasters via tile services (depends on E9) |
+| E3 | Raster / GeoTIFF Delivery | 🚧 In Progress | Publish and consume large rasters via tile services (depends on E9) |
 | E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
@@ -109,7 +109,7 @@ It is structured to support:
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
-| E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | To Do | High | L | E0-1, E9-4 |
+| E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | ✅ Done | High | L | E0-1, E9-4 |
 | E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | To Do | High | M | E3-1 |
 | E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | To Do | High | M | E3-2, E9-4 |
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
@@ -724,5 +724,44 @@ a port that's intentionally never forwarded externally.
 - `MapLegend.test.tsx` (8 tests): every site type/road style row renders with its label, DEM section hidden by default and shown once `useActiveDemLayer` reports an active layer, collapse/expand toggle, hides entirely while `hasSelection` is true and reappears collapsed once it clears.
 - `Home.test.tsx`/`RoadInfo.test.tsx`/`SiteInfo.test.tsx`/`Atlas.test.tsx`: extended their existing `MapComponent` mocks to assert the `selectable`/`showLayerChrome`/`layerPanel` props each page actually passes.
 - Full frontend suite: 105/105 tests passing.
+
+---
+
+### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
+
+**Status:** E3-1 delivered (August 2026); E3-2 through E3-5 not started.
+
+**Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-012-raster-publishing-pipeline.md`
+**Runbook:** `AncientDataWebGIS/docs/features/E3.1-raster-publishing-pipeline.md`
+
+**What was delivered (E3-1):**
+- Confirmed GeoServer (`kartoza/geoserver:2.24.1`) was already deployed in `docker-compose.yml`, used only for direct LAN/WARP QGIS-admin access — not previously reachable by the frontend at all.
+- Chose (with project owner sign-off) to keep GeoServer's exposure unchanged (LAN/WARP-only, no new public port, no edits to the shared `ancientdataworkspace` edge-proxy stack) and instead front it with a new read-only proxy in the already-public `ancientdata` backend: `GET /api/raster/**` forwards GET requests container-to-container to `geoserver:8080` over the internal `webgis-edge` network, explicitly blocking any upstream path containing `/rest/` or `/web/` (GeoServer's admin REST API / web admin UI).
+- Decided GeoTIFF sources are backed up at the **NAS level** (e.g. Synology HyperBackup pointed at `/volume1/docker/ancientdata/geoserver`), not by the application — unlike user-uploaded media (`NasBackupService`/`ADR-006`), since source rasters are large, infrequently-changing, authoritative files closer in nature to the Postgres data volume than to app-owned media.
+- Established Cloud-Optimized GeoTIFF (COG) conversion + overviews as a required pre-publish step for future rasters (especially the DEM), and documented it as the reason GeoServer + GWC caching stays viable on the NAS's 4GB RAM even for a large source — full DEM-specific conversion work remains scoped to **E3-4**.
+- Documented remote GeoServer admin access (WARP/LAN) for operating on a machine other than the NAS, and the manual per-raster publishing steps (GDAL conversion, GeoServer store/layer/style creation, enabling GWC).
+
+**Impact:**
+- E3-2 (raster catalog endpoint) and E3-3 (frontend `LayerPanel` Physical group) now have a concrete, decided transport mechanism (`/api/raster/**`) to build against, instead of an open architecture question.
+- No changes were needed to the shared `ancientdataworkspace` edge-proxy repo, and GeoServer's admin attack surface is unchanged from before this story.
+
+**Files changed (backend):**
+- `src/main/java/com/webgis/ancientdata/config/GeoServerProxyConfig.java` (new)
+- `src/main/java/com/webgis/ancientdata/application/service/RasterProxyService.java` (new)
+- `src/main/java/com/webgis/ancientdata/web/controller/RasterProxyController.java` (new)
+- `src/main/java/com/webgis/ancientdata/security/SecurityConfig.java` (`RASTER_URL` permitAll GET rule)
+- `src/main/resources/application.properties` (`geoserver.internal-url`), `.env.example` (`GEOSERVER_INTERNAL_URL`)
+- `docs/architecture/adr/ADR-012-raster-publishing-pipeline.md` (new), `docs/architecture/adr/README.md` (index entry)
+- `docs/features/E3.1-raster-publishing-pipeline.md` (new — runbook)
+
+**Tests:**
+- `RasterProxyServiceTests` (4 tests): forwards allowed paths with query string and propagates upstream status/content-type/body (using a JDK `HttpServer` stub, no mocking framework needed for the HTTP layer), blocks `/rest/**` and `/web/**` paths with 403, propagates upstream error status (404) unchanged.
+- `RasterProxyControllerTests` (2 tests): correct subpath/query-string extraction and delegation to the service; endpoint reachable without authentication (matches `SecurityConfig`'s public GET rule).
+- Full backend suite: `./gradlew test` green.
+
+**Outstanding / manual follow-up (not yet done by the project owner):**
+- Confirm NAS backup coverage of `/volume1/docker/ancientdata/geoserver` (see runbook's "Backup" section).
+- Configure GeoServer's proxy base URL so `GetCapabilities` documents self-reference the public `/api/raster` path rather than GeoServer's internal address (needed before any external client consumes GetCapabilities directly — E3-2's catalog endpoint sidesteps this for now).
+- No raster has actually been published yet — E3-2/E3-3 will need at least one real layer to wire up and test against.
 
 
