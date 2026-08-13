@@ -112,7 +112,7 @@ It is structured to support:
 | E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | ✅ Done | High | L | E0-1, E9-4 |
 | E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | ✅ Done | High | M | E3-1 |
 | E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | ✅ Done | High | M | E3-2, E9-4 |
-| E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
+| E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | ✅ Done | High | L | E3-1 |
 | E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | To Do | Medium | S | E3-3, E9-5 |
 | E3-6 | E3 | **(Deferred)** DB-backed, admin-manageable raster catalog (replacing E3-2's static Java list) with CRUD endpoints/UI, once the ~20+ planned historical map/DEM layers make PR-per-layer editing an actual bottleneck | To Do | Low | L | E3-2 |
 | E3-7 | E3 | Gate Physical-layer selectability in `LayerPanel` by current map viewport: disable a raster layer's toggle unless its `bounds` (already in `RasterLayerDTO`/`PhysicalLayerState`, unused for gating today) intersects the visible map extent, and disable the whole Physical group below a global minimum zoom floor — so a fully zoomed-out user can't enable every published layer at once and overload GeoServer/the NAS | To Do | High | M | E3-3 |
@@ -264,7 +264,7 @@ Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;proces
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1;E9-4
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
 Story,E3-3,Add Physical group entries to LayerPanel,,E3,High,5,frontend;map;raster,"Add toggle/opacity/order controls for raster overlays as a Physical group in the E9 LayerPanel.","Controls apply instantly and persist session state",E3-2;E9-4
-Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",E3-1
+Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",✅ Done
 Story,E3-5,Wire DEM color ramp into MapLegend,,E3,Medium,2,frontend;raster,"Feed DEM color-ramp data into the E9 MapLegend's DEM hook + attribution details.","Legend/metadata visible for active DEM layer",E3-3;E9-5
 Story,E3-6,(Deferred) DB-backed admin-manageable raster catalog,,E3,Low,8,backend;raster;deferred,"Replace E3-2's static Java catalog list with a DB table + admin CRUD endpoints/UI, once PR-per-layer editing becomes an actual bottleneck at ~20+ published layers.","Deferred — not started",E3-2
 Story,E3-7,Gate Physical layer selectability by map viewport,,E3,High,5,frontend;raster;performance,"Disable a raster layer's toggle in the Physical group unless its bounds intersect the current map view, and disable the whole group below a minimum zoom floor, so a zoomed-out user can't enable every layer and overload GeoServer/the NAS.","Out-of-view or below-floor layers are disabled with an explanatory hint; enabling one is blocked",E3-3
@@ -733,7 +733,7 @@ a port that's intentionally never forwarded externally.
 
 ### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
 
-**Status:** E3-1, E3-2, E3-3 delivered (August 2026); E3-4, E3-5 not started. E3-6 deferred (backlog stub only).
+**Status:** E3-1, E3-2, E3-3, E3-4 delivered (August 2026); E3-5 not started. E3-6 deferred (backlog stub only).
 
 **Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-012-raster-publishing-pipeline.md`
 **Runbook:** `AncientDataWebGIS/docs/features/E3.1-raster-publishing-pipeline.md`
@@ -839,4 +839,36 @@ a port that's intentionally never forwarded externally.
 **Also found during live smoke testing (E3-3, not a code defect — documented here for traceability):**
 - The NAS's actual current LAN IP is `192.168.2.13`, not `192.168.1.50` as `ADR-010`, the E3.1 runbook, `docker-compose.yml`'s comments, and `.env.example` all state — those docs are stale and should be corrected in a follow-up pass.
 - Reaching GeoServer from off-LAN via WARP required a Private Network CIDR route the project's Cloudflare Tunnel didn't have configured yet (Zero Trust dashboard → tunnel → **Add a route → Private CIDR** → `192.168.2.0/24`), plus a WARP client Device Settings Profile Split Tunnel setting switched from the default "Exclude" mode (which excludes all private IP ranges by default) to "Include IPs and domains" with that same CIDR explicitly listed. Neither of these was previously documented as a required one-time setup step for a *new* WARP client device beyond what `ADR-010`/the E3.1 runbook already describe for reusing an *already-configured* one.
+
+---
+
+**What was delivered (E3-4):**
+- Confirmed with the project owner (before implementing, per this story's explicit "don't invent architecture silently" gate) that ADR-012's primary approach — COG + GWC, GeoServer-rendered — remains the plan for the 80GB DEM; Option B (pre-tiled static XYZ pyramid) stays deferred as documented in the ADR's "When to Revisit," not adopted preemptively.
+- Established DEM-specific GDAL conversion parameters, added as a new section to the E3.1 runbook rather than new application code — consistent with this story's precedent (E3-1 was also mostly ADR + runbook, not app code) and with the fact that the actual GDAL/publish work is manual/operator-driven for every raster, DEM included:
+  - **Resampling:** `RESAMPLING=AVERAGE`/`OVERVIEW_RESAMPLING=AVERAGE` on the `gdal_translate -of COG` conversion, replacing the historical-map pipeline's untouched (nearest-neighbor) default — confirmed with the project owner that nearest-neighbor is wrong for continuous elevation data (risks erasing or aliasing subtle microrelief at zoomed-out overview levels).
+  - **Zoom range:** 8–18 (vs. 12–19 for the historical map sheets) — derived from project-owner input on the DEM's actual use case: a wide-area source (Utrecht/Gelderland, NL, to Duisburg, DE) that needs to serve both regional geomorphology (Veluwe/Reichswald moraines, Rhine valley — visible from z8–10) and near-native-resolution archaeological microrelief (Roman road embankments, tumuli, Celtic field lynchets near Kleve — only visible at z15–18). Documented as a starting point pending the project owner confirming native pixel size via `gdalinfo` on the real source file.
+  - **Compression:** kept `DEFLATE` (lossless) as the default, matching the historical-map pipeline, but documented `LERC_ZSTD` with a bounded `MAX_Z_ERROR` as an optional, separately-tested alternative for further shrinking the 80GB source if DEFLATE alone proves insufficient for the NAS's 4GB-RAM serving budget — not adopted by default since it's a fidelity/size tradeoff that should be validated against the real file, not assumed.
+  - **Elevation visualization:** flagged (not decided) that a flat elevation color ramp likely won't make the actual research-relevant microrelief features visible, and that a hillshade/shaded-relief rendering may be needed instead — explicitly left for **E3-5** to decide once real DEM tiles exist to evaluate against.
+- Confirmed with the project owner that this story's actual application-code output is a catalog entry, and only once a real DEM layer exists in GeoServer (mirroring E3-2's precedent of only adding `RasterLayerDTO` entries backed by real GeoServer-read bounds) — no placeholder/fabricated entry was added. The runbook now documents that step (`category = RasterLayerCategory.DEM`) so it's a small, mechanical addition once the project owner has actually run the conversion and published the layer.
+
+**Impact:**
+- The previously-deferred "how" for DEM-specific conversion (ADR-012's `Decision` section explicitly punted overview levels/compression/resampling specifics to this story) is now a documented, reasoned recipe instead of an open question — unblocks the project owner's actual GDAL/publish work on the real 80GB file.
+- `RasterLayerCategory.DEM` (added in E3-3) now has a concrete plan for when a real entry using it will exist; `useActiveDemLayer`/`MapLegend`'s Elevation section (also E3-3) remains correctly inert until that catalog entry is actually added.
+- E3-5 (DEM color-ramp) has an explicit flag that a plain color ramp may not be the right rendering choice, rather than discovering that only once real data is available.
+
+**Files changed:**
+- `docs/features/E3.1-raster-publishing-pipeline.md` (new "DEM-specific conversion (E3-4)" section)
+- `docs/features/FEATURE-SPEC-BACKLOG.md` (this write-up; status updates)
+
+**Tests:** None — no application code changed. `RasterCatalogService`/`RasterLayerDTO`/`RasterLayerCategory` (from E3-2/E3-3) are untouched; adding the DEM's actual catalog entry is deferred until a real layer exists to source bounds from (see "Outstanding" below), at which point it's the same small, already-tested code path E3-2 established (`RasterCatalogServiceTests`/`RasterCatalogControllerTests` already assert the general shape and would cover a new entry without further test scaffolding).
+
+**ADR:** Not needed. Per `AGENTS.md`'s ADR criteria (new tech/libraries, or a change to storage/CI-CD/security strategy), this story doesn't qualify — it stays within ADR-012's already-decided COG+GWC approach and fills in parameters the ADR explicitly deferred to this story, rather than introducing a new decision. Matches E3-2's precedent of recording a non-architectural decision in this write-up instead of touching the ADR. `ADR-012` itself is unchanged.
+
+**Outstanding / manual follow-up (E3-4, project owner):**
+- Run `gdalinfo` on the real ~80GB source DEM to confirm native pixel size and adjust the documented overview-level/zoom-range starting point (8–18) if needed.
+- Run the documented `gdal_translate -of COG` conversion (test the optional `LERC_ZSTD` compression variant if `DEFLATE` output size is still impractical for the NAS).
+- Copy the converted COG to `/volume1/docker/ancientdata/rastermaps/dem/<collection>/`, publish it as a GeoServer store/layer, enable GWC caching — same manual steps as every other raster (E3.1 runbook's general recipe).
+- Verify actual tile-serving performance on the NAS's 4GB RAM at the z8–18 range; if unacceptable, this is the documented trigger to fall back to Option B for this layer specifically (ADR-012 "When to Revisit").
+- Once published, add the `RasterLayerDTO` catalog entry (`category = DEM`, real bounds read from GeoServer) — small follow-up PR, same shape as E3-2's two historical-map entries.
+- Decide DEM visualization style (plain color ramp vs. hillshade/shaded relief) as part of E3-5, once real tiles exist to evaluate.
 
