@@ -110,10 +110,12 @@ It is structured to support:
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
 | E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | ✅ Done | High | L | E0-1, E9-4 |
-| E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | To Do | High | M | E3-1 |
-| E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | To Do | High | M | E3-2, E9-4 |
-| E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
+| E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | ✅ Done | High | M | E3-1 |
+| E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | ✅ Done | High | M | E3-2, E9-4 |
+| E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | ✅ Done | High | L | E3-1 |
 | E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | To Do | Medium | S | E3-3, E9-5 |
+| E3-6 | E3 | **(Deferred)** DB-backed, admin-manageable raster catalog (replacing E3-2's static Java list) with CRUD endpoints/UI, once the ~20+ planned historical map/DEM layers make PR-per-layer editing an actual bottleneck | To Do | Low | L | E3-2 |
+| E3-7 | E3 | Gate Physical-layer selectability in `LayerPanel` by current map viewport: disable a raster layer's toggle unless its `bounds` (already in `RasterLayerDTO`/`PhysicalLayerState`, unused for gating today) intersects the visible map extent, and disable the whole Physical group below a global minimum zoom floor — so a fully zoomed-out user can't enable every published layer at once and overload GeoServer/the NAS | To Do | High | M | E3-3 |
 | E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | ✅ Done | High | M | E1-3 |
 | E4-2 | E4 | Improve touch target spacing/sizing for controls | ✅ Done | High | S | E4-1 |
 | E4-3 | E4 | Improve `DataList` mobile readability and interactions | ✅ Done | Medium | M | E4-2 |
@@ -262,8 +264,10 @@ Story,E6-5,Document dependency-alert triage cadence,,E6,Medium,1,security;proces
 Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define ingestion and publishing path for historical maps/plans/DEM.","Documented and repeatable pipeline",E0-1;E9-4
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
 Story,E3-3,Add Physical group entries to LayerPanel,,E3,High,5,frontend;map;raster,"Add toggle/opacity/order controls for raster overlays as a Physical group in the E9 LayerPanel.","Controls apply instantly and persist session state",E3-2;E9-4
-Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",E3-1
+Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",✅ Done
 Story,E3-5,Wire DEM color ramp into MapLegend,,E3,Medium,2,frontend;raster,"Feed DEM color-ramp data into the E9 MapLegend's DEM hook + attribution details.","Legend/metadata visible for active DEM layer",E3-3;E9-5
+Story,E3-6,(Deferred) DB-backed admin-manageable raster catalog,,E3,Low,8,backend;raster;deferred,"Replace E3-2's static Java catalog list with a DB table + admin CRUD endpoints/UI, once PR-per-layer editing becomes an actual bottleneck at ~20+ published layers.","Deferred — not started",E3-2
+Story,E3-7,Gate Physical layer selectability by map viewport,,E3,High,5,frontend;raster;performance,"Disable a raster layer's toggle in the Physical group unless its bounds intersect the current map view, and disable the whole group below a minimum zoom floor, so a zoomed-out user can't enable every layer and overload GeoServer/the NAS.","Out-of-view or below-floor layers are disabled with an explanatory hint; enabling one is blocked",E3-3
 Story,E9-1,Add selectable/showLayerChrome props,,E9,High,3,frontend;map,"Thread selectable/showLayerChrome props through MapComponent -> MapBuilder -> MapContent.","Props control click-to-select and layer chrome independently",✅ Done
 Story,E9-2,Disable selection on Home/RoadInfo/SiteInfo maps,,E9,High,2,frontend;map;ux,"Home map drops to a single fixed Positron tile with no chrome; all three pages disable click-to-select MapInfoCard.","No MapInfoCard opens from these pages' maps; Home shows only sites/roads on Positron",✅ Done
 Story,E9-3,Extract layersConfig.ts,,E9,High,3,frontend;map,"Extract BaseLayers.tsx layer definitions into a typed, group-driven layersConfig.ts.","New layers/groups addable via config only, no component changes",✅ Done
@@ -729,7 +733,7 @@ a port that's intentionally never forwarded externally.
 
 ### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
 
-**Status:** E3-1 delivered (August 2026); E3-2 through E3-5 not started.
+**Status:** E3-1, E3-2, E3-3, E3-4 delivered (August 2026); E3-5 not started. E3-6 deferred (backlog stub only).
 
 **Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-012-raster-publishing-pipeline.md`
 **Runbook:** `AncientDataWebGIS/docs/features/E3.1-raster-publishing-pipeline.md`
@@ -762,6 +766,109 @@ a port that's intentionally never forwarded externally.
 **Outstanding / manual follow-up (not yet done by the project owner):**
 - Confirm NAS backup coverage of `/volume1/docker/ancientdata/geoserver` (see runbook's "Backup" section).
 - Configure GeoServer's proxy base URL so `GetCapabilities` documents self-reference the public `/api/raster` path rather than GeoServer's internal address (needed before any external client consumes GetCapabilities directly — E3-2's catalog endpoint sidesteps this for now).
-- No raster has actually been published yet — E3-2/E3-3 will need at least one real layer to wire up and test against.
 
+---
+
+**What was delivered (E3-2):**
+- Added `GET /api/raster/catalog`, a public read-only endpoint returning a JSON array of published raster layers: `name`, `source` (GeoServer `workspace:layer`, usable directly as a WMS `layers` param against `/api/raster/<workspace>/wms`), `bounds` (WGS84 south/west/north/east), `zoom` (curated min/max), and `attribution` — the exact field set named in the story.
+- **Storage decision (discussed and confirmed with the project owner, no ADR needed — see below):** GeoServer's WMS `GetCapabilities` doesn't carry attribution or a sensible tile-pyramid zoom range, so this metadata can't be a live pass-through; it needs to be curated somewhere this backend owns. Considered three options: (A) a small static/curated list in Java, (B) a new backend-owned DB table (would need a manual SQL script per `DB-MIGRATION-STRATEGY.md`, since Flyway is disabled and schema is externally owned), (C) a hybrid pulling bounds live from GeoServer capabilities while curating name/attribution/zoom locally. Chose **(A)** — a static `List<RasterLayerDTO>` in `RasterCatalogService` — mirroring the frontend's own `layersConfig.ts` precedent (E9-3). The project owner confirmed ~20+ historical maps/DEM-like layers are planned; a static list holds that many entries fine as *data* — the thing that would actually get painful is the *edit workflow* (PR + redeploy per layer), and that's a separate, larger concern (DB table + auth-gated CRUD + admin UI) than this story's scope. Publishing a raster into GeoServer already requires several manual GDAL/admin steps per the E3.1 runbook, so one more code-reviewed edit isn't a new bottleneck yet at current scale.
+- Deferred the DB-backed/admin-editable version of this catalog as a new backlog story, **E3-6** (Low priority, not started) — to be picked up once the redeploy-per-layer workflow is actually the bottleneck, not pre-built speculatively.
+- Seeded the catalog with the two real published layers (`ancientdata:1818-de-man-a2`/`a3`), using bounds/title values the project owner read directly from GeoServer's layer "Publishing" tab (Lat/Lon Bounding Box, already WGS84) and a shared attribution string ("1818 De Man - Nijmegen"); zoom 12–19 for both (city-scale historical map).
+- `GET /api/raster/catalog` shares the `RASTER_URL` (`/api/raster/**`) permitAll rule already in `SecurityConfig` from E3-1 — no security config change needed. Verified via a full-context `MockMvc` test that the specific `/catalog` route resolves to the new controller rather than falling through to `RasterProxyController`'s `/api/raster/**` catch-all (which would otherwise try to forward it to GeoServer and 502).
+
+**Impact:**
+- E3-3 (frontend `LayerPanel` Physical group) now has a concrete catalog endpoint to fetch and map into `layersConfig.ts`-shaped entries.
+- Two real historical map layers are discoverable end-to-end (GeoServer → proxy → catalog), ready for E3-3 to wire up.
+
+**Files changed (backend):**
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerDTO.java` (new), `RasterBoundsDTO.java` (new), `RasterZoomDTO.java` (new)
+- `src/main/java/com/webgis/ancientdata/application/service/RasterCatalogService.java` (new — holds the curated static catalog)
+- `src/main/java/com/webgis/ancientdata/web/controller/RasterCatalogController.java` (new — `GET /api/raster/catalog`)
+- `docs/features/FEATURE-SPEC-BACKLOG.md` (this write-up; added deferred `E3-6` backlog stub)
+
+**Tests:**
+- `RasterCatalogServiceTests` (2 tests): catalog contains both published De Man sheets by `source`; every entry has non-blank name/source/attribution, valid bounds (south < north, west < east), and valid zoom (min ≤ max).
+- `RasterCatalogControllerTests` (2 tests): `GET /api/raster/catalog` returns 200 with the expected JSON shape (name/source/bounds/zoom/attribution) and — using a mocked, `verifyNoInteractions`-asserted `RasterProxyService` — proves the request never falls through to the raster proxy; endpoint reachable without authentication.
+- Full backend suite: `./gradlew test` green (all existing + 4 new tests).
+
+**ADR:** Not needed — no new storage mechanism, library, or security/CI-CD strategy was introduced (a static Java list is not new tech), per the ADR criteria in `AGENTS.md`. The storage-approach discussion is recorded in this write-up instead.
+
+**Outstanding / manual follow-up (E3-2):**
+- None for the two seeded layers (real bounds/attribution/zoom provided by the project owner). Each future published layer needs a new `RasterLayerDTO` entry added to `RasterCatalogService` by hand until/unless `E3-6` is picked up.
+
+---
+
+**What was delivered (E3-3):**
+- **Backend contract addition to E3-2 (small, additive):** discovered mid-implementation that `RasterLayerDTO` had no way to distinguish a DEM/elevation layer from any other raster overlay (e.g. the De Man historical map sheets). Wiring `MapLegend`'s "Elevation" section to "any visible Physical layer" would have shown that section for a historical map, which is factually wrong. Added `RasterLayerCategory` (`HISTORICAL_MAP` | `DEM`) and a `category` field to `RasterLayerDTO`/`RasterCatalogController`'s response; both existing De Man entries are `HISTORICAL_MAP`. Backwards compatible (additive field only). Confirmed with the project owner before implementing.
+- Frontend: extended `useLayerPanelControl` (`useMapInteractions.ts`) with a new `physicalLayers` state slice — unlike the exclusive single-select Historical/Aerial groups, any number of Physical (raster catalog) layers can be visible simultaneously, each with independent opacity. The array's order doubles as map z-order (index 0 = topmost/frontmost, matching the LayerPanel's top-to-bottom row order) via `L.TileLayer.setZIndex`; toggling visibility adds/removes the actual `L.tileLayer.wms` instance, opacity changes mutate the existing layer in place (`setOpacity`) rather than remounting it (avoids tile-reload flicker).
+- The raster catalog (`GET /api/raster/catalog`) is fetched once via a new `RasterService.ts`, gated on the Leaflet `map` instance being non-null — `useLayerPanelControl` receives `null` for `map` on Home/RoadInfo/SiteInfo (per E9-2's existing `layerPanel`-gating convention), so those pages never issue the request; only Atlas (`layerPanel=true`) does.
+- New WMS tile URLs are built as `${apiBaseUrl}/raster/<workspace>/wms` (workspace parsed from the catalog's `source` field), reusing `apiClient`'s already-resolved, environment-aware base URL (`api/config.ts`, newly exported as `apiBaseUrl`) instead of hardcoding `/api/raster/...`, so it resolves correctly behind a production base path (`VITE_BASE_PATH`) as well as in dev.
+- `LayerPanel.tsx` gained a "Physical" section — rendered only when the catalog returns ≥1 entry (same "no empty-group placeholder UI" rule E9-4 established) — with a checkbox (toggle visible), an opacity slider (0–1, step 0.1), and ▲/▼ reorder buttons per row (simple array-swap reordering; no drag-and-drop dependency, per discussion with the project owner).
+- `useActiveDemLayer` (previously an inert stub always returning `null`, per E9-5) now takes the name of the topmost visible **DEM-category** Physical layer (or `null`) as an argument and returns it as-is; `MapContent` computes that value from `physicalLayers` (filtering specifically on `category === 'DEM'`, not "any visible Physical layer") and passes it to `MapLegend` as `activeDemLayerName`. `MapLegend`'s "Elevation" section now appears only for a real DEM layer — verified this doesn't fire for a `HISTORICAL_MAP`-category layer via a dedicated regression test (see below). E3-5 remains responsible for the section's actual color-ramp content; today the catalog has no real DEM entries yet (that's E3-4's job), so the section stays inert in practice until then, same as before.
+- "Persist session state" (from the story's original CSV acceptance note) is interpreted as in-memory persistence for the lifetime of the mounted panel — matching the existing base/historical/aerial/overlay state, none of which persist to `localStorage`/`sessionStorage` either. Adding real cross-navigation persistence only for the Physical group would be inconsistent with its siblings and wasn't requested.
+
+**Impact:**
+- The two published De Man historical map sheets are now toggleable, opacity-adjustable raster overlays in the Atlas `LayerPanel`, stacked in user-controlled order.
+- `useActiveDemLayer`/`MapLegend`'s Elevation section has real (if still practically inert, pending E3-4) wiring, closing out the seam E9-5 intentionally left open.
+- E3-4 (DEM delivery) and E3-5 (DEM color-ramp content) now have a working Physical-group UI and a correct DEM/historical-map distinction to build on.
+
+**Files changed (backend):**
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerCategory.java` (new — `HISTORICAL_MAP` | `DEM` enum)
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerDTO.java` (added `category` field)
+- `src/main/java/com/webgis/ancientdata/application/service/RasterCatalogService.java` (both catalog entries set to `HISTORICAL_MAP`)
+- `src/test/java/com/webgis/ancientdata/rastertests/RasterCatalogServiceTests.java`, `RasterCatalogControllerTests.java` (updated/added assertions for `category`)
+
+**Files changed (frontend):**
+- `AncientDataWebGIS_FE/src/types/raster.ts` (new), `src/services/RasterService.ts` (new)
+- `AncientDataWebGIS_FE/src/api/config.ts` (exported `apiBaseUrl`)
+- `AncientDataWebGIS_FE/src/components/MapComponent/useMapInteractions.ts` (`physicalLayers` state, catalog fetch, Leaflet sync/z-order effects, `togglePhysicalLayer`/`setPhysicalLayerOpacity`/`movePhysicalLayer`)
+- `AncientDataWebGIS_FE/src/components/MapComponent/mapUtils.ts` (`buildPhysicalLayer`)
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapContent.tsx` (computes `activeDemLayer` from `physicalLayers`, passes `activeDemLayerName` to `MapLegend`)
+- `AncientDataWebGIS_FE/src/components/LayerPanel/LayerPanel.tsx`, `LayerPanel.css` (new "Physical" section)
+- `AncientDataWebGIS_FE/src/components/MapLegend/MapLegend.tsx`, `useActiveDemLayer.ts` (accept/pass through `activeDemLayerName`)
+
+**Tests:**
+- Backend: `RasterCatalogServiceTests`/`RasterCatalogControllerTests` updated for the new `category` field (both De Man entries assert as `HISTORICAL_MAP`); full suite green.
+- `LayerPanel.test.tsx` (+6 tests): no Physical section when the catalog is empty; a row per catalog entry with an opacity slider; `togglePhysicalLayer`/`setPhysicalLayerOpacity`/`movePhysicalLayer` called correctly; boundary reorder buttons disabled at the top/bottom of the list.
+- `MapLegend.test.tsx` (+1 test): `activeDemLayerName` passed through to the real (unmocked) `useActiveDemLayer` shows the Elevation section.
+- `MapContent.test.tsx` (+2 tests, real unmocked Leaflet rendering, `RasterService` mocked): toggling a Physical catalog entry adds a real WMS tile layer (`img[src*="/raster/ancientdata/wms"]`) to the map; a dedicated regression test proves the Elevation section appears for a visible `DEM`-category layer but *not* for a visible `HISTORICAL_MAP`-category layer toggled on first — this is the exact bug the category field was added to prevent.
+- Full frontend suite: 113/113 tests passing. `npm run lint` and `npm run build` both clean.
+
+**Outstanding / manual follow-up (E3-3):** None. Automated verification relied on the real-DOM `MapContent.test.tsx` tests (live-browser verification wasn't possible from the initial dev sandbox — no reachable PostGIS/GeoServer backend, same limitation noted under E9). The project owner subsequently smoke-tested live from a real browser (backend on `local-dev` DB profile + real GeoServer over Cloudflare WARP) and confirmed both `1818-de-man-a2`/`a3` render correctly in the Atlas `LayerPanel`'s Physical section, toggle/opacity work, and `useActiveDemLayer`'s category gating behaves as intended (no Elevation section fires for these `HISTORICAL_MAP`-category layers). Tile load latency during that test was higher than production will be, due to the WARP-tunnel-hop dev path — not a code issue (see ADR-012's GWC caching notes).
+
+**Also found during live smoke testing (E3-3, not a code defect — documented here for traceability):**
+- The NAS's actual current LAN IP is `192.168.2.13`, not `192.168.1.50` as `ADR-010`, the E3.1 runbook, `docker-compose.yml`'s comments, and `.env.example` all state — those docs are stale and should be corrected in a follow-up pass.
+- Reaching GeoServer from off-LAN via WARP required a Private Network CIDR route the project's Cloudflare Tunnel didn't have configured yet (Zero Trust dashboard → tunnel → **Add a route → Private CIDR** → `192.168.2.0/24`), plus a WARP client Device Settings Profile Split Tunnel setting switched from the default "Exclude" mode (which excludes all private IP ranges by default) to "Include IPs and domains" with that same CIDR explicitly listed. Neither of these was previously documented as a required one-time setup step for a *new* WARP client device beyond what `ADR-010`/the E3.1 runbook already describe for reusing an *already-configured* one.
+
+---
+
+**What was delivered (E3-4):**
+- Confirmed with the project owner (before implementing, per this story's explicit "don't invent architecture silently" gate) that ADR-012's primary approach — COG + GWC, GeoServer-rendered — remains the plan for the 80GB DEM; Option B (pre-tiled static XYZ pyramid) stays deferred as documented in the ADR's "When to Revisit," not adopted preemptively.
+- Established DEM-specific GDAL conversion parameters, added as a new section to the E3.1 runbook rather than new application code — consistent with this story's precedent (E3-1 was also mostly ADR + runbook, not app code) and with the fact that the actual GDAL/publish work is manual/operator-driven for every raster, DEM included:
+  - **Resampling:** `RESAMPLING=AVERAGE`/`OVERVIEW_RESAMPLING=AVERAGE` on the `gdal_translate -of COG` conversion, replacing the historical-map pipeline's untouched (nearest-neighbor) default — confirmed with the project owner that nearest-neighbor is wrong for continuous elevation data (risks erasing or aliasing subtle microrelief at zoomed-out overview levels).
+  - **Zoom range:** 8–18 (vs. 12–19 for the historical map sheets) — derived from project-owner input on the DEM's actual use case: a wide-area source (Utrecht/Gelderland, NL, to Duisburg, DE) that needs to serve both regional geomorphology (Veluwe/Reichswald moraines, Rhine valley — visible from z8–10) and near-native-resolution archaeological microrelief (Roman road embankments, tumuli, Celtic field lynchets near Kleve — only visible at z15–18). Documented as a starting point pending the project owner confirming native pixel size via `gdalinfo` on the real source file.
+  - **Compression:** kept `DEFLATE` (lossless) as the default, matching the historical-map pipeline, but documented `LERC_ZSTD` with a bounded `MAX_Z_ERROR` as an optional, separately-tested alternative for further shrinking the 80GB source if DEFLATE alone proves insufficient for the NAS's 4GB-RAM serving budget — not adopted by default since it's a fidelity/size tradeoff that should be validated against the real file, not assumed.
+  - **Elevation visualization:** flagged (not decided) that a flat elevation color ramp likely won't make the actual research-relevant microrelief features visible, and that a hillshade/shaded-relief rendering may be needed instead — explicitly left for **E3-5** to decide once real DEM tiles exist to evaluate against.
+- Confirmed with the project owner that this story's actual application-code output is a catalog entry, and only once a real DEM layer exists in GeoServer (mirroring E3-2's precedent of only adding `RasterLayerDTO` entries backed by real GeoServer-read bounds) — no placeholder/fabricated entry was added. The runbook now documents that step (`category = RasterLayerCategory.DEM`) so it's a small, mechanical addition once the project owner has actually run the conversion and published the layer.
+
+**Impact:**
+- The previously-deferred "how" for DEM-specific conversion (ADR-012's `Decision` section explicitly punted overview levels/compression/resampling specifics to this story) is now a documented, reasoned recipe instead of an open question — unblocks the project owner's actual GDAL/publish work on the real 80GB file.
+- `RasterLayerCategory.DEM` (added in E3-3) now has a concrete plan for when a real entry using it will exist; `useActiveDemLayer`/`MapLegend`'s Elevation section (also E3-3) remains correctly inert until that catalog entry is actually added.
+- E3-5 (DEM color-ramp) has an explicit flag that a plain color ramp may not be the right rendering choice, rather than discovering that only once real data is available.
+
+**Files changed:**
+- `docs/features/E3.1-raster-publishing-pipeline.md` (new "DEM-specific conversion (E3-4)" section)
+- `docs/features/FEATURE-SPEC-BACKLOG.md` (this write-up; status updates)
+
+**Tests:** None — no application code changed. `RasterCatalogService`/`RasterLayerDTO`/`RasterLayerCategory` (from E3-2/E3-3) are untouched; adding the DEM's actual catalog entry is deferred until a real layer exists to source bounds from (see "Outstanding" below), at which point it's the same small, already-tested code path E3-2 established (`RasterCatalogServiceTests`/`RasterCatalogControllerTests` already assert the general shape and would cover a new entry without further test scaffolding).
+
+**ADR:** Not needed. Per `AGENTS.md`'s ADR criteria (new tech/libraries, or a change to storage/CI-CD/security strategy), this story doesn't qualify — it stays within ADR-012's already-decided COG+GWC approach and fills in parameters the ADR explicitly deferred to this story, rather than introducing a new decision. Matches E3-2's precedent of recording a non-architectural decision in this write-up instead of touching the ADR. `ADR-012` itself is unchanged.
+
+**Outstanding / manual follow-up (E3-4, project owner):**
+- Run `gdalinfo` on the real ~80GB source DEM to confirm native pixel size and adjust the documented overview-level/zoom-range starting point (8–18) if needed.
+- Run the documented `gdal_translate -of COG` conversion (test the optional `LERC_ZSTD` compression variant if `DEFLATE` output size is still impractical for the NAS).
+- Copy the converted COG to `/volume1/docker/ancientdata/rastermaps/dem/<collection>/`, publish it as a GeoServer store/layer, enable GWC caching — same manual steps as every other raster (E3.1 runbook's general recipe).
+- Verify actual tile-serving performance on the NAS's 4GB RAM at the z8–18 range; if unacceptable, this is the documented trigger to fall back to Option B for this layer specifically (ADR-012 "When to Revisit").
+- Once published, add the `RasterLayerDTO` catalog entry (`category = DEM`, real bounds read from GeoServer) — small follow-up PR, same shape as E3-2's two historical-map entries.
+- Decide DEM visualization style (plain color ramp vs. hillshade/shaded relief) as part of E3-5, once real tiles exist to evaluate.
 
