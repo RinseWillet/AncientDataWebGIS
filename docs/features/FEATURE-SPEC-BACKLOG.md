@@ -111,7 +111,7 @@ It is structured to support:
 |---|---|---|---|---|---|---|
 | E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | ✅ Done | High | L | E0-1, E9-4 |
 | E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | ✅ Done | High | M | E3-1 |
-| E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | To Do | High | M | E3-2, E9-4 |
+| E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | ✅ Done | High | M | E3-2, E9-4 |
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | To Do | High | L | E3-1 |
 | E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | To Do | Medium | S | E3-3, E9-5 |
 | E3-6 | E3 | **(Deferred)** DB-backed, admin-manageable raster catalog (replacing E3-2's static Java list) with CRUD endpoints/UI, once the ~20+ planned historical map/DEM layers make PR-per-layer editing an actual bottleneck | To Do | Low | L | E3-2 |
@@ -731,7 +731,7 @@ a port that's intentionally never forwarded externally.
 
 ### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
 
-**Status:** E3-1, E3-2 delivered (August 2026); E3-3 through E3-5 not started. E3-6 deferred (backlog stub only).
+**Status:** E3-1, E3-2, E3-3 delivered (August 2026); E3-4, E3-5 not started. E3-6 deferred (backlog stub only).
 
 **Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-012-raster-publishing-pipeline.md`
 **Runbook:** `AncientDataWebGIS/docs/features/E3.1-raster-publishing-pipeline.md`
@@ -794,4 +794,47 @@ a port that's intentionally never forwarded externally.
 **Outstanding / manual follow-up (E3-2):**
 - None for the two seeded layers (real bounds/attribution/zoom provided by the project owner). Each future published layer needs a new `RasterLayerDTO` entry added to `RasterCatalogService` by hand until/unless `E3-6` is picked up.
 
+---
+
+**What was delivered (E3-3):**
+- **Backend contract addition to E3-2 (small, additive):** discovered mid-implementation that `RasterLayerDTO` had no way to distinguish a DEM/elevation layer from any other raster overlay (e.g. the De Man historical map sheets). Wiring `MapLegend`'s "Elevation" section to "any visible Physical layer" would have shown that section for a historical map, which is factually wrong. Added `RasterLayerCategory` (`HISTORICAL_MAP` | `DEM`) and a `category` field to `RasterLayerDTO`/`RasterCatalogController`'s response; both existing De Man entries are `HISTORICAL_MAP`. Backwards compatible (additive field only). Confirmed with the project owner before implementing.
+- Frontend: extended `useLayerPanelControl` (`useMapInteractions.ts`) with a new `physicalLayers` state slice — unlike the exclusive single-select Historical/Aerial groups, any number of Physical (raster catalog) layers can be visible simultaneously, each with independent opacity. The array's order doubles as map z-order (index 0 = topmost/frontmost, matching the LayerPanel's top-to-bottom row order) via `L.TileLayer.setZIndex`; toggling visibility adds/removes the actual `L.tileLayer.wms` instance, opacity changes mutate the existing layer in place (`setOpacity`) rather than remounting it (avoids tile-reload flicker).
+- The raster catalog (`GET /api/raster/catalog`) is fetched once via a new `RasterService.ts`, gated on the Leaflet `map` instance being non-null — `useLayerPanelControl` receives `null` for `map` on Home/RoadInfo/SiteInfo (per E9-2's existing `layerPanel`-gating convention), so those pages never issue the request; only Atlas (`layerPanel=true`) does.
+- New WMS tile URLs are built as `${apiBaseUrl}/raster/<workspace>/wms` (workspace parsed from the catalog's `source` field), reusing `apiClient`'s already-resolved, environment-aware base URL (`api/config.ts`, newly exported as `apiBaseUrl`) instead of hardcoding `/api/raster/...`, so it resolves correctly behind a production base path (`VITE_BASE_PATH`) as well as in dev.
+- `LayerPanel.tsx` gained a "Physical" section — rendered only when the catalog returns ≥1 entry (same "no empty-group placeholder UI" rule E9-4 established) — with a checkbox (toggle visible), an opacity slider (0–1, step 0.1), and ▲/▼ reorder buttons per row (simple array-swap reordering; no drag-and-drop dependency, per discussion with the project owner).
+- `useActiveDemLayer` (previously an inert stub always returning `null`, per E9-5) now takes the name of the topmost visible **DEM-category** Physical layer (or `null`) as an argument and returns it as-is; `MapContent` computes that value from `physicalLayers` (filtering specifically on `category === 'DEM'`, not "any visible Physical layer") and passes it to `MapLegend` as `activeDemLayerName`. `MapLegend`'s "Elevation" section now appears only for a real DEM layer — verified this doesn't fire for a `HISTORICAL_MAP`-category layer via a dedicated regression test (see below). E3-5 remains responsible for the section's actual color-ramp content; today the catalog has no real DEM entries yet (that's E3-4's job), so the section stays inert in practice until then, same as before.
+- "Persist session state" (from the story's original CSV acceptance note) is interpreted as in-memory persistence for the lifetime of the mounted panel — matching the existing base/historical/aerial/overlay state, none of which persist to `localStorage`/`sessionStorage` either. Adding real cross-navigation persistence only for the Physical group would be inconsistent with its siblings and wasn't requested.
+
+**Impact:**
+- The two published De Man historical map sheets are now toggleable, opacity-adjustable raster overlays in the Atlas `LayerPanel`, stacked in user-controlled order.
+- `useActiveDemLayer`/`MapLegend`'s Elevation section has real (if still practically inert, pending E3-4) wiring, closing out the seam E9-5 intentionally left open.
+- E3-4 (DEM delivery) and E3-5 (DEM color-ramp content) now have a working Physical-group UI and a correct DEM/historical-map distinction to build on.
+
+**Files changed (backend):**
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerCategory.java` (new — `HISTORICAL_MAP` | `DEM` enum)
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerDTO.java` (added `category` field)
+- `src/main/java/com/webgis/ancientdata/application/service/RasterCatalogService.java` (both catalog entries set to `HISTORICAL_MAP`)
+- `src/test/java/com/webgis/ancientdata/rastertests/RasterCatalogServiceTests.java`, `RasterCatalogControllerTests.java` (updated/added assertions for `category`)
+
+**Files changed (frontend):**
+- `AncientDataWebGIS_FE/src/types/raster.ts` (new), `src/services/RasterService.ts` (new)
+- `AncientDataWebGIS_FE/src/api/config.ts` (exported `apiBaseUrl`)
+- `AncientDataWebGIS_FE/src/components/MapComponent/useMapInteractions.ts` (`physicalLayers` state, catalog fetch, Leaflet sync/z-order effects, `togglePhysicalLayer`/`setPhysicalLayerOpacity`/`movePhysicalLayer`)
+- `AncientDataWebGIS_FE/src/components/MapComponent/mapUtils.ts` (`buildPhysicalLayer`)
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapContent.tsx` (computes `activeDemLayer` from `physicalLayers`, passes `activeDemLayerName` to `MapLegend`)
+- `AncientDataWebGIS_FE/src/components/LayerPanel/LayerPanel.tsx`, `LayerPanel.css` (new "Physical" section)
+- `AncientDataWebGIS_FE/src/components/MapLegend/MapLegend.tsx`, `useActiveDemLayer.ts` (accept/pass through `activeDemLayerName`)
+
+**Tests:**
+- Backend: `RasterCatalogServiceTests`/`RasterCatalogControllerTests` updated for the new `category` field (both De Man entries assert as `HISTORICAL_MAP`); full suite green.
+- `LayerPanel.test.tsx` (+6 tests): no Physical section when the catalog is empty; a row per catalog entry with an opacity slider; `togglePhysicalLayer`/`setPhysicalLayerOpacity`/`movePhysicalLayer` called correctly; boundary reorder buttons disabled at the top/bottom of the list.
+- `MapLegend.test.tsx` (+1 test): `activeDemLayerName` passed through to the real (unmocked) `useActiveDemLayer` shows the Elevation section.
+- `MapContent.test.tsx` (+2 tests, real unmocked Leaflet rendering, `RasterService` mocked): toggling a Physical catalog entry adds a real WMS tile layer (`img[src*="/raster/ancientdata/wms"]`) to the map; a dedicated regression test proves the Elevation section appears for a visible `DEM`-category layer but *not* for a visible `HISTORICAL_MAP`-category layer toggled on first — this is the exact bug the category field was added to prevent.
+- Full frontend suite: 113/113 tests passing. `npm run lint` and `npm run build` both clean.
+
+**Outstanding / manual follow-up (E3-3):** None. Automated verification relied on the real-DOM `MapContent.test.tsx` tests (live-browser verification wasn't possible from the initial dev sandbox — no reachable PostGIS/GeoServer backend, same limitation noted under E9). The project owner subsequently smoke-tested live from a real browser (backend on `local-dev` DB profile + real GeoServer over Cloudflare WARP) and confirmed both `1818-de-man-a2`/`a3` render correctly in the Atlas `LayerPanel`'s Physical section, toggle/opacity work, and `useActiveDemLayer`'s category gating behaves as intended (no Elevation section fires for these `HISTORICAL_MAP`-category layers). Tile load latency during that test was higher than production will be, due to the WARP-tunnel-hop dev path — not a code issue (see ADR-012's GWC caching notes).
+
+**Also found during live smoke testing (E3-3, not a code defect — documented here for traceability):**
+- The NAS's actual current LAN IP is `192.168.2.13`, not `192.168.1.50` as `ADR-010`, the E3.1 runbook, `docker-compose.yml`'s comments, and `.env.example` all state — those docs are stale and should be corrected in a follow-up pass.
+- Reaching GeoServer from off-LAN via WARP required a Private Network CIDR route the project's Cloudflare Tunnel didn't have configured yet (Zero Trust dashboard → tunnel → **Add a route → Private CIDR** → `192.168.2.0/24`), plus a WARP client Device Settings Profile Split Tunnel setting switched from the default "Exclude" mode (which excludes all private IP ranges by default) to "Include IPs and domains" with that same CIDR explicitly listed. Neither of these was previously documented as a required one-time setup step for a *new* WARP client device beyond what `ADR-010`/the E3.1 runbook already describe for reusing an *already-configured* one.
 

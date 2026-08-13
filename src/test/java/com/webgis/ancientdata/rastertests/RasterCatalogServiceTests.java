@@ -1,6 +1,7 @@
 package com.webgis.ancientdata.rastertests;
 
 import com.webgis.ancientdata.application.service.RasterCatalogService;
+import com.webgis.ancientdata.domain.dto.RasterLayerCategory;
 import com.webgis.ancientdata.domain.dto.RasterLayerDTO;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +35,16 @@ class RasterCatalogServiceTests {
             assertThat(entry.bounds().west()).isLessThan(entry.bounds().east());
             assertThat(entry.zoom()).isNotNull();
             assertThat(entry.zoom().min()).isLessThanOrEqualTo(entry.zoom().max());
+            assertThat(entry.category()).isNotNull();
         });
+    }
+
+    @Test
+    void getCatalog_DeManSheetsAreCategorizedAsHistoricalMaps() {
+        List<RasterLayerDTO> catalog = service.getCatalog();
+
+        assertThat(catalog)
+                .extracting(RasterLayerDTO::category)
+                .containsOnly(RasterLayerCategory.HISTORICAL_MAP);
     }
 }

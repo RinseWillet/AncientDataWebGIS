@@ -11,11 +11,13 @@ package com.webgis.ancientdata.domain.dto;
  * @param bounds      WGS84 lat/lon extent
  * @param zoom        curated min/max zoom for display
  * @param attribution copyright/source text
+ * @param category    distinguishes elevation data from other raster overlays
  */
 public record RasterLayerDTO(
         String name,
         String source,
         RasterBoundsDTO bounds,
         RasterZoomDTO zoom,
-        String attribution
+        String attribution,
+        RasterLayerCategory category
 ) {}

@@ -41,7 +41,8 @@ class RasterCatalogControllerTests {
                 .andExpect(jsonPath("$[0].bounds.north").isNumber())
                 .andExpect(jsonPath("$[0].bounds.east").isNumber())
                 .andExpect(jsonPath("$[0].zoom.min").isNumber())
-                .andExpect(jsonPath("$[0].zoom.max").isNumber());
+                .andExpect(jsonPath("$[0].zoom.max").isNumber())
+                .andExpect(jsonPath("$[0].category").value("HISTORICAL_MAP"));
 
         verifyNoInteractions(rasterProxyService);
     }
