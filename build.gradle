@@ -1,3 +1,15 @@
+// spring-boot-buildpack-platform (bootBuildImage tooling) pulls httpclient5:5.6.1 -> httpcore5:5.4,
+// which is vulnerable to GHSA-hf6x-8p5f-cgmf (memory-exhaustion DoS). spring-boot-gradle-plugin 4.1.0
+// is still the latest plugin release and hasn't bumped it, so force the patched version on the plugin classpath.
+buildscript {
+    configurations.classpath {
+        resolutionStrategy {
+            force 'org.apache.httpcomponents.core5:httpcore5:5.4.3'
+            force 'org.apache.httpcomponents.core5:httpcore5-h2:5.4.3'
+        }
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '4.1.0'
@@ -46,8 +58,13 @@ dependencies {
     // Security-critical dependencies (Dependabot CVE fixes)
     implementation 'org.apache.commons:commons-lang3:3.20.0' // CVE-2025-48924 - already latest
     implementation 'org.json:json:20251224' // CVE-2023-5072 - already latest
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.21.3' // CVE-2025-52999, GHSA-72hv-8253-57qq
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.5' // CVE-2026-54515 (BOM only manages 2.21.4)
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.22.1' // GHSA-72hv-8253-57qq incomplete fix, needs >=2.21.4
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.1' // keep in sync with jackson-core above
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.22' // databind 2.22.x needs jackson-annotations 2.22 (JsonApplyView), BOM only manages 2.21
+    // Jackson 3.x line pulled in transitively via flyway-database-postgresql -> jackson-bom 3.1.4;
+    // Spring Boot 4.1.0's BOM caps it there, so pin directly to get the @JsonView fix (needs >=3.1.5)
+    implementation 'tools.jackson.core:jackson-core:3.2.1'
+    implementation 'tools.jackson.core:jackson-databind:3.2.1'
 
 
     // ...existing code...
@@ -58,7 +75,7 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api:3.1.1'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.3.Final'
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql:42.7.11'
+    runtimeOnly 'org.postgresql:postgresql:42.7.13' // channel-binding downgrade fix, needs >=42.7.12
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     // Boot 4 split MockMvc test autoconfig into spring-boot-webmvc-test, and the
