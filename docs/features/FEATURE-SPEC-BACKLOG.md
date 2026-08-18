@@ -117,7 +117,7 @@ It is structured to support:
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | ✅ Done | High | L | E3-1 |
 | E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | To Do | Medium | S | E3-3, E9-5 |
 | E3-6 | E3 | **(Deferred)** DB-backed, admin-manageable raster catalog (replacing E3-2's static Java list) with CRUD endpoints/UI, once the ~20+ planned historical map/DEM layers make PR-per-layer editing an actual bottleneck | To Do | Low | L | E3-2 |
-| E3-7 | E3 | Gate Physical-layer selectability in `LayerPanel` by current map viewport: disable a raster layer's toggle unless its `bounds` (already in `RasterLayerDTO`/`PhysicalLayerState`, unused for gating today) intersects the visible map extent, and disable the whole Physical group below a global minimum zoom floor — so a fully zoomed-out user can't enable every published layer at once and overload GeoServer/the NAS | To Do | High | M | E3-3 |
+| E3-7 | E3 | Gate Physical-layer selectability in `LayerPanel` by current map viewport: disable a raster layer's toggle unless its `bounds` (already in `RasterLayerDTO`/`PhysicalLayerState`, unused for gating today) intersects the visible map extent, and disable the whole Physical group below a global minimum zoom floor — so a fully zoomed-out user can't enable every published layer at once and overload GeoServer/the NAS | ✅ Done | High | M | E3-3 |
 | E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | ✅ Done | High | M | E1-3 |
 | E4-2 | E4 | Improve touch target spacing/sizing for controls | ✅ Done | High | S | E4-1 |
 | E4-3 | E4 | Improve `DataList` mobile readability and interactions | ✅ Done | Medium | M | E4-2 |
@@ -769,7 +769,7 @@ a port that's intentionally never forwarded externally.
 
 ### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
 
-**Status:** E3-1, E3-2, E3-3, E3-4 delivered (August 2026); E3-5 not started. E3-6 deferred (backlog stub only).
+**Status:** E3-1, E3-2, E3-3, E3-4, E3-7 delivered (August 2026); E3-5 not started. E3-6 deferred (backlog stub only).
 
 **Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-012-raster-publishing-pipeline.md`
 **Runbook:** `AncientDataWebGIS/docs/features/E3.1-raster-publishing-pipeline.md`
@@ -907,4 +907,47 @@ a port that's intentionally never forwarded externally.
 - Verify actual tile-serving performance on the NAS's 4GB RAM at the z8–18 range; if unacceptable, this is the documented trigger to fall back to Option B for this layer specifically (ADR-012 "When to Revisit").
 - Once published, add the `RasterLayerDTO` catalog entry (`category = DEM`, real bounds read from GeoServer) — small follow-up PR, same shape as E3-2's two historical-map entries.
 - Decide DEM visualization style (plain color ramp vs. hillshade/shaded relief) as part of E3-5, once real tiles exist to evaluate.
+
+---
+
+**What was delivered (E3-7):**
+- **Confirmed three open decisions with the project owner before implementing (per this story's explicit "don't invent silently" gate):**
+  1. Global minimum zoom floor: **8** — matches every DEM layer's own curated `zoom.min` in `RasterCatalogService` (all 5 areas + their hillshade siblings start at 8), so the floor stops the "whole research area visible, enable all 5 DEM areas at once" scenario at zoom 0–7 without being any stricter than tiles would render anyway.
+  2. Viewport source for the intersection check: the map's **exact current viewport** (`L.Map.getBounds()`), not a buffered/coarser approximation — matches the story text ("current map viewport") and needs no new tunable.
+  3. Disabled-state explanation copy: **two distinct messages** so the user knows which gate is blocking them — `"Zoom in further to enable Physical layers."` below the zoom floor, `"Pan the map to this layer's area to enable it."` when in-view fails but the floor doesn't.
+- Frontend-only change; no backend/DTO edits needed — `RasterLayerDTO`/`RasterBoundsDTO` (E3-2) and their frontend mirrors (`RasterLayer`/`RasterBounds`, E3-3) already carried real per-layer bounds, just unused for gating until now.
+- Added `boundsIntersectViewport` (`mapUtils.ts`) — a pure axis-aligned rectangle intersection between a catalog entry's WGS84 `bounds` and the map's `L.LatLngBounds` viewport (no antimeridian handling needed; the research area is a single contiguous NL/DE region).
+- Extended `PhysicalLayerState` (`useMapInteractions.ts`) with `bounds` (now actually populated from the catalog, previously dropped by `toLayerState`), `disabled`, and `disabledReason`. `useLayerPanelControl` tracks live viewport changes via a single `moveend`/`zoomend` listener on the Leaflet map (Leaflet's own zoom/bounds getters aren't reactive React state, so a version counter forces recomputation) and derives a gated copy of `physicalLayers` each render through a new pure `gatePhysicalLayer(layer, map)` function.
+- `useLayerPanelControl`'s returned `togglePhysicalLayer` checks the gated state before delegating to the actual visibility toggle, blocking the *on* transition for an out-of-view or below-floor layer. Historical Maps sheets reuse the same shared `PhysicalLayerState` shape but are never gated (`disabled` stays `false`) — only the Physical group is in scope for this story.
+- Scope note: the zoom floor is a single global constant, not each layer's own `RasterZoomDTO.min`/`max` (those remain curated display-range metadata, unused for gating either before or after this story — out of scope per the confirmed decision above).
+
+**Found during the project owner's live testing — two follow-up fixes before this story was considered complete:**
+1. **A layer left on while panning/zooming away kept requesting tiles for the new location.** The first cut only ever blocked the *on* transition and never force-disabled an already-visible layer, specifically to avoid stranding the user with a checked-but-un-toggleable row. Testing surfaced the flaw in that: Leaflet's WMS layer keeps re-requesting tiles for whatever the *current* viewport is, regardless of the layer's own bounds, so a DEM left "on" while the user roamed elsewhere kept hitting GeoServer for empty tiles outside its actual area — undermining the story's own overload-prevention goal. **Confirmed fix with the project owner:** `useLayerPanelControl`'s viewport-change handler now also auto-turns off (unchecks + removes from the map) any visible Physical layer whose bounds/zoom no longer satisfy the gate, rather than leaving it on indefinitely. This still avoids the original "stuck on" trap — the row simply becomes selectable again, not disabled, once you're back in range — while actually stopping the wasted requests.
+2. **The Physical list felt cluttered with every catalog entry always shown, disabled + hinted when not selectable.** **Confirmed fix with the project owner:** `LayerPanel.tsx` now filters the Physical group to only the currently-selectable rows, hiding out-of-view/below-floor entries entirely instead of listing them disabled; a single fallback message (reusing the same two hint strings from decision 3 above) explains why the list is empty or shorter than the full catalog. Historical Maps sheets are unaffected (never gated, so never filtered).
+   - **Bug this surfaced and fixed as part of the same change:** the Physical group's "move up/down" reorder buttons swap a layer with its nearest same-group neighbor in the underlying array — with hidden rows in the list, that neighbor could be one of the now-invisible ones, so a "move" click could silently swap with a row the user can't see and appear to do nothing. `createLayerGroupHandlers`'s `move` now takes an optional skip predicate; the Physical group's handler skips gated-off neighbors (Historical Maps' handler is unaffected, predicate defaults to skipping nothing), so reordering only ever swaps among the rows actually rendered in the filtered list.
+
+**Impact:**
+- A fully zoomed-out Atlas user can no longer enable all 5 DEM areas (plus hillshade siblings) simultaneously, and can no longer leave a DEM "on" while roaming to an unrelated area — both the enable-gate and the auto-off together address the GeoServer/NAS overload risk E3-4 called out.
+- The Physical group only ever lists layers actually usable from the current view, cutting panel clutter without losing the explanation for why the list is short.
+- No change to already-published Historical Maps sheet behavior.
+
+**Files changed (frontend):**
+- `AncientDataWebGIS_FE/src/components/MapComponent/mapUtils.ts` (`boundsIntersectViewport`), `mapUtils.test.ts` (new)
+- `AncientDataWebGIS_FE/src/components/MapComponent/useMapInteractions.ts` (`PhysicalLayerState.bounds`/`disabled`/`disabledReason`, `PHYSICAL_MIN_ZOOM_FLOOR`, `gatePhysicalLayer`, `isPhysicalLayerWithinGate`, combined viewport-change/auto-off handler, gated `togglePhysicalLayer`, `createLayerGroupHandlers`'s new move-skip predicate), `useMapInteractions.test.ts` (new)
+- `AncientDataWebGIS_FE/src/components/LayerPanel/LayerPanel.tsx` (filters the Physical group to selectable rows, renders a fallback message when none qualify), `LayerPanel.css` (`.layer-panel__section-empty-hint`), `LayerPanel.test.tsx` (updated builders + tests)
+
+**Tests:**
+- `mapUtils.test.ts` (new, 5 tests): `boundsIntersectViewport` — fully inside, partial overlap, fully outside, layer bounds containing the viewport, edge-touching bounds.
+- `useMapInteractions.test.ts` (new, 11 tests): `gatePhysicalLayer` pure-function cases (6: visible layer never gated even out-of-view/below-floor; no map yet → not gated; below floor → zoom reason regardless of bounds; exactly at floor → not gated; at/above floor but out of view → pan reason; in view and at/above floor → not gated) plus 5 end-to-end tests against `useLayerPanelControl` driving a real (jsdom) `L.Map` — `togglePhysicalLayer` blocks enabling an out-of-view or below-floor layer and allows it once panned/zoomed into range; a visible layer auto-turns off after panning out of view and again after zooming below the floor; `movePhysicalLayer` skips a hidden gated-off neighbor and swaps with the next actually-visible one.
+- `LayerPanel.test.tsx` (2 tests, replacing the first pass's per-row-disabled tests): a gated-off row is absent from the list with its reason shown as the section's fallback message; a mix of gated/ungated rows only renders the selectable one.
+- Full frontend suite: 141/141 passing. `npm run lint` (eslint, `--max-warnings 0`) and `npx tsc --noEmit` both clean.
+- Backend: no application code changed (this story is frontend-only); full backend suite unaffected.
+
+**Migration notes:** None — no schema, config, or deployment changes. Purely client-side gating logic layered on data (`RasterLayerDTO.bounds`) the backend already served since E3-2.
+
+**ADR:** Not needed. Per `AGENTS.md`'s ADR criteria (new tech/libraries, or a change to storage/CI-CD/security strategy), this story doesn't qualify — it's a client-side UI gating rule within the already-decided E3-2/E3-3 catalog+`LayerPanel` architecture, introducing no new dependency or infrastructure decision. All confirmed decisions (zoom floor value, viewport source, hint copy, auto-off, list filtering) are recorded in this write-up instead, matching E3-2/E3-4 precedent for non-architectural decisions.
+
+**Outstanding / manual follow-up (E3-7):**
+- Live smoke test on a real browser once a reachable backend/GeoServer is available (same sandbox limitation noted under E3-3/E9) — to confirm the fallback message's layout at the `LayerPanel`'s 260px width, that pan/zoom gating (including the new auto-off) feels responsive rather than laggy against real tile loads, and that auto-off doesn't fire disruptively during normal in-area panning.
+- Zoom floor 8 was set from the DEM layers' own curated minimum, not from a measured concurrent-request budget — if that still allows too many simultaneous enables in practice (e.g. two or more DEM areas whose bounds are all visible at once at zoom 8, unlike the tighter single-area historical map sheets), the project owner may want to raise it; not tuned further without real load data.
 
