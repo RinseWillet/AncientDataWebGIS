@@ -12,6 +12,19 @@ package com.webgis.ancientdata.domain.dto;
  * @param zoom        curated min/max zoom for display
  * @param attribution copyright/source text
  * @param category    distinguishes elevation data from other raster overlays
+ * @param collection  optional shared name grouping multiple sheets of the same
+ *                    published atlas/series (e.g. "1818 De Man - Nijmegen") so
+ *                    the frontend can nest them under one collapsible group
+ *                    instead of listing every sheet flat. Null for a
+ *                    standalone entry that isn't part of a multi-sheet series.
+ * @param hillshade   true for a multidirectional-hillshade derivative of a DEM
+ *                    layer (own COG, own GeoServer layer, same extent/zoom as
+ *                    its elevation counterpart). The frontend renders these
+ *                    with a multiply blend over whatever's beneath them rather
+ *                    than as an independent tile layer, and excludes them from
+ *                    "active DEM for the Elevation legend" - a hillshade has no
+ *                    colour ramp of its own to explain. False for every other
+ *                    entry (including plain elevation DEM layers).
  */
 public record RasterLayerDTO(
         String name,
@@ -19,5 +32,7 @@ public record RasterLayerDTO(
         RasterBoundsDTO bounds,
         RasterZoomDTO zoom,
         String attribution,
-        RasterLayerCategory category
+        RasterLayerCategory category,
+        String collection,
+        boolean hillshade
 ) {}

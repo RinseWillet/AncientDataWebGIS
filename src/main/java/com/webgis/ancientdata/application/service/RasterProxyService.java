@@ -12,6 +12,8 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Forwards read-only OGC service requests (WMS/WMTS/GWC) to the internal
@@ -22,6 +24,24 @@ import java.net.URI;
 public class RasterProxyService {
 
     private static final Logger logger = LoggerFactory.getLogger(RasterProxyService.class);
+
+    /** Caching-relevant headers worth passing through from GeoServer/GWC as-is. */
+    private static final List<String> FORWARDED_HEADER_NAMES = List.of(
+            HttpHeaders.CACHE_CONTROL,
+            HttpHeaders.ETAG,
+            HttpHeaders.LAST_MODIFIED,
+            HttpHeaders.EXPIRES
+    );
+
+    /** GWC's own diagnostic prefix (e.g. "geowebcache-cache-result") - forwarded for
+     * observability (confirming whether a tile was a cache HIT/MISS) even though the
+     * app itself doesn't act on it. */
+    private static final String GEOWEBCACHE_HEADER_PREFIX = "geowebcache-";
+
+    /** Map tiles are public and don't vary per requester, so they're safely cacheable -
+     * unlike this app's other endpoints, which correctly default to no-store. Only
+     * applied when GeoServer/GWC didn't already specify its own Cache-Control. */
+    private static final String DEFAULT_CACHE_CONTROL = "public, max-age=3600";
 
     private final GeoServerProxyConfig config;
     private final RestClient restClient;
@@ -51,11 +71,26 @@ public class RasterProxyService {
             URI uri = URI.create(targetUrl);
             return restClient.get().uri(uri).exchange((_, response) -> {
                 byte[] body = response.getBody().readAllBytes();
+                HttpHeaders upstreamHeaders = response.getHeaders();
 
                 HttpHeaders headers = new HttpHeaders();
-                MediaType contentType = response.getHeaders().getContentType();
+                MediaType contentType = upstreamHeaders.getContentType();
                 if (contentType != null) {
                     headers.setContentType(contentType);
+                }
+                FORWARDED_HEADER_NAMES.forEach(name -> {
+                    List<String> values = upstreamHeaders.get(name);
+                    if (values != null) {
+                        headers.put(name, values);
+                    }
+                });
+                upstreamHeaders.forEach((name, values) -> {
+                    if (name.toLowerCase(Locale.ROOT).startsWith(GEOWEBCACHE_HEADER_PREFIX)) {
+                        headers.put(name, values);
+                    }
+                });
+                if (headers.getFirst(HttpHeaders.CACHE_CONTROL) == null) {
+                    headers.set(HttpHeaders.CACHE_CONTROL, DEFAULT_CACHE_CONTROL);
                 }
 
                 return new ResponseEntity<>(body, headers, response.getStatusCode());

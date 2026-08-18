@@ -37,6 +37,8 @@ It is structured to support:
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
 | E8 | Interactive Book / Research Narrative | 🚧 In Progress | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer |
 | E10 | Site & Road Type Registry Consolidation | To Do | Replace the scattered site/road type label, icon, and style definitions with one typed, single-source-of-truth registry, so adding/renaming/restyling a type (e.g. a new "watermill" site type) is a single-file change |
+| E11 | OAuth2/OIDC Migration | To Do | Replace the custom username/password + JWT auth flow with a self-hosted Keycloak IdP, converting the backend into an OAuth2 Resource Server and the frontend to Authorization Code + PKCE |
+| E12 | k3s Migration | To Do | Migrate the NAS deployment from Docker Compose to a single-node k3s cluster, with a validated rollback path to Compose (depends on E11 being stable first) |
 
 ---
 
@@ -166,6 +168,27 @@ It is structured to support:
 | E7-3 | E7 | Add `docs/architecture/sql/local-dev-seed.sql` synthetic schema/seed mirror for offline dev | ✅ Done | Medium | S | E7-2 |
 | E7-4 | E7 | Document both remote/offline dev paths in `.env.example` and record decision in `ADR-010` | ✅ Done | Low | S | E7-1, E7-2 |
 
+## E11 — OAuth2/OIDC Migration
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E11-1 | E11 | Add Keycloak + a dedicated Postgres DB (separate from the shared PostGIS instance) as new internal-only services in `ancientdataworkspace/deploy` (`webgis-edge` network) | To Do | High | M | None |
+| E11-2 | E11 | Replace JWT issuance/validation in `SecurityConfig`/`JwtFilter`/`JwtUtil` with `oauth2ResourceServer().jwt()` validating Keycloak-issued tokens; retire the classes it replaces | To Do | High | L | E11-1 |
+| E11-3 | E11 | Map Keycloak realm roles to the existing `ADMIN`/`USER` roles used in `SecurityConfig`'s `requestMatchers`; update or retire `CustomUserDetailService` | To Do | High | M | E11-2 |
+| E11-4 | E11 | Replace the frontend login form + `authStorage.ts` manual token handling with Authorization Code + PKCE (`react-oidc-context` or `oidc-client-ts`) | To Do | High | M | E11-2, E11-3 |
+| E11-5 | E11 | Write `ADR-013-oauth2-oidc-migration.md` (decision, backward-compat/rollback plan, existing-user migration) | To Do | Medium | S | E11-1 |
+
+## E12 — k3s Migration
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E12-1 | E12 | Install k3s on the Synology NAS (single-node), alongside the existing Compose stacks; verify resource headroom before cutting anything over | To Do | High | M | E11 (stable) |
+| E12-2 | E12 | Write k8s manifests/Helm chart for `ancientdata`, `geoserver`, and the edge stack (nginx + cloudflared), mirroring current `docker-compose.yml` volumes/networking | To Do | High | L | E12-1 |
+| E12-3 | E12 | Move `.env` values into `Secret`/`ConfigMap` resources; keep PostGIS/media persistence identical via NAS-backed volumes | To Do | High | M | E12-2 |
+| E12-4 | E12 | Run the k3s stack in parallel with Compose, validate end-to-end (including the E11 OAuth2 flow), then cut Cloudflare Tunnel routing over | To Do | High | M | E12-3, E11-4 |
+| E12-5 | E12 | Document the new deployment path and rollback-to-Compose steps in `ancientdataworkspace/docs/deployment-recovery.md` | To Do | Medium | S | E12-4 |
+| E12-6 | E12 | Write `ADR-014-k3s-migration.md` | To Do | Medium | S | E12-1 |
+
 ---
 
 ## 4) Acceptance Criteria (Per Priority Wave)
@@ -234,6 +257,8 @@ Epic,E4,Responsive UX for Field Use,Responsive UX for Field Use,,High,,ancientda
 Epic,E5,Synthwave Theme (Optional),Synthwave Theme (Optional),,Medium,,ancientdata;theme,"Add optional visual theme mode with persistence.","Theme toggle/persistence criteria met",E0
 Epic,E7,Remote & Offline Dev Environment,Remote & Offline Dev Environment,,Medium,,ancientdata;devx,"Enable developing/smoke-testing away from the home LAN, with or without network access.","WARP path and local-dev fallback both documented and working",-
 Epic,E10,Site & Road Type Registry Consolidation,Site & Road Type Registry Consolidation,,Medium,,ancientdata;frontend;map;devx,"Replace scattered site/road type label/icon/style definitions with one typed single-source-of-truth registry per type.","P3 Done Criteria (type registry bullet) met",E9
+Epic,E11,OAuth2/OIDC Migration,OAuth2/OIDC Migration,,High,,ancientdata;security;auth,"Replace custom username/password + JWT auth with a self-hosted Keycloak IdP; backend becomes an OAuth2 Resource Server, frontend uses Authorization Code + PKCE.","Backend validates Keycloak-issued tokens; frontend login uses PKCE flow; ADR-013 written",-
+Epic,E12,k3s Migration,k3s Migration,,High,,ancientdata;devops;kubernetes,"Migrate the NAS deployment from Docker Compose to a single-node k3s cluster with a validated rollback path.","App runs on k3s with parity to Compose; rollback documented and tested; ADR-014 written",E11
 Story,E0-1,Externalize compose credentials,,E0,Critical,2,security;config,"Replace hardcoded credentials in docker-compose with env vars and document .env usage.","No plaintext credentials committed; startup works with env values",-
 Story,E0-2,Normalize HTTPS map layer URLs,,E0,High,2,frontend;map,"Ensure all map tile/WMS URLs are HTTPS-safe or proxied.","No mixed-content errors in HTTPS context",E0-1
 Story,E0-3,Fix pleiades DTO naming mismatch,,E0,High,2,frontend;backend;api,"Align `pleiadesId` naming across DTOs/forms/services.","Site updates persist the intended field correctly",-
@@ -288,6 +313,17 @@ Story,E7-1,Document Cloudflare WARP remote-DB access convention,,E7,Medium,1,doc
 Story,E7-2,Add local-dev throwaway PostGIS container + profile,,E7,Medium,3,devx;docker;backend,"docker-compose.local-dev.yml + application-local-dev.properties for fully offline development.","docker compose -f docker-compose.local-dev.yml up -d works; local-dev profile boots app",✅ Done
 Story,E7-3,Add local-dev synthetic schema/seed script,,E7,Medium,1,devx;sql,"docs/architecture/sql/local-dev-seed.sql mirrors schema with synthetic rows, clearly marked non-authoritative.","Seed script auto-applies on container first start",✅ Done
 Story,E7-4,Document remote/offline dev paths + ADR,,E7,Low,1,docs;devx,".env.example documents both paths; ADR-010 records the decision and alternatives considered.","ADR-010 Accepted; .env.example updated",✅ Done
+Story,E11-1,Add Keycloak + dedicated Postgres services,,E11,High,5,security;auth;infra,"Add Keycloak and a dedicated Postgres DB as internal-only services in ancientdataworkspace/deploy (webgis-edge network).","Keycloak reachable internally, has its own DB, no unintended public exposure",-
+Story,E11-2,Replace JWT auth with OAuth2 Resource Server,,E11,High,8,backend;security;auth,"Replace SecurityConfig/JwtFilter/JwtUtil JWT issuance/validation with oauth2ResourceServer().jwt() validating Keycloak-issued tokens.","Backend accepts only valid Keycloak-issued tokens; obsolete JWT classes removed",E11-1
+Story,E11-3,Map Keycloak roles to app roles,,E11,High,3,backend;security;auth,"Map Keycloak realm roles to existing ADMIN/USER roles used in SecurityConfig; update/retire CustomUserDetailService.","requestMatchers role checks behave identically to before the migration",E11-2
+Story,E11-4,Migrate frontend login to Authorization Code + PKCE,,E11,High,5,frontend;security;auth,"Replace manual login form + authStorage.ts token handling with react-oidc-context or oidc-client-ts PKCE flow.","Login/logout works end-to-end against Keycloak; no manual token storage code remains",E11-2;E11-3
+Story,E11-5,Write OAuth2/OIDC migration ADR,,E11,Medium,2,docs;adr,"Document the decision, backward-compat/rollback plan, and existing-user migration in ADR-013.","ADR-013 Accepted",E11-1
+Story,E12-1,Install k3s on the NAS,,E12,High,5,devops;kubernetes;infra,"Install single-node k3s on the Synology NAS alongside existing Compose stacks; verify resource headroom.","k3s cluster running and reachable via kubectl; resource usage documented as acceptable",E11
+Story,E12-2,Write k8s manifests/Helm chart,,E12,High,8,devops;kubernetes,"Write manifests/Helm chart for ancientdata, geoserver, and the edge stack mirroring current docker-compose.yml volumes/networking.","Manifests apply cleanly and reproduce Compose-stack topology",E12-1
+Story,E12-3,Move env vars to Secret/ConfigMap,,E12,High,3,devops;kubernetes;security,"Move .env values into Kubernetes Secret/ConfigMap resources; keep PostGIS/media persistence identical.","No plaintext secrets in manifests; persistence verified after redeploy",E12-2
+Story,E12-4,Cut over from Compose to k3s,,E12,High,5,devops;kubernetes,"Run k3s stack in parallel with Compose, validate end-to-end including the E11 OAuth2 flow, then cut Cloudflare Tunnel routing over.","rinsewillet.net serves from k3s with full functionality parity",E12-3;E11-4
+Story,E12-5,Document deployment + rollback,,E12,Medium,2,docs;devops,"Document the new deployment path and rollback-to-Compose steps in ancientdataworkspace/docs/deployment-recovery.md.","Runbook covers both deploy and rollback, verified by a dry run",E12-4
+Story,E12-6,Write k3s migration ADR,,E12,Medium,2,docs;adr,"Document the decision in ADR-014.","ADR-014 Accepted",E12-1
 ```
 
 ---

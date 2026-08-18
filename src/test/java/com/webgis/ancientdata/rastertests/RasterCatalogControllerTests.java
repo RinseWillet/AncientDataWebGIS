@@ -32,7 +32,7 @@ class RasterCatalogControllerTests {
     void getCatalog_ReturnsPublishedLayers_WithoutHittingTheProxy() throws Exception {
         mockMvc.perform(get("/api/raster/catalog"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.length()").value(12))
                 .andExpect(jsonPath("$[0].name").isNotEmpty())
                 .andExpect(jsonPath("$[0].source").isNotEmpty())
                 .andExpect(jsonPath("$[0].attribution").isNotEmpty())
@@ -42,7 +42,8 @@ class RasterCatalogControllerTests {
                 .andExpect(jsonPath("$[0].bounds.east").isNumber())
                 .andExpect(jsonPath("$[0].zoom.min").isNumber())
                 .andExpect(jsonPath("$[0].zoom.max").isNumber())
-                .andExpect(jsonPath("$[0].category").value("HISTORICAL_MAP"));
+                .andExpect(jsonPath("$[0].category").value("HISTORICAL_MAP"))
+                .andExpect(jsonPath("$[0].collection").value("1818 De Man - Nijmegen"));
 
         verifyNoInteractions(rasterProxyService);
     }
