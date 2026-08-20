@@ -19,7 +19,7 @@ class RasterCatalogServiceTests {
 
         assertThat(catalog)
                 .extracting(RasterLayerDTO::source)
-                .contains("ancientdata:1818-de-man-a2", "ancientdata:1818-de-man-a3");
+                .contains("ancientdata:De-Man-1818-A2", "ancientdata:De-Man-1818-A3");
     }
 
     @Test
@@ -74,10 +74,10 @@ class RasterCatalogServiceTests {
         List<RasterLayerDTO> catalog = service.getCatalog();
 
         List<RasterLayerDTO> deManSheets = catalog.stream()
-                .filter(entry -> entry.source().startsWith("ancientdata:1818-de-man"))
+                .filter(entry -> entry.source().startsWith("ancientdata:De-Man-1818"))
                 .toList();
 
-        assertThat(deManSheets).hasSize(2);
+        assertThat(deManSheets).hasSize(6);
         assertThat(deManSheets).extracting(RasterLayerDTO::category).containsOnly(RasterLayerCategory.HISTORICAL_MAP);
         assertThat(deManSheets).extracting(RasterLayerDTO::collection).containsOnly("1818 De Man - Nijmegen");
         assertThat(deManSheets).extracting(RasterLayerDTO::hillshade).containsOnly(false);
