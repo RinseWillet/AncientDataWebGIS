@@ -16,11 +16,10 @@
 #     port on the router. Reach it either directly on the home LAN, or
 #     remotely via Cloudflare Zero Trust WARP Private Network routing (same
 #     free Tunnel already set up for the website).
-version: '3.9'
 services:
   ancientdata:
     image: rinsedev/ancientdata
-    restart: on-failure
+    restart: unless-stopped
     expose:
       - "8080"
     networks:
@@ -28,7 +27,9 @@ services:
     volumes:
       - /volume1/docker/ancientdata/media:/app/media:rw
       - /volume1/docker/ancientdata/backup:/backup:rw
+    mem_limit: 512m
     environment:
+      - JAVA_TOOL_OPTIONS=-Xmx384m -Xms192m
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_USER=${POSTGRES_USER}
       - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
@@ -55,13 +56,16 @@ services:
     environment:
       - GEOSERVER_ADMIN_PASSWORD=${GEOSERVER_ADMIN_PASSWORD}
       - GEOSERVER_DATA_DIR=/opt/geoserver/data_dir
+      - INITIAL_MEMORY=256M
+      - MAXIMUM_MEMORY=768M
     volumes:
       - /volume1/docker/ancientdata/geoserver:/opt/geoserver/data_dir:rw
     ports:
       - "2675:8080"
     networks:
       - webgis-edge
-    restart: on-failure
+    restart: unless-stopped
+    mem_limit: 1024m
 
 networks:
   webgis-edge:
