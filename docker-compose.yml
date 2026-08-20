@@ -60,6 +60,14 @@ services:
       - MAXIMUM_MEMORY=768M
     volumes:
       - /volume1/docker/ancientdata/geoserver:/opt/geoserver/data_dir:rw
+      # Raw source rasters (GeoTIFFs), kept in their own top-level NAS
+      # directory — separate from GeoServer's own operational data_dir
+      # (security config, workspace/store config, GWC tile cache) so it can
+      # be backed up on its own, without also capturing GeoServer's
+      # regenerable cache. Mounted *inside* data_dir in the container so
+      # GeoServer's store-creation file browser can reach it; the host-side
+      # path stays independent for backup purposes. See ADR-012.
+      - /volume1/docker/ancientdata/rastermaps:/opt/geoserver/data_dir/rastermaps:ro
     ports:
       - "2675:8080"
     networks:

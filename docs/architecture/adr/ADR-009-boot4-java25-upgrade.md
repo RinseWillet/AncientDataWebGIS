@@ -53,7 +53,9 @@ No other application code (`SecurityConfig`, `GlobalExceptionHandler`, `WebConfi
 | `docker build` with new `Dockerfile` | ✅ builds successfully on Ubuntu 26.04-based Temurin 25 image |
 | `docker run` smoke test | JVM confirmed running Java 25.0.3; Spring context bootstraps correctly (Tomcat 11.0.22 embedded server initializes, JPA repositories scan, bean wiring succeeds) up to the point of failing on a deliberately-omitted `JWT_SECRET` env var — this is expected behavior (no secrets were passed to the bare `docker run`), not a Boot4/Java25 issue |
 
-**Not yet performed:** a live smoke test against a real PostGIS database (dev/staging) with actual application secrets configured — this remains an outstanding follow-up before this change reaches production, since no local PostGIS instance was available during implementation (production only connects to a NAS-hosted DB, per `docker-compose.yml`).
+**Not yet performed at time of writing:** a live smoke test against a real PostGIS database (dev/staging) with actual application secrets configured — this remained an outstanding follow-up since no local PostGIS instance was available during implementation (production only connects to a NAS-hosted DB, per `docker-compose.yml`).
+
+**Update (2026-08-05):** The application has since been deployed to production (`rinsewillet.net/webgis/`) on this Spring Boot 4.1.0 / Java 25 stack, connected to the real NAS-hosted PostGIS database with production secrets. The deployment is serving live traffic without incident, which satisfies this follow-up in practice. No separate dev/staging smoke test was run before the production deploy, but production itself now stands as the live verification.
 
 ---
 
@@ -87,7 +89,7 @@ No other application code (`SecurityConfig`, `GlobalExceptionHandler`, `WebConfi
 
 ### When to Revisit
 
-- Before merging to `main`: run a live smoke test against a real PostGIS database with real secrets configured.
+- ~~Before merging to `main`: run a live smoke test against a real PostGIS database with real secrets configured.~~ Resolved 2026-08-05 — production deployment at `rinsewillet.net/webgis/` is the live smoke test.
 - If Jackson 2/3 coexistence causes any serialization discrepancy in real usage, investigate migrating custom Jackson-based code to the `tools.jackson` 3.x API.
 - Re-check Lombok's `Unsafe` usage status if upgrading past JDK 25 in the future.
 

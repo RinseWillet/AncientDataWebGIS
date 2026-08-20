@@ -19,6 +19,9 @@ An Architecture Decision Record captures a single decision, its context, the alt
 | [ADR-007](./ADR-007-photo-geotagging.md) | Photo Geotagging — EXIF Extraction Library and Manual-Pin Precedence | Accepted | 2026-07-10 | This directory |
 | [ADR-008](./ADR-008-support-window-confirmation.md) | Spring Boot / Java Support-Window Confirmation (Spike 1) | Proposed | 2026-07-27 | This directory |
 | [ADR-009](./ADR-009-boot4-java25-upgrade.md) | Upgrade to Spring Boot 4.1.0 and Java 25 (Eclipse Temurin) | Accepted | 2026-07-27 | This directory |
+| [ADR-010](./ADR-010-remote-offline-dev-environment.md) | Remote & Offline Dev Environment | Accepted | 2026-08-06 | This directory |
+| [ADR-011](./ADR-011-book-content-storage-and-backup.md) | Book Content Storage and Backup — Git-Versioned Files (Single-Author) | Accepted | 2026-08-07 | This directory |
+| [ADR-012](./ADR-012-raster-publishing-pipeline.md) | Raster Publishing Pipeline — GeoServer via Backend Proxy | Accepted | 2026-08-10 | This directory |
 
 ## How to create a new ADR
 

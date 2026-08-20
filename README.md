@@ -87,6 +87,48 @@ Test reports are written to `build/reports/tests/test/index.html`.
 
 ---
 
+## Developing Away From Home / Office
+
+The real `DB_URL` should always target the NAS's **LAN IP** (e.g. `192.168.1.50:2665`), never a public IP — that database port is intentionally never forwarded to the internet (see `ancientdataworkspace/deploy/README.md` §8 "Database & GeoServer access"). You have two options when you're not on the home LAN:
+
+### Option A — Cloudflare WARP (recommended, reaches the real data)
+
+1. Install the **Cloudflare WARP** client and log into the project's Zero Trust team.
+2. Once the NAS's private network route is configured in the Tunnel (already set up — see the deploy README), `192.168.1.50:2665` becomes reachable transparently from anywhere, exactly as if you were on the home LAN.
+3. No `.env` change needed — keep `DB_URL` pointed at `192.168.1.50`.
+
+Full walkthrough: `ancientdataworkspace/deploy/README.md` §8, and `docs/architecture/adr/ADR-010-remote-offline-dev-environment.md`.
+
+### Option B — Local throwaway PostGIS container (fully offline, synthetic data)
+
+If WARP isn't set up yet, or the NAS/home network is down, you can run entirely offline against a local seeded database instead:
+
+```bash
+docker compose -f docker-compose.local-dev.yml up -d
+```
+
+Then point `.env` at it and run with the `local-dev` profile:
+
+```dotenv
+DB_URL=jdbc:postgresql://localhost:5433/webGIS_DB_dev
+DB_USER=webgis_client
+DB_PASSWORD=local_dev_only
+```
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=local-dev'
+```
+
+This spins up a disposable `postgis/postgis` container seeded with a handful of **synthetic** sites/roads/a dev admin user (`devadmin` / `DevAdmin123!`) via `docs/architecture/sql/local-dev-seed.sql` — enough to exercise the full map/dashboard/data-list/media flows locally. It is **not** a copy of the real dataset and is never a schema authority (see ADR-002 / `DB-MIGRATION-STRATEGY.md`).
+
+Tear down and wipe the seeded data for a fresh reseed:
+
+```bash
+docker compose -f docker-compose.local-dev.yml down -v
+```
+
+---
+
 ## Docker
 
 A `Dockerfile` and `docker-compose.yml` are included for containerised deployment.
