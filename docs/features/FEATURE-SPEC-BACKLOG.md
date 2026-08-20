@@ -39,6 +39,7 @@ It is structured to support:
 | E10 | Site & Road Type Registry Consolidation | To Do | Replace the scattered site/road type label, icon, and style definitions with one typed, single-source-of-truth registry, so adding/renaming/restyling a type (e.g. a new "watermill" site type) is a single-file change |
 | E11 | OAuth2/OIDC Migration | To Do | Replace the custom username/password + JWT auth flow with a self-hosted Keycloak IdP, converting the backend into an OAuth2 Resource Server and the frontend to Authorization Code + PKCE |
 | E12 | k3s Migration | To Do | Migrate the NAS deployment from Docker Compose to a single-node k3s cluster, with a validated rollback path to Compose (depends on E11 being stable first) |
+| E13 | NAS Infra Resilience & Incident Follow-up | To Do | Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage (Docker-daemon-level failure under memory pressure while loading a large DEM via GeoServer/WMS), and close the raster-pipeline documentation gap it exposed |
 
 ---
 
@@ -89,6 +90,25 @@ It is structured to support:
 | E6-3 | E6 | Triage `jackson-databind` manifest alert — confirm Spring Boot BOM version is safe or pin explicitly | ✅ Done | High | S | E6-2 |
 | E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | To Do | Critical | S | E6-2 |
 | E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | To Do | Medium | S | E6-4 |
+
+## P0.6 - NAS Infra Resilience (Post-Incident, 2026-08-20)
+
+Follow-up from the 2026-08-20 host-wide outage: loading a large DEM WMS layer
+triggered enough host memory pressure to make the Synology Docker daemon
+itself hang and get replaced, which stopped every container in all three
+compose stacks at once (confirmed via `dmesg`/cgroup/daemon-log inspection to
+be a daemon-level failure, not a per-container kernel OOM-kill). `mem_limit`
+and `restart: unless-stopped` were already applied to every service across
+all three stacks as the immediate fix; these stories are the remaining
+follow-up work.
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E13-1 | E13 | Rotate PostGIS root password and pgAdmin admin credentials — currently plaintext in the live NAS `compose.yaml` and exposed during this incident's investigation session | To Do | Critical | S | None |
+| E13-2 | E13 | Migrate `/volume1/docker/ancientdata/postgis_admin/compose.yaml` to the `${VAR}`-from-`.env` credential pattern already used by `docs/ci-cd/docker-infra-compose.yml`, and `chmod 600` the file (currently world-readable/writable) | To Do | High | S | E13-1 |
+| E13-3 | E13 | Investigate enabling Docker daemon `live-restore` on Synology Container Manager, so a future daemon restart reattaches to already-running containers instead of stopping every container across all three compose stacks at once (`dockerd.json` was not found at its expected path during investigation — may only be settable via the Container Manager GUI) | To Do | High | M | None |
+| E13-4 | E13 | Replace `RasterProxyService.forward()`'s `response.getBody().readAllBytes()` full-buffering with a streaming proxy response, so a large upstream GeoServer/WMS response can't fully load into `ancientdata`'s JVM heap | To Do | High | M | None |
+| E13-5 | E13 | Write `ADR-012-raster-publishing-pipeline.md`, covering the DEM/COG delivery decision (E3-1/E3-4) and the 2026-08-20 outage postmortem — root cause was a Docker-daemon-level failure under host memory pressure, which stopped every container in every stack at once because none had `mem_limit` or a restart policy that survives a clean exit | To Do | Medium | S | E13-3, E13-4 |
 
 ## P1.5 - Map Clarity & Layer Redesign (✅ Done — unblocked E3)
 
@@ -260,6 +280,7 @@ Epic,E7,Remote & Offline Dev Environment,Remote & Offline Dev Environment,,Mediu
 Epic,E10,Site & Road Type Registry Consolidation,Site & Road Type Registry Consolidation,,Medium,,ancientdata;frontend;map;devx,"Replace scattered site/road type label/icon/style definitions with one typed single-source-of-truth registry per type.","P3 Done Criteria (type registry bullet) met",E9
 Epic,E11,OAuth2/OIDC Migration,OAuth2/OIDC Migration,,High,,ancientdata;security;auth,"Replace custom username/password + JWT auth with a self-hosted Keycloak IdP; backend becomes an OAuth2 Resource Server, frontend uses Authorization Code + PKCE.","Backend validates Keycloak-issued tokens; frontend login uses PKCE flow; ADR-013 written",-
 Epic,E12,k3s Migration,k3s Migration,,High,,ancientdata;devops;kubernetes,"Migrate the NAS deployment from Docker Compose to a single-node k3s cluster with a validated rollback path.","App runs on k3s with parity to Compose; rollback documented and tested; ADR-014 written",E11
+Epic,E13,NAS Infra Resilience & Incident Follow-up,NAS Infra Resilience & Incident Follow-up,,High,,ancientdata;infra;security;incident,"Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage and close the raster-pipeline documentation gap it exposed.","Credentials rotated/externalized; live-restore evaluated; RasterProxyService streams instead of buffering; ADR-012 written",-
 Story,E0-1,Externalize compose credentials,,E0,Critical,2,security;config,"Replace hardcoded credentials in docker-compose with env vars and document .env usage.","No plaintext credentials committed; startup works with env values",-
 Story,E0-2,Normalize HTTPS map layer URLs,,E0,High,2,frontend;map,"Ensure all map tile/WMS URLs are HTTPS-safe or proxied.","No mixed-content errors in HTTPS context",E0-1
 Story,E0-3,Fix pleiades DTO naming mismatch,,E0,High,2,frontend;backend;api,"Align `pleiadesId` naming across DTOs/forms/services.","Site updates persist the intended field correctly",-
@@ -326,6 +347,11 @@ Story,E12-3,Move env vars to Secret/ConfigMap,,E12,High,3,devops;kubernetes;secu
 Story,E12-4,Cut over from Compose to k3s,,E12,High,5,devops;kubernetes,"Run k3s stack in parallel with Compose, validate end-to-end including the E11 OAuth2 flow, then cut Cloudflare Tunnel routing over.","rinsewillet.net serves from k3s with full functionality parity",E12-3;E11-4
 Story,E12-5,Document deployment + rollback,,E12,Medium,2,docs;devops,"Document the new deployment path and rollback-to-Compose steps in ancientdataworkspace/docs/deployment-recovery.md.","Runbook covers both deploy and rollback, verified by a dry run",E12-4
 Story,E12-6,Write k3s migration ADR,,E12,Medium,2,docs;adr,"Document the decision in ADR-014.","ADR-014 Accepted",E12-1
+Story,E13-1,Rotate PostGIS/pgAdmin credentials,,E13,Critical,1,security;infra,"Rotate PostGIS root password and pgAdmin admin credentials, currently plaintext in the live NAS compose.yaml and exposed during incident investigation.","New credentials in place; old ones invalidated",-
+Story,E13-2,Externalize infra compose credentials + lock file permissions,,E13,High,2,security;infra,"Migrate postgis_admin/compose.yaml to the ${VAR}-from-.env pattern used by docker-infra-compose.yml; chmod 600 the file.","No plaintext credentials in compose.yaml; file not world-readable/writable",E13-1
+Story,E13-3,Evaluate Docker daemon live-restore on Synology,,E13,High,3,infra;docker,"Investigate enabling live-restore so a future dockerd restart reattaches to running containers instead of stopping every container across all stacks at once.","Documented finding (enabled, or why not possible on this DSM version) plus config location",-
+Story,E13-4,Stream RasterProxyService responses instead of buffering,,E13,High,3,backend;raster;performance,"Replace readAllBytes() full-buffering in RasterProxyService.forward() with a streaming proxy response.","Large upstream WMS/raster responses no longer fully load into ancientdata's JVM heap",-
+Story,E13-5,Write raster publishing pipeline ADR + incident postmortem,,E13,Medium,2,docs;adr,"Write ADR-012-raster-publishing-pipeline.md covering the DEM/COG delivery decision (E3-1/E3-4) and the 2026-08-20 outage postmortem.","ADR-012 Accepted, includes root cause and the mem_limit/restart-policy/live-restore follow-ups",E13-3;E13-4
 ```
 
 ---
