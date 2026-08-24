@@ -1,158 +1,239 @@
 package com.webgis.ancientdata.rastertests;
 
 import com.webgis.ancientdata.application.service.RasterCatalogService;
-import com.webgis.ancientdata.domain.dto.RasterLayerCategory;
+import com.webgis.ancientdata.domain.dto.RasterBoundsDTO;
+import com.webgis.ancientdata.domain.dto.RasterLayerCreateRequest;
 import com.webgis.ancientdata.domain.dto.RasterLayerDTO;
+import com.webgis.ancientdata.domain.dto.RasterLayerUpdateRequest;
+import com.webgis.ancientdata.domain.dto.RasterZoomDTO;
+import com.webgis.ancientdata.domain.model.RasterLayer;
+import com.webgis.ancientdata.domain.model.RasterLayerCategory;
+import com.webgis.ancientdata.domain.repository.RasterLayerRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class RasterCatalogServiceTests {
 
-    private final RasterCatalogService service = new RasterCatalogService();
+    @Mock
+    private RasterLayerRepository rasterLayerRepository;
+
+    @InjectMocks
+    private RasterCatalogService service;
+
+    private RasterLayer sampleEntity() {
+        RasterLayer entity = new RasterLayer();
+        entity.setId(1L);
+        entity.setName("Sample");
+        entity.setSource("ancientdata:test-1");
+        entity.setBoundsSouth(51.0);
+        entity.setBoundsWest(5.0);
+        entity.setBoundsNorth(52.0);
+        entity.setBoundsEast(6.0);
+        entity.setZoomMin(8);
+        entity.setZoomMax(17);
+        entity.setAttribution("Test Attribution");
+        entity.setCategory(RasterLayerCategory.HISTORICAL_MAP);
+        entity.setCollection(null);
+        entity.setHillshade(false);
+        entity.setCreatedAt(Instant.now());
+        entity.setUpdatedAt(Instant.now());
+        return entity;
+    }
+
+    // --- getCatalog ---
 
     @Test
-    void getCatalog_ContainsBothPublishedDeManSheets() {
+    void getCatalog_MapsRepositoryEntriesToDtosInOrder() {
+        RasterLayer entity = sampleEntity();
+        when(rasterLayerRepository.findAllByOrderByIdAsc()).thenReturn(List.of(entity));
+
         List<RasterLayerDTO> catalog = service.getCatalog();
 
-        assertThat(catalog)
-                .extracting(RasterLayerDTO::source)
-                .contains("ancientdata:De-Man-1818-A2", "ancientdata:De-Man-1818-A3");
+        assertEquals(1, catalog.size());
+        RasterLayerDTO dto = catalog.getFirst();
+        assertEquals("Sample", dto.name());
+        assertEquals("ancientdata:test-1", dto.source());
+        assertEquals(51.0, dto.bounds().south());
+        assertEquals(5.0, dto.bounds().west());
+        assertEquals(52.0, dto.bounds().north());
+        assertEquals(6.0, dto.bounds().east());
+        assertEquals(8, dto.zoom().min());
+        assertEquals(17, dto.zoom().max());
+        assertEquals("Test Attribution", dto.attribution());
+        assertEquals(RasterLayerCategory.HISTORICAL_MAP, dto.category());
+        assertNull(dto.collection());
+        assertFalse(dto.hillshade());
+    }
+
+    // --- create ---
+
+    @Test
+    void create_validRequest_savesAndReturnsDto() {
+        RasterLayerCreateRequest request = new RasterLayerCreateRequest(
+                "New Layer", "ancientdata:new-layer",
+                new RasterBoundsDTO(51.0, 5.0, 52.0, 6.0),
+                new RasterZoomDTO(8, 17),
+                "Attribution", RasterLayerCategory.DEM, null, false);
+
+        when(rasterLayerRepository.existsBySource("ancientdata:new-layer")).thenReturn(false);
+        when(rasterLayerRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        RasterLayerDTO result = service.create(request);
+
+        assertEquals("New Layer", result.name());
+        assertEquals("ancientdata:new-layer", result.source());
+        assertEquals(RasterLayerCategory.DEM, result.category());
+
+        ArgumentCaptor<RasterLayer> captor = ArgumentCaptor.forClass(RasterLayer.class);
+        verify(rasterLayerRepository).save(captor.capture());
+        assertEquals("New Layer", captor.getValue().getName());
+        assertEquals(RasterLayerCategory.DEM, captor.getValue().getCategory());
     }
 
     @Test
-    void getCatalog_ContainsAllFivePublishedDemLayers() {
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void create_duplicateSource_throwsConflict() {
+        RasterLayerCreateRequest request = new RasterLayerCreateRequest(
+                "New Layer", "ancientdata:existing",
+                new RasterBoundsDTO(51.0, 5.0, 52.0, 6.0),
+                new RasterZoomDTO(8, 17),
+                "Attribution", RasterLayerCategory.DEM, null, false);
 
-        assertThat(catalog)
-                .extracting(RasterLayerDTO::source)
-                .contains(
-                        "ancientdata:research_area_Gelderland_NRW_cog",
-                        "ancientdata:merge_swalmen_cog",
-                        "ancientdata:merge_venlo_geldern_cog",
-                        "ancientdata:Mönchengladbach-Neuss-merge_cog",
-                        "ancientdata:Mönchengladbach_west-merge_cog"
-                );
+        when(rasterLayerRepository.existsBySource("ancientdata:existing")).thenReturn(true);
+
+        assertThrows(ResponseStatusException.class, () -> service.create(request));
+        verify(rasterLayerRepository, never()).save(any());
     }
 
     @Test
-    void getCatalog_ContainsAllFivePublishedHillshadeLayers() {
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void create_boundsSouthNotLessThanNorth_throwsBadRequest() {
+        RasterLayerCreateRequest request = new RasterLayerCreateRequest(
+                "Bad Layer", "ancientdata:bad-bounds",
+                new RasterBoundsDTO(52.0, 5.0, 51.0, 6.0), // south >= north
+                new RasterZoomDTO(8, 17),
+                "Attribution", RasterLayerCategory.DEM, null, false);
 
-        assertThat(catalog)
-                .extracting(RasterLayerDTO::source)
-                .contains(
-                        "ancientdata:research_area_Gelderland_NRW_hillshade_cog",
-                        "ancientdata:merge_swalmen_hillshade_cog",
-                        "ancientdata:merge_venlo_geldern_hillshade_cog",
-                        "ancientdata:dem_Mönchengladbach-Neuss-hillshade",
-                        "ancientdata:Mönchengladbach_west-hillshade"
-                );
+        assertThrows(ResponseStatusException.class, () -> service.create(request));
+        verifyNoInteractions(rasterLayerRepository);
     }
 
     @Test
-    void getCatalog_EntriesHaveCompleteMetadata() {
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void create_boundsWestNotLessThanEast_throwsBadRequest() {
+        RasterLayerCreateRequest request = new RasterLayerCreateRequest(
+                "Bad Layer", "ancientdata:bad-bounds-2",
+                new RasterBoundsDTO(51.0, 6.0, 52.0, 5.0), // west >= east
+                new RasterZoomDTO(8, 17),
+                "Attribution", RasterLayerCategory.DEM, null, false);
 
-        assertThat(catalog).isNotEmpty().allSatisfy(entry -> {
-            assertThat(entry.name()).isNotBlank();
-            assertThat(entry.source()).isNotBlank();
-            assertThat(entry.attribution()).isNotBlank();
-            assertThat(entry.bounds()).isNotNull();
-            assertThat(entry.bounds().south()).isLessThan(entry.bounds().north());
-            assertThat(entry.bounds().west()).isLessThan(entry.bounds().east());
-            assertThat(entry.zoom()).isNotNull();
-            assertThat(entry.zoom().min()).isLessThanOrEqualTo(entry.zoom().max());
-            assertThat(entry.category()).isNotNull();
-        });
+        assertThrows(ResponseStatusException.class, () -> service.create(request));
+        verifyNoInteractions(rasterLayerRepository);
     }
 
     @Test
-    void getCatalog_DeManSheetsAreCategorizedAsHistoricalMapsAndShareACollection() {
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void create_zoomMinAboveMax_throwsBadRequest() {
+        RasterLayerCreateRequest request = new RasterLayerCreateRequest(
+                "Bad Layer", "ancientdata:bad-zoom",
+                new RasterBoundsDTO(51.0, 5.0, 52.0, 6.0),
+                new RasterZoomDTO(17, 8), // min > max
+                "Attribution", RasterLayerCategory.DEM, null, false);
 
-        List<RasterLayerDTO> deManSheets = catalog.stream()
-                .filter(entry -> entry.source().startsWith("ancientdata:De-Man-1818"))
-                .toList();
-
-        assertThat(deManSheets).hasSize(6);
-        assertThat(deManSheets).extracting(RasterLayerDTO::category).containsOnly(RasterLayerCategory.HISTORICAL_MAP);
-        assertThat(deManSheets).extracting(RasterLayerDTO::collection).containsOnly("1818 De Man - Nijmegen");
-        assertThat(deManSheets).extracting(RasterLayerDTO::hillshade).containsOnly(false);
+        assertThrows(ResponseStatusException.class, () -> service.create(request));
+        verifyNoInteractions(rasterLayerRepository);
     }
 
     @Test
-    void getCatalog_DemLayersAreCategorizedAsDemWithNoCollection() {
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void create_blankName_throwsBadRequest() {
+        RasterLayerCreateRequest request = new RasterLayerCreateRequest(
+                "  ", "ancientdata:blank-name",
+                new RasterBoundsDTO(51.0, 5.0, 52.0, 6.0),
+                new RasterZoomDTO(8, 17),
+                "Attribution", RasterLayerCategory.DEM, null, false);
 
-        List<RasterLayerDTO> demLayers = catalog.stream()
-                .filter(entry -> entry.category() == RasterLayerCategory.DEM)
-                .toList();
-
-        // 5 elevation + 5 hillshade siblings.
-        assertThat(demLayers).hasSize(10);
-        assertThat(demLayers).extracting(RasterLayerDTO::collection).containsOnlyNulls();
+        assertThrows(ResponseStatusException.class, () -> service.create(request));
+        verifyNoInteractions(rasterLayerRepository);
     }
 
     @Test
-    void getCatalog_HillshadeLayersAreFlaggedAndEachHasAMatchingElevationSibling() {
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void create_blankAttribution_throwsBadRequest() {
+        RasterLayerCreateRequest request = new RasterLayerCreateRequest(
+                "Layer", "ancientdata:blank-attribution",
+                new RasterBoundsDTO(51.0, 5.0, 52.0, 6.0),
+                new RasterZoomDTO(8, 17),
+                "  ", RasterLayerCategory.DEM, null, false);
 
-        List<RasterLayerDTO> hillshadeLayers = catalog.stream()
-                .filter(RasterLayerDTO::hillshade)
-                .toList();
-        List<RasterLayerDTO> elevationLayers = catalog.stream()
-                .filter(entry -> entry.category() == RasterLayerCategory.DEM && !entry.hillshade())
-                .toList();
+        assertThrows(ResponseStatusException.class, () -> service.create(request));
+        verifyNoInteractions(rasterLayerRepository);
+    }
 
-        assertThat(hillshadeLayers).hasSize(5);
-        assertThat(elevationLayers).hasSize(5);
-        // Every hillshade shares its exact extent with exactly one non-hillshade DEM entry -
-        // proves each was published for a real elevation counterpart, not orphaned.
-        assertThat(hillshadeLayers).allSatisfy(hillshade ->
-                assertThat(elevationLayers)
-                        .anySatisfy(elevation -> assertThat(elevation.bounds()).isEqualTo(hillshade.bounds())));
+    // --- update ---
+
+    @Test
+    void update_existingSource_appliesPartialChanges() {
+        RasterLayer existing = sampleEntity();
+        when(rasterLayerRepository.findBySource("ancientdata:test-1")).thenReturn(Optional.of(existing));
+        when(rasterLayerRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        RasterLayerUpdateRequest request = new RasterLayerUpdateRequest(
+                "Renamed", null, null, null, null, null, null);
+
+        RasterLayerDTO result = service.update("ancientdata:test-1", request);
+
+        assertEquals("Renamed", result.name());
+        assertEquals(51.0, result.bounds().south()); // unchanged fields preserved
+        assertEquals(8, result.zoom().min());
     }
 
     @Test
-    void getCatalog_EachHillshadeIsListedImmediatelyBeforeItsElevationCounterpart() {
-        // Physical layer z-order/row-order defaults to catalog list order (E3-3) - a
-        // hillshade needs to render *above* its elevation sibling for the frontend's
-        // multiply blend to have any visible effect, so it must come first in the list.
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void update_notFound_throws404() {
+        when(rasterLayerRepository.findBySource("ancientdata:missing")).thenReturn(Optional.empty());
 
-        for (int i = 0; i < catalog.size() - 1; i++) {
-            RasterLayerDTO entry = catalog.get(i);
-            if (entry.hillshade()) {
-                RasterLayerDTO next = catalog.get(i + 1);
-                assertThat(next.category()).isEqualTo(RasterLayerCategory.DEM);
-                assertThat(next.hillshade()).isFalse();
-                assertThat(next.bounds()).isEqualTo(entry.bounds());
-            }
-        }
+        RasterLayerUpdateRequest request = new RasterLayerUpdateRequest(
+                "Renamed", null, null, null, null, null, null);
+
+        assertThrows(ResponseStatusException.class, () -> service.update("ancientdata:missing", request));
     }
 
     @Test
-    void getCatalog_DemZoomCeilingMatchesEachLayersMeasuredNativeResolution() {
-        List<RasterLayerDTO> catalog = service.getCatalog();
+    void update_resultingInvalidBounds_throwsBadRequestAndDoesNotSave() {
+        RasterLayer existing = sampleEntity();
+        when(rasterLayerRepository.findBySource("ancientdata:test-1")).thenReturn(Optional.of(existing));
 
-        // Venlo-Geldern (both the elevation layer and its hillshade sibling, which shares
-        // its native resolution) measured a genuine 0.5m native pixel size (gdalinfo) and
-        // earns zoom 18; the rest of this batch measured ~1m and cap at 17 - see the E3.1
-        // runbook's "DEM-specific conversion" section for the derivation.
-        List<RasterLayerDTO> venloGeldern = catalog.stream()
-                .filter(entry -> entry.source().contains("venlo_geldern"))
-                .toList();
-        assertThat(venloGeldern).hasSize(2);
-        assertThat(venloGeldern).extracting(entry -> entry.zoom().max()).containsOnly(18);
+        RasterLayerUpdateRequest request = new RasterLayerUpdateRequest(
+                null, new RasterBoundsDTO(52.0, 5.0, 51.0, 6.0), null, null, null, null, null);
 
-        List<RasterLayerDTO> oneMeterDemLayers = catalog.stream()
-                .filter(entry -> entry.category() == RasterLayerCategory.DEM)
-                .filter(entry -> !entry.source().contains("venlo_geldern"))
-                .toList();
-        assertThat(oneMeterDemLayers).hasSize(8);
-        assertThat(oneMeterDemLayers).extracting(entry -> entry.zoom().max()).containsOnly(17);
+        assertThrows(ResponseStatusException.class, () -> service.update("ancientdata:test-1", request));
+        verify(rasterLayerRepository, never()).save(any());
+    }
+
+    // --- delete ---
+
+    @Test
+    void delete_existingSource_deletes() {
+        when(rasterLayerRepository.existsBySource("ancientdata:test-1")).thenReturn(true);
+
+        service.delete("ancientdata:test-1");
+
+        verify(rasterLayerRepository).deleteBySource("ancientdata:test-1");
+    }
+
+    @Test
+    void delete_notFound_throws404() {
+        when(rasterLayerRepository.existsBySource("ancientdata:missing")).thenReturn(false);
+
+        assertThrows(ResponseStatusException.class, () -> service.delete("ancientdata:missing"));
+        verify(rasterLayerRepository, never()).deleteBySource(any());
     }
 }

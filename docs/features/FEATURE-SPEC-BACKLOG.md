@@ -129,14 +129,14 @@ follow-up work.
 
 ## P2 - Then
 
-| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
-|---|---|---|---|---|---|---|
+| Story ID | Epic | Story | Status  | Priority | Size | Dependencies |
+|---|---|---|---------|---|---|---|
 | E3-1 | E3 | Define raster publishing pipeline (GeoTIFF -> tiled service) | ✅ Done | High | L | E0-1, E9-4 |
 | E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | ✅ Done | High | M | E3-1 |
 | E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | ✅ Done | High | M | E3-2, E9-4 |
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | ✅ Done | High | L | E3-1 |
-| E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | To Do | Medium | S | E3-3, E9-5 |
-| E3-6 | E3 | **(Deferred)** DB-backed, admin-manageable raster catalog (replacing E3-2's static Java list) with CRUD endpoints/UI, once the ~20+ planned historical map/DEM layers make PR-per-layer editing an actual bottleneck | To Do | Low | L | E3-2 |
+| E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | Done    | Medium | S | E3-3, E9-5 |
+| E3-6 | E3 | DB-backed raster catalog (replacing E3-2's static Java list, 30 entries) with admin-only CRUD endpoints (no admin UI — see write-up) | ✅ Done | Low | L | E3-2 |
 | E3-7 | E3 | Gate Physical-layer selectability in `LayerPanel` by current map viewport: disable a raster layer's toggle unless its `bounds` (already in `RasterLayerDTO`/`PhysicalLayerState`, unused for gating today) intersects the visible map extent, and disable the whole Physical group below a global minimum zoom floor — so a fully zoomed-out user can't enable every published layer at once and overload GeoServer/the NAS | ✅ Done | High | M | E3-3 |
 | E3-8 | E3 | Extend E3-7's viewport-gating to Historical Maps sheets, but per-entry rather than a shared floor: a sheet is selectable only when zoom ≥ that entry's own curated `RasterZoomDTO.min` (already in `RasterLayerDTO`, unused for gating today, same situation `bounds` was in before E3-7) AND its bounds intersect the viewport — needed because sheet scale varies wildly (city-scale historical topo sheets vs. much larger-scale upcoming cadastral maps), so a single global zoom floor can't filter a small in-viewport sheet out at a wide zoom the way it could for Physical/DEM | ✅ Done | High | M | E3-7 |
 | E4-1 | E4 | Add mobile bottom-sheet interaction replacing side info card on narrow screens | ✅ Done | High | M | E1-3 |
@@ -313,7 +313,7 @@ Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose a
 Story,E3-3,Add Physical group entries to LayerPanel,,E3,High,5,frontend;map;raster,"Add toggle/opacity/order controls for raster overlays as a Physical group in the E9 LayerPanel.","Controls apply instantly and persist session state",E3-2;E9-4
 Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",✅ Done
 Story,E3-5,Wire DEM color ramp into MapLegend,,E3,Medium,2,frontend;raster,"Feed DEM color-ramp data into the E9 MapLegend's DEM hook + attribution details.","Legend/metadata visible for active DEM layer",E3-3;E9-5
-Story,E3-6,(Deferred) DB-backed admin-manageable raster catalog,,E3,Low,8,backend;raster;deferred,"Replace E3-2's static Java catalog list with a DB table + admin CRUD endpoints/UI, once PR-per-layer editing becomes an actual bottleneck at ~20+ published layers.","Deferred — not started",E3-2
+Story,E3-6,DB-backed raster catalog with admin CRUD endpoints,,E3,Low,8,backend;raster,"Replace E3-2's static Java catalog list (30 entries) with a raster_layer DB table + admin-only CRUD endpoints (no admin UI this pass).","✅ Done — public GET /api/raster/catalog contract unchanged",E3-2
 Story,E3-7,Gate Physical layer selectability by map viewport,,E3,High,5,frontend;raster;performance,"Disable a raster layer's toggle in the Physical group unless its bounds intersect the current map view, and disable the whole group below a minimum zoom floor, so a zoomed-out user can't enable every layer and overload GeoServer/the NAS.","Out-of-view or below-floor layers are disabled with an explanatory hint; enabling one is blocked",E3-3
 Story,E3-8,Gate Historical Maps sheet selectability by viewport + per-layer scale,,E3,High,5,frontend;raster;performance,"Extend E3-7's viewport-gating to the Historical Maps sheet list, using each entry's own curated RasterZoomDTO.min as a per-layer zoom floor (not a shared constant), since sheet scale varies wildly between historical topo sheets and much larger-scale cadastral maps.","A sheet is selectable only when zoom >= its own zoom.min AND bounds intersect the viewport; non-selectable sheets are hidden, not disabled; an empty collection is hidden entirely",E3-7
 Story,E9-1,Add selectable/showLayerChrome props,,E9,High,3,frontend;map,"Thread selectable/showLayerChrome props through MapComponent -> MapBuilder -> MapContent.","Props control click-to-select and layer chrome independently",✅ Done
@@ -797,7 +797,7 @@ a port that's intentionally never forwarded externally.
 
 ### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
 
-**Status:** E3-1, E3-2, E3-3, E3-4, E3-7, E3-8 delivered (August 2026); E3-5 not started. E3-6 deferred (backlog stub only).
+**Status:** E3-1 through E3-8 all delivered (August 2026).
 
 **Decision record:** `AncientDataWebGIS/docs/architecture/adr/ADR-012-raster-publishing-pipeline.md`
 **Runbook:** `AncientDataWebGIS/docs/features/E3.1-raster-publishing-pipeline.md`
@@ -1021,4 +1021,48 @@ a port that's intentionally never forwarded externally.
 **Outstanding / manual follow-up (E3-8, project owner):**
 - Confirm actual priority/size and the real inbound cadastral-map count (open question 4 above) — this story's High/M was carried provisionally on E3-7's overload-prevention rationale, not from real numbers.
 - Live smoke test on a real browser once a reachable backend/GeoServer is available (same limitation as E3-7) — particularly to confirm the "contained bounds at a wide zoom" scenario this story targets actually shows up as expected once a real large-scale (cadastral or otherwise) sheet is published, and that the fallback message reads sensibly at the `LayerPanel`'s 260px width alongside the Physical group's own fallback.
+
+---
+
+**What was delivered (E3-6):**
+- **Trigger confirmed with the project owner before implementing (per this story's own deferral note):** `RasterCatalogService.java`'s static list had actually grown to 30 hand-written entries (16 historical-map sheets + 14 DEM/hillshade layers), past the ~20+ threshold E3-2 flagged as the point worth revisiting this decision. Scope was narrowed in discussion: no admin UI this pass (project owner wants catalog edits restricted to themselves, not exposed to any browser-facing surface, even an admin-gated one) and no GeoServer-publishing/backup metadata folded into this table (flagged as a separate, out-of-scope concern — see "Outstanding" below).
+- Replaced the static `List<RasterLayerDTO>` with a `raster_layer` Postgres table, read via a new JPA entity (`RasterLayer`) and Spring Data repository (`RasterLayerRepository`), following `MediaAsset`/`MediaAssetRepository`'s established flat-column, `IDENTITY`-id style exactly. `RasterCatalogService.getCatalog()` now maps `findAllByOrderByIdAsc()` through a new `RasterLayerMapper` — `id` ordering preserves the static list's original ordering (notably the hillshade-immediately-before-its-elevation-sibling convention E3-4 established for z-order).
+- `RasterLayerCategory` moved from `domain.dto` to `domain.model` (previously `HISTORICAL_MAP`/`DEM` lived in the DTO package) so the new JPA entity and the public DTO can share one enum, matching how `TargetType`/`VisibilityStatus` are shared between `MediaAsset` and `MediaAssetDTO`. Purely a package move — no behavior change, no frontend impact (enum values unchanged).
+- Added admin-only write endpoints on the existing `RasterCatalogController`: `GET /api/raster/catalog/admin`, `POST /api/raster/catalog`, `PATCH /api/raster/catalog/{source}`, `DELETE /api/raster/catalog/{source}` — all `@PreAuthorize("hasRole('ADMIN')")`, mirrored by matching `SecurityConfig` URL-pattern rules (placed before the existing `GET RASTER_URL permitAll` wildcard, matching declaration-order semantics already used for `/api/media/admin` vs `/api/media`). `source` (not the internal surrogate `id`) is the path key for update/delete, since it's already the stable identifier the frontend and now the admin API both key off. The existing public `GET /api/raster/catalog` is untouched — same route, same handler, same `RasterLayerDTO` response shape (still id-free).
+- Validation (non-blank name/source/attribution, bounds south<north & west<east, zoom min<=max) lives in `RasterCatalogService`, not in the JSON body's bean-validation annotations alone — cross-field bounds/zoom checks can't be expressed as simple field annotations, so a manual check re-validates the merged entity on both create and update (an update that would leave the entity in an invalid state is rejected and not saved, even if the individual changed fields look valid in isolation).
+- **No frontend changes.** `RasterService.ts` stays GET-only, `LayerPanel.tsx`/`useMapInteractions.ts`/`MapLegend` are untouched — they only ever consumed the public GET, whose shape didn't change. Per the scope discussion above, there's no admin UI this pass; new layers are registered by the project owner via a direct authenticated API call (see the runbook addition below), which is already strictly less manual work than the PR-per-layer workflow this story set out to remove.
+
+**Impact:**
+- Publishing a new raster layer to the catalog no longer requires editing Java code and opening a PR — one authenticated `POST /api/raster/catalog` call (documented in the E3.1 runbook) replaces that workflow. Deleting/renaming/re-bounding an existing entry is the same story (`PATCH`/`DELETE` by `source`).
+- `RasterCatalogService`'s public contract (`getCatalog(): List<RasterLayerDTO>`) is unchanged, so E3-3/E3-4/E3-5/E3-7/E3-8's frontend work built on top of it needed zero changes.
+
+**Files changed (backend):**
+- `docs/architecture/sql/raster_layer.sql` (new) — table, `updated_at` trigger, grants, 30-row seed transcribed from the static list.
+- `src/main/java/com/webgis/ancientdata/domain/model/RasterLayer.java` (new), `RasterLayerCategory.java` (new — moved from `domain/dto`).
+- `src/main/java/com/webgis/ancientdata/domain/repository/RasterLayerRepository.java` (new).
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerCreateRequest.java`, `RasterLayerUpdateRequest.java` (new); `RasterLayerDTO.java` (import updated for the enum move).
+- `src/main/java/com/webgis/ancientdata/web/mapper/RasterLayerMapper.java` (new).
+- `src/main/java/com/webgis/ancientdata/application/service/RasterCatalogService.java` (rewritten — repository-backed, static list and its Javadoc removed, create/update/delete + validation added).
+- `src/main/java/com/webgis/ancientdata/web/controller/RasterCatalogController.java` (new admin endpoints added).
+- `src/main/java/com/webgis/ancientdata/security/SecurityConfig.java` (new `RASTER_URL` admin rules).
+- `src/main/java/com/webgis/ancientdata/constants/ErrorMessages.java` (new `RASTER_LAYER_*` messages).
+- `docs/features/E3.1-raster-publishing-pipeline.md` (new "Registering a layer in the catalog" step).
+
+**Tests:**
+- `RasterCatalogServiceTests` (13 tests, rewritten as a Mockito-based unit test against a mocked `RasterLayerRepository` — matching `MediaServiceTests`'s established pattern rather than the old plain-static-list style): catalog mapping, create (valid/duplicate-source/invalid-bounds/invalid-zoom/blank-name/blank-attribution), update (partial-merge/not-found/resulting-invalid-state), delete (found/not-found).
+- `RasterCatalogControllerTests` (18 tests, `@SpringBootTest`/`@MockitoBean`/`@WithMockUser`, matching `MediaControllerTests`'s pattern): public GET shape/no-proxy-interaction/no-auth-required preserved from E3-2 unmodified in intent (now backed by a mocked service instead of the real static list); 401/403/200/400/409/404 coverage across the four new endpoints.
+- Full backend suite: `./gradlew test` green (191 tests, 0 failures).
+- Frontend: no changes, so no new frontend tests — existing `RasterService`/`LayerPanel`/`useMapInteractions` tests were not touched and were not expected to need touching (confirms the public contract held; not independently re-run as part of this backend-only story).
+
+**Migration notes (manual DBA step required):**
+- `docs/architecture/sql/raster_layer.sql` must be applied manually against the shared PostGIS container (pgAdmin or `psql`) — same process as `media_asset.sql` (E2-0) — **before** deploying the application code that reads from `raster_layer` (the app has no fallback to the old static list once this ships; `spring.jpa.hibernate.ddl-auto=none` means the app will not create the table itself, per `DB-MIGRATION-STRATEGY.md`/`ADR-002`).
+- The script includes all 30 seed rows transcribed from the pre-cutover static list (`ON CONFLICT (source) DO NOTHING`, safe to re-run), so applying it is a content-neutral no-op for the existing catalog — no historical-map or DEM entry is lost or needs re-entering.
+- Who applies it: the project owner (sole DBA for the shared PostGIS container, per `DB-MIGRATION-STRATEGY.md`).
+
+**ADR:** Yes — `docs/architecture/adr/ADR-013-raster-catalog-storage.md`, explicitly superseding the storage-strategy call recorded in E3-2's write-up above (Option A/static-list chosen over Option B/DB-table at the time). Per `AGENTS.md`'s ADR trigger ("changing storage strategy"), this qualifies where E3-7/E3-8 didn't (pure client-side gating, no storage change).
+
+**Outstanding / manual follow-up (E3-6, project owner):**
+- Apply `raster_layer.sql` to the shared PostGIS container before deploying this code (see "Migration notes" above).
+- GeoServer publishing/backup: the project owner separately raised wanting the GeoServer store/layer *publishing* work itself (not just catalog display metadata) protected against data loss, so a GeoServer container failure doesn't mean redoing every manual GDAL/admin step. Explicitly kept out of this story's scope (confirmed in discussion) — `raster_layer` only holds the same display fields the old static list held. The actual fix is NAS-level backup of GeoServer's `data_dir`/config (workspaces, stores, layer XML), which `ADR-012`'s "Backup" section and the E3.1 runbook already address for the *source GeoTIFFs* (`rastermaps/`) but not yet for GeoServer's own operational config — worth a dedicated backlog item if it isn't covered by existing NAS-level backup jobs already.
+- No admin UI was built (confirmed scope decision, not an oversight) — if that changes later, Part C of this story's original scope (a `RasterService.ts` CRUD-methods + admin panel section, modeled on `MediaGallery`'s E2-UI-2 pattern) is still a reasonable starting point.
 

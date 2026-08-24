@@ -22,6 +22,7 @@ An Architecture Decision Record captures a single decision, its context, the alt
 | [ADR-010](./ADR-010-remote-offline-dev-environment.md) | Remote & Offline Dev Environment | Accepted | 2026-08-06 | This directory |
 | [ADR-011](./ADR-011-book-content-storage-and-backup.md) | Book Content Storage and Backup — Git-Versioned Files (Single-Author) | Accepted | 2026-08-07 | This directory |
 | [ADR-012](./ADR-012-raster-publishing-pipeline.md) | Raster Publishing Pipeline — GeoServer via Backend Proxy | Accepted | 2026-08-10 | This directory |
+| [ADR-013](./ADR-013-raster-catalog-storage.md) | Raster Catalog Storage — DB Table, Superseding the E3-2 Static List | Accepted | 2026-08-24 | This directory |
 
 ## How to create a new ADR
 
