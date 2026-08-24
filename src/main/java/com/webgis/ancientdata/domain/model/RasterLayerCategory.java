@@ -1,4 +1,4 @@
-package com.webgis.ancientdata.domain.dto;
+package com.webgis.ancientdata.domain.model;
 
 /**
  * Distinguishes a raster layer's kind so consumers (e.g. the frontend's

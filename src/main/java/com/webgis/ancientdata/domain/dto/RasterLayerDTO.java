@@ -1,5 +1,7 @@
 package com.webgis.ancientdata.domain.dto;
 
+import com.webgis.ancientdata.domain.model.RasterLayerCategory;
+
 /**
  * A single discoverable raster layer, published through GeoServer and served
  * via the read-only {@code /api/raster/**} proxy (see ADR-012).

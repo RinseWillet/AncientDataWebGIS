@@ -24,6 +24,10 @@ public final class ErrorMessages {
     public static final String MEDIA_INVALID_TYPE = "Only JPEG, PNG, and WebP images are allowed";
     public static final String MEDIA_STORAGE_FAILED = "Failed to store media file";
 
+    public static final String RASTER_LAYER_NOT_FOUND = "Raster layer not found";
+    public static final String RASTER_LAYER_SOURCE_EXISTS = "A raster layer with this source already exists";
+    public static final String INVALID_RASTER_LAYER_DATA = "Invalid raster layer data";
+
     private ErrorMessages() {
     }
 }
