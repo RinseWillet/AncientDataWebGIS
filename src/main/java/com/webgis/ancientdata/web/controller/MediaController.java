@@ -71,12 +71,11 @@ public class MediaController {
         return ResponseEntity.ok(assets);
     }
 
-    @GetMapping("/files/**")
-    public ResponseEntity<Resource> serveFile(jakarta.servlet.http.HttpServletRequest request) {
+    @GetMapping("/files/{*storageKey}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String storageKey) {
 
-        // Extract the storage key from the path after /api/media/files/
-        String fullPath = request.getRequestURI();
-        String storageKey = fullPath.substring(fullPath.indexOf("/files/") + "/files/".length());
+        // {*storageKey} captures the wildcard tail including its leading "/"
+        storageKey = storageKey.substring(1);
 
         Resource resource = mediaService.loadFile(storageKey);
 

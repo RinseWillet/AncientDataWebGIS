@@ -9,7 +9,6 @@ import com.webgis.ancientdata.domain.model.Road;
 import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.domain.repository.RoadRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
-import com.webgis.ancientdata.web.mapper.RoadMapper;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.io.ParseException;
@@ -37,6 +36,7 @@ public class RoadService {
 
     private final RoadRepository roadRepository;
     private final ModernReferenceRepository modernReferenceRepository;
+    private final GeoJsonConverter geoJsonConverter;
     private final Logger logger = LoggerFactory.getLogger(RoadService.class);
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
@@ -47,9 +47,10 @@ public class RoadService {
     private static final String HIST_REC = "hist_rec";
     private static final String OTHER = "other";
 
-    public RoadService(RoadRepository roadRepository, ModernReferenceRepository modernReferenceRepository) {
+    public RoadService(RoadRepository roadRepository, ModernReferenceRepository modernReferenceRepository, GeoJsonConverter geoJsonConverter) {
         this.roadRepository = roadRepository;
         this.modernReferenceRepository = modernReferenceRepository;
+        this.geoJsonConverter = geoJsonConverter;
     }
 
     //methods accessible for all roles
@@ -61,7 +62,7 @@ public class RoadService {
 
     public String findAllGeoJson() {
         logger.info("Retrieving all roads and converting to GeoJSON");
-        return new GeoJsonConverter().convertRoads(findAll()).toString();
+        return geoJsonConverter.convertRoads(findAll()).toString();
     }
 
     public Optional<Road> findById(long id) {
@@ -73,12 +74,8 @@ public class RoadService {
                 });
     }
 
-    public RoadDTO findByIdDTO(long id) {
-        return RoadMapper.toDto(findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ROAD_NOT_FOUND)));
-    }
-
     public String findByIdGeoJson(long id) throws NoSuchElementException {
-        return new GeoJsonConverter().convertRoad(findById(id).orElse(null)).toString();
+        return geoJsonConverter.convertRoad(findById(id).orElse(null)).toString();
     }
 
     //protected methods

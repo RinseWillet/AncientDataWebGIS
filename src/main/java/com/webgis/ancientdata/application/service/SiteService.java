@@ -36,12 +36,14 @@ public class SiteService {
 
 	private final SiteRepository siteRepository;
 
-	public SiteService(SiteRepository siteRepository, ModernReferenceRepository modernReferenceRepository) {
+	private final GeoJsonConverter geoJsonConverter;
+
+	public SiteService(SiteRepository siteRepository, ModernReferenceRepository modernReferenceRepository, GeoJsonConverter geoJsonConverter) {
 		this.siteRepository = siteRepository;
 		this.modernReferenceRepository = modernReferenceRepository;
+		this.geoJsonConverter = geoJsonConverter;
 	}
 
-	@Transactional
 	public Site addModernReferenceToSite(long siteId, ModernReferenceDTO dto) {
 		return siteRepository.findById(siteId).map(site -> {
 			ModernReference modernReference;
@@ -78,7 +80,7 @@ public class SiteService {
 	}
 
 	public JSONObject findAllGeoJson() {
-		return new GeoJsonConverter().convertSites(findAll());
+		return geoJsonConverter.convertSites(findAll());
 	}
 
 	public Optional<Site> findById(long id) {
@@ -91,7 +93,7 @@ public class SiteService {
 	}
 
 	public String findByIdGeoJson(long id) {
-		return new GeoJsonConverter().convertSite(findById(id).orElse(null)).toString();
+		return geoJsonConverter.convertSite(findById(id).orElse(null)).toString();
 	}
 
 	public List<ModernReferenceDTO> findModernReferencesBySiteId(long siteId) {

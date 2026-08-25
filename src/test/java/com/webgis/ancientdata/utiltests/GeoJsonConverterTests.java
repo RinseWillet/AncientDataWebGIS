@@ -139,4 +139,31 @@ public class GeoJsonConverterTests {
 
         assertThat(features.length()).isZero();
     }
+
+    @Test
+    public void shouldConvertRoadWithNullGeometryWithoutThrowing() {
+        testRoad.setGeom(null);
+
+        JSONObject actual = geoJsonConverter.convertRoad(testRoad);
+
+        assertNotNull(actual);
+        JSONObject feature = actual.getJSONArray("features").getJSONObject(0);
+        JSONObject geometry = feature.getJSONObject("geometry");
+        assertThat(geometry.getString("type")).isEqualTo("not_found");
+        assertThat(geometry.isNull("coordinates")).isTrue();
+    }
+
+    @Test
+    public void shouldConvertRoadListWithNullGeometryEntryWithoutThrowing() {
+        testRoad.setGeom(null);
+        List<Road> roadList = List.of(testRoad);
+
+        JSONObject result = geoJsonConverter.convertRoads(roadList);
+        JSONArray features = result.getJSONArray("features");
+
+        assertThat(features.length()).isEqualTo(1);
+        JSONObject geometry = features.getJSONObject(0).getJSONObject("geometry");
+        assertThat(geometry.getString("type")).isEqualTo("not_found");
+        assertThat(geometry.isNull("coordinates")).isTrue();
+    }
 }

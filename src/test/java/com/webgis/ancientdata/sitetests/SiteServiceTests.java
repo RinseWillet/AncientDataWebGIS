@@ -122,6 +122,7 @@ class SiteServiceTests {
     @Test
     void shouldFindSiteByIdGeoJSON() {
         when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
+        when(geoJsonConverter.convertSite(site)).thenReturn(siteGeoJSON);
 
         String fetchedSite = siteService.findByIdGeoJson(site.getId());
 
@@ -133,6 +134,7 @@ class SiteServiceTests {
     @Test
     void shouldListAllSitesGeoJSON() {
         when(siteRepository.findAll()).thenReturn(siteList);
+        when(geoJsonConverter.convertSites(any())).thenReturn(sitesGeoJSON);
 
         JSONObject fetchedSitesGeoJSON = siteService.findAllGeoJson();
 
