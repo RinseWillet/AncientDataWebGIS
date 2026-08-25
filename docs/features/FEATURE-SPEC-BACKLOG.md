@@ -40,6 +40,7 @@ It is structured to support:
 | E11 | OAuth2/OIDC Migration | To Do | Replace the custom username/password + JWT auth flow with a self-hosted Keycloak IdP, converting the backend into an OAuth2 Resource Server and the frontend to Authorization Code + PKCE |
 | E12 | k3s Migration | To Do | Migrate the NAS deployment from Docker Compose to a single-node k3s cluster, with a validated rollback path to Compose (depends on E11 being stable first) |
 | E13 | NAS Infra Resilience & Incident Follow-up | To Do | Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage (Docker-daemon-level failure under memory pressure while loading a large DEM via GeoServer/WMS), and close the raster-pipeline documentation gap it exposed |
+| E14 | Backend Service Layer & Domain Model Hardening | To Do | Reduce service-layer duplication and layering violations (HTTP exceptions leaking into `application/service`, duplicated CRUD/exception-translation logic across `RoadService`/`SiteService`, JPA-unsafe Lombok `@Data` entities) surfaced by the 2026-08-25 readability/maintainability audit — no change to external API behavior |
 
 ---
 
@@ -126,6 +127,35 @@ follow-up work.
 - `E9-2`: `Home.tsx` passes `selectable={false} showLayerChrome={false}`. `RoadInfo.tsx`/`SiteInfo.tsx` pass `selectable={false}` only (keep existing `<BaseLayers />`/`<LayersControl>`). `Atlas.jsx` passes neither (both stay at their `true` default).
 - `E9-4`: This fully replaces the `leaflet-groupedlayercontrol` control (`BaseLayers.tsx`) in Atlas — not a restyle of it. `BaseLayers.tsx` and the `leaflet-groupedlayercontrol` dependency become dead code/removable once `E9-4` ships (confirm no other page still needs `<BaseLayers />` before deleting — `RoadInfo`/`SiteInfo` still use it per `E9-2`, so keep the component, just stop using it in `Atlas`).
 - `E9-4`: A config group (e.g. "Physical") must not render its sidebar section at all while `layersConfig.ts` has zero entries tagged with that group — no disabled/greyed-out placeholder rows.
+
+## P1.6 - Backend Service Layer & Domain Model Hardening (Code Quality Audit, 2026-08-25)
+
+Follow-up from a readability/maintainability audit of `AncientDataWebGIS` against
+SOLID/Clean Code practices (no incident, no user-facing bug driving this — pure
+technical debt). Full findings live in the assistant conversation that produced this
+section; the headline issues are: `RoadService`/`SiteService` throw Spring's
+`ResponseStatusException` directly, coupling the `application/service` layer to HTTP
+semantics and making business logic unusable outside a web context; `save`/`update`
+in both services duplicate the same try/catch/exception-translation shape and a
+`getModernReferenceDTOList` helper verbatim; and JPA entities (`Road`, `Site`, etc.)
+use Lombok `@Data`, which generates `equals`/`hashCode` over all fields including
+relations — a known JPA foot-gun for lazy-loading/collection correctness. A handful
+of smaller, low-risk, single-file issues from the same audit were fixed directly
+without a story (see commit history around 2026-08-25) rather than tracked here.
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E14-1 | E14 | Introduce domain-level exceptions (e.g. `NotFoundException`, `ConflictException`, `InvalidRequestException`) in `application/service`, translated to HTTP status only in `GlobalExceptionHandler`; remove `ResponseStatusException` usage from every service class | To Do | Medium | L | None |
+| E14-2 | E14 | Deduplicate `RoadService`/`SiteService` `save`/`update` field-mapping and exception-translation logic (shared helper), remove the duplicated `getModernReferenceDTOList`, and move `RoadService.update()`'s inline "short refs" string-building out of the service | To Do | Medium | M | E14-1 |
+| E14-3 | E14 | Audit Lombok `@Data` usage on JPA entities (`Road`, `Site`, `MediaAsset`, etc.) and replace with explicit id-based `equals`/`hashCode` (e.g. `@EqualsAndHashCode(onlyExplicitlyIncluded = true)` on the `id` field) to avoid proxy/lazy-loading/collection correctness issues | To Do | Medium | M | None |
+| E14-4 | E14 | Replace `RoadService.getDashBoardData()`'s in-memory full-table load-and-tally with `RoadRepository.countByTypeRaw()` (already used elsewhere for dashboard aggregation, e.g. E1-2), keeping the returned `RoadDashboardDTO` shape identical | To Do | Low | S | None |
+
+**E14 Done Criteria:**
+- No class under `application/service` imports `org.springframework.web.server.ResponseStatusException`; all business-error paths raise a domain exception mapped once in `GlobalExceptionHandler`.
+- `RoadService`/`SiteService` no longer contain duplicated save/update/exception-translation or `getModernReferenceDTOList` code.
+- Every `@Entity` class's `equals`/`hashCode` strategy is deliberate (id-only) rather than Lombok's all-fields default.
+- `RoadDashboardDTO` values from `GET /api/dashboard/...` are unchanged before/after E14-4 (covered by existing dashboard tests).
+- `./gradlew test` stays green throughout; ADR written for the new domain-exception pattern per `AGENTS.md`'s "establishing new patterns" trigger (next free number under `docs/architecture/adr/` at implementation time — `ADR-013` is taken and `ADR-014` is provisionally claimed by `E12-6`, so confirm before naming the file).
 
 ## P2 - Then
 
@@ -281,6 +311,7 @@ Epic,E10,Site & Road Type Registry Consolidation,Site & Road Type Registry Conso
 Epic,E11,OAuth2/OIDC Migration,OAuth2/OIDC Migration,,High,,ancientdata;security;auth,"Replace custom username/password + JWT auth with a self-hosted Keycloak IdP; backend becomes an OAuth2 Resource Server, frontend uses Authorization Code + PKCE.","Backend validates Keycloak-issued tokens; frontend login uses PKCE flow; ADR-013 written",-
 Epic,E12,k3s Migration,k3s Migration,,High,,ancientdata;devops;kubernetes,"Migrate the NAS deployment from Docker Compose to a single-node k3s cluster with a validated rollback path.","App runs on k3s with parity to Compose; rollback documented and tested; ADR-014 written",E11
 Epic,E13,NAS Infra Resilience & Incident Follow-up,NAS Infra Resilience & Incident Follow-up,,High,,ancientdata;infra;security;incident,"Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage and close the raster-pipeline documentation gap it exposed.","Credentials rotated/externalized; live-restore evaluated; RasterProxyService streams instead of buffering; ADR-012 written",-
+Epic,E14,Backend Service Layer & Domain Model Hardening,Backend Service Layer & Domain Model Hardening,,Medium,,ancientdata;backend;refactor;code-quality,"Reduce service-layer duplication and layering violations (HTTP exceptions in application/service, duplicated CRUD/exception-translation logic, JPA-unsafe Lombok @Data entities) surfaced by a 2026-08-25 readability/maintainability audit.","No change to external API behavior; ./gradlew test stays green; ADR written for the domain-exception pattern",-
 Story,E0-1,Externalize compose credentials,,E0,Critical,2,security;config,"Replace hardcoded credentials in docker-compose with env vars and document .env usage.","No plaintext credentials committed; startup works with env values",-
 Story,E0-2,Normalize HTTPS map layer URLs,,E0,High,2,frontend;map,"Ensure all map tile/WMS URLs are HTTPS-safe or proxied.","No mixed-content errors in HTTPS context",E0-1
 Story,E0-3,Fix pleiades DTO naming mismatch,,E0,High,2,frontend;backend;api,"Align `pleiadesId` naming across DTOs/forms/services.","Site updates persist the intended field correctly",-
@@ -352,6 +383,10 @@ Story,E13-2,Externalize infra compose credentials + lock file permissions,,E13,H
 Story,E13-3,Evaluate Docker daemon live-restore on Synology,,E13,High,3,infra;docker,"Investigate enabling live-restore so a future dockerd restart reattaches to running containers instead of stopping every container across all stacks at once.","Documented finding (enabled, or why not possible on this DSM version) plus config location",-
 Story,E13-4,Stream RasterProxyService responses instead of buffering,,E13,High,3,backend;raster;performance,"Replace readAllBytes() full-buffering in RasterProxyService.forward() with a streaming proxy response.","Large upstream WMS/raster responses no longer fully load into ancientdata's JVM heap",-
 Story,E13-5,Write raster publishing pipeline ADR + incident postmortem,,E13,Medium,2,docs;adr,"Write ADR-012-raster-publishing-pipeline.md covering the DEM/COG delivery decision (E3-1/E3-4) and the 2026-08-20 outage postmortem.","ADR-012 Accepted, includes root cause and the mem_limit/restart-policy/live-restore follow-ups",E13-3;E13-4
+Story,E14-1,Introduce domain-level exceptions,,E14,Medium,8,backend;refactor;error-handling,"Add NotFoundException/ConflictException/InvalidRequestException (or similar) in application/service, mapped to HTTP status only in GlobalExceptionHandler; remove ResponseStatusException from every service class.","No service class imports ResponseStatusException; existing error-response bodies/status codes unchanged for all covered endpoints; ADR written",-
+Story,E14-2,Deduplicate Road/Site service CRUD logic,,E14,Medium,5,backend;refactor,"Extract shared save/update field-mapping + exception-translation logic and the duplicated getModernReferenceDTOList helper out of RoadService/SiteService; move the inline modern-reference short-refs string-building out of RoadService.update().","RoadService/SiteService behavior unchanged per existing tests; duplicated helper/logic removed from both classes",E14-1
+Story,E14-3,Audit Lombok @Data on JPA entities,,E14,Medium,5,backend;refactor;jpa,"Replace Lombok @Data's all-fields equals/hashCode on JPA entities with explicit id-based equals/hashCode.","Each @Entity class has a deliberate id-only equals/hashCode; existing tests (including relation-heavy ones) stay green",-
+Story,E14-4,Use PostGIS aggregation for road dashboard counts,,E14,Low,2,backend;dashboard;performance,"Replace RoadService.getDashBoardData()'s in-memory full-table tally with RoadRepository.countByTypeRaw().","RoadDashboardDTO values returned by the dashboard endpoint are identical before/after the change",-
 ```
 
 ---
