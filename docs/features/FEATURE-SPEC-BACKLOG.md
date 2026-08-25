@@ -40,7 +40,7 @@ It is structured to support:
 | E11 | OAuth2/OIDC Migration | To Do | Replace the custom username/password + JWT auth flow with a self-hosted Keycloak IdP, converting the backend into an OAuth2 Resource Server and the frontend to Authorization Code + PKCE |
 | E12 | k3s Migration | To Do | Migrate the NAS deployment from Docker Compose to a single-node k3s cluster, with a validated rollback path to Compose (depends on E11 being stable first) |
 | E13 | NAS Infra Resilience & Incident Follow-up | To Do | Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage (Docker-daemon-level failure under memory pressure while loading a large DEM via GeoServer/WMS), and close the raster-pipeline documentation gap it exposed |
-| E14 | Backend Service Layer & Domain Model Hardening | To Do | Reduce service-layer duplication and layering violations (HTTP exceptions leaking into `application/service`, duplicated CRUD/exception-translation logic across `RoadService`/`SiteService`, JPA-unsafe Lombok `@Data` entities) surfaced by the 2026-08-25 readability/maintainability audit — no change to external API behavior |
+| E14 | Backend & Frontend Road/Site Duplication Hardening | To Do | Reduce Road/Site duplication and layering violations surfaced by the 2026-08-25 readability/maintainability audit — backend: HTTP exceptions leaking into `application/service`, duplicated CRUD/exception-translation logic across `RoadService`/`SiteService`, JPA-unsafe Lombok `@Data` entities; frontend (`AncientDataWebGIS_FE`): near-duplicate `RoadInfo`/`SiteInfo` pages, two different Redux Toolkit patterns for the same "fetch by id" operation, an oversized multi-concern `useMapInteractions.ts` — no change to external API behavior or, beyond E14-7, to user-visible UI behavior |
 
 ---
 
@@ -128,20 +128,34 @@ follow-up work.
 - `E9-4`: This fully replaces the `leaflet-groupedlayercontrol` control (`BaseLayers.tsx`) in Atlas — not a restyle of it. `BaseLayers.tsx` and the `leaflet-groupedlayercontrol` dependency become dead code/removable once `E9-4` ships (confirm no other page still needs `<BaseLayers />` before deleting — `RoadInfo`/`SiteInfo` still use it per `E9-2`, so keep the component, just stop using it in `Atlas`).
 - `E9-4`: A config group (e.g. "Physical") must not render its sidebar section at all while `layersConfig.ts` has zero entries tagged with that group — no disabled/greyed-out placeholder rows.
 
-## P1.6 - Backend Service Layer & Domain Model Hardening (Code Quality Audit, 2026-08-25)
+## P1.6 - Backend & Frontend Road/Site Duplication Hardening (Code Quality Audit, 2026-08-25)
 
-Follow-up from a readability/maintainability audit of `AncientDataWebGIS` against
-SOLID/Clean Code practices (no incident, no user-facing bug driving this — pure
-technical debt). Full findings live in the assistant conversation that produced this
-section; the headline issues are: `RoadService`/`SiteService` throw Spring's
+Follow-up from a readability/maintainability audit of both `AncientDataWebGIS` (backend)
+and `AncientDataWebGIS_FE` (frontend) against SOLID/Clean Code practices (no incident, no
+user-facing bug driving this — pure technical debt). Full findings live in the assistant
+conversation that produced this section.
+
+**Backend headline issues:** `RoadService`/`SiteService` throw Spring's
 `ResponseStatusException` directly, coupling the `application/service` layer to HTTP
 semantics and making business logic unusable outside a web context; `save`/`update`
 in both services duplicate the same try/catch/exception-translation shape and a
 `getModernReferenceDTOList` helper verbatim; and JPA entities (`Road`, `Site`, etc.)
 use Lombok `@Data`, which generates `equals`/`hashCode` over all fields including
 relations — a known JPA foot-gun for lazy-loading/collection correctness. A handful
-of smaller, low-risk, single-file issues from the same audit were fixed directly
+of smaller, low-risk, single-file backend issues from the same audit were fixed directly
 without a story (see commit history around 2026-08-25) rather than tracked here.
+
+**Frontend headline issues (same root cause: `Road` and `Site` built as two hand-written
+parallel tracks that drifted):** `pages/RoadInfo.tsx` and `pages/SiteInfo.tsx` are ~90%
+structurally identical (edit-form state, `isEditing` toggle, save/cancel wiring, Map/
+MediaGallery/ModernReferencePicker layout); `roadSlice`/`roadThunks` use RTK's modern
+`createAsyncThunk` + `extraReducers` for "fetch by id" while `siteSlice`/`siteThunks` use
+the older manual-thunk + hand-written action-creators pattern for the identical operation;
+and `useMapInteractions.ts` (582 lines) bundles three largely independent concerns
+(marker highlighting, auto-zoom-on-navigation, and the Physical/Historical-Maps layer-panel
+state machine) in one file. A `getErrorMessage` helper duplicated across 4 files and a
+repeated page-wrapper/Tooltip-formatter pattern in `Dashboard.tsx` were fixed directly
+without a story for the same reason as the backend's small fixes.
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
@@ -149,6 +163,10 @@ without a story (see commit history around 2026-08-25) rather than tracked here.
 | E14-2 | E14 | Deduplicate `RoadService`/`SiteService` `save`/`update` field-mapping and exception-translation logic (shared helper), remove the duplicated `getModernReferenceDTOList`, and move `RoadService.update()`'s inline "short refs" string-building out of the service | To Do | Medium | M | E14-1 |
 | E14-3 | E14 | Audit Lombok `@Data` usage on JPA entities (`Road`, `Site`, `MediaAsset`, etc.) and replace with explicit id-based `equals`/`hashCode` (e.g. `@EqualsAndHashCode(onlyExplicitlyIncluded = true)` on the `id` field) to avoid proxy/lazy-loading/collection correctness issues | To Do | Medium | M | None |
 | E14-4 | E14 | Replace `RoadService.getDashBoardData()`'s in-memory full-table load-and-tally with `RoadRepository.countByTypeRaw()` (already used elsewhere for dashboard aggregation, e.g. E1-2), keeping the returned `RoadDashboardDTO` shape identical | To Do | Low | S | None |
+| E14-5 | E14 | (`AncientDataWebGIS_FE`) Extract a shared entity-info-page layout/hook consolidating `RoadInfo.tsx`/`SiteInfo.tsx` (edit-form state + `isEditing` toggle + save/cancel wiring + Map/MediaGallery/ModernReferencePicker layout), parameterized per entity type | To Do | Medium | L | None |
+| E14-6 | E14 | (`AncientDataWebGIS_FE`) Unify `roadSlice`/`roadThunks` and `siteSlice`/`siteThunks` on one Redux Toolkit pattern (`createAsyncThunk` + `extraReducers` for "fetch by id"), retiring the manual action-creator style currently used for sites | To Do | Medium | M | None |
+| E14-7 | E14 | (`AncientDataWebGIS_FE`) Replace the blocking `alert()` save-feedback in `RoadInfo`/`SiteInfo` with an in-app inline banner/toast consistent with the existing loading/error UX elsewhere (e.g. `Dashboard.tsx`) | To Do | Medium | S | None |
+| E14-8 | E14 | (`AncientDataWebGIS_FE`) Split `useMapInteractions.ts` into per-concern modules (`useMarkerHighlight`, `useAutoZoom`, `useLayerPanelControl` + its gating helpers), updating consumer imports (`MapContent.tsx`, `LayerPanel.tsx`) and the corresponding test file(s) | To Do | Low | M | None |
 
 **E14 Done Criteria:**
 - No class under `application/service` imports `org.springframework.web.server.ResponseStatusException`; all business-error paths raise a domain exception mapped once in `GlobalExceptionHandler`.
@@ -156,6 +174,10 @@ without a story (see commit history around 2026-08-25) rather than tracked here.
 - Every `@Entity` class's `equals`/`hashCode` strategy is deliberate (id-only) rather than Lombok's all-fields default.
 - `RoadDashboardDTO` values from `GET /api/dashboard/...` are unchanged before/after E14-4 (covered by existing dashboard tests).
 - `./gradlew test` stays green throughout; ADR written for the new domain-exception pattern per `AGENTS.md`'s "establishing new patterns" trigger (next free number under `docs/architecture/adr/` at implementation time — `ADR-013` is taken and `ADR-014` is provisionally claimed by `E12-6`, so confirm before naming the file).
+- `RoadInfo`/`SiteInfo` share one layout/hook with no behavior change to editing/saving/viewing either entity type.
+- `roadSlice`/`siteSlice` (and their thunks) follow one shared Redux Toolkit pattern for equivalent operations.
+- `useMapInteractions.ts` no longer exists as a single 500+ line file; each extracted module has a single clear concern.
+- `npm run test:run`, `npm run lint` (`--max-warnings 0`), and `npm run build` stay green throughout.
 
 ## P2 - Then
 
@@ -311,7 +333,7 @@ Epic,E10,Site & Road Type Registry Consolidation,Site & Road Type Registry Conso
 Epic,E11,OAuth2/OIDC Migration,OAuth2/OIDC Migration,,High,,ancientdata;security;auth,"Replace custom username/password + JWT auth with a self-hosted Keycloak IdP; backend becomes an OAuth2 Resource Server, frontend uses Authorization Code + PKCE.","Backend validates Keycloak-issued tokens; frontend login uses PKCE flow; ADR-013 written",-
 Epic,E12,k3s Migration,k3s Migration,,High,,ancientdata;devops;kubernetes,"Migrate the NAS deployment from Docker Compose to a single-node k3s cluster with a validated rollback path.","App runs on k3s with parity to Compose; rollback documented and tested; ADR-014 written",E11
 Epic,E13,NAS Infra Resilience & Incident Follow-up,NAS Infra Resilience & Incident Follow-up,,High,,ancientdata;infra;security;incident,"Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage and close the raster-pipeline documentation gap it exposed.","Credentials rotated/externalized; live-restore evaluated; RasterProxyService streams instead of buffering; ADR-012 written",-
-Epic,E14,Backend Service Layer & Domain Model Hardening,Backend Service Layer & Domain Model Hardening,,Medium,,ancientdata;backend;refactor;code-quality,"Reduce service-layer duplication and layering violations (HTTP exceptions in application/service, duplicated CRUD/exception-translation logic, JPA-unsafe Lombok @Data entities) surfaced by a 2026-08-25 readability/maintainability audit.","No change to external API behavior; ./gradlew test stays green; ADR written for the domain-exception pattern",-
+Epic,E14,Backend & Frontend Road/Site Duplication Hardening,Backend & Frontend Road/Site Duplication Hardening,,Medium,,ancientdata;backend;frontend;refactor;code-quality,"Reduce Road/Site duplication and layering violations across both repos (backend: HTTP exceptions in application/service, duplicated CRUD/exception-translation logic, JPA-unsafe Lombok @Data entities; frontend: near-duplicate RoadInfo/SiteInfo pages, inconsistent Redux Toolkit patterns, oversized useMapInteractions.ts) surfaced by a 2026-08-25 readability/maintainability audit.","No change to external API behavior or (beyond E14-7) user-visible UI behavior; ./gradlew test and npm run test:run/lint/build stay green; ADR written for the domain-exception pattern",-
 Story,E0-1,Externalize compose credentials,,E0,Critical,2,security;config,"Replace hardcoded credentials in docker-compose with env vars and document .env usage.","No plaintext credentials committed; startup works with env values",-
 Story,E0-2,Normalize HTTPS map layer URLs,,E0,High,2,frontend;map,"Ensure all map tile/WMS URLs are HTTPS-safe or proxied.","No mixed-content errors in HTTPS context",E0-1
 Story,E0-3,Fix pleiades DTO naming mismatch,,E0,High,2,frontend;backend;api,"Align `pleiadesId` naming across DTOs/forms/services.","Site updates persist the intended field correctly",-
@@ -387,6 +409,10 @@ Story,E14-1,Introduce domain-level exceptions,,E14,Medium,8,backend;refactor;err
 Story,E14-2,Deduplicate Road/Site service CRUD logic,,E14,Medium,5,backend;refactor,"Extract shared save/update field-mapping + exception-translation logic and the duplicated getModernReferenceDTOList helper out of RoadService/SiteService; move the inline modern-reference short-refs string-building out of RoadService.update().","RoadService/SiteService behavior unchanged per existing tests; duplicated helper/logic removed from both classes",E14-1
 Story,E14-3,Audit Lombok @Data on JPA entities,,E14,Medium,5,backend;refactor;jpa,"Replace Lombok @Data's all-fields equals/hashCode on JPA entities with explicit id-based equals/hashCode.","Each @Entity class has a deliberate id-only equals/hashCode; existing tests (including relation-heavy ones) stay green",-
 Story,E14-4,Use PostGIS aggregation for road dashboard counts,,E14,Low,2,backend;dashboard;performance,"Replace RoadService.getDashBoardData()'s in-memory full-table tally with RoadRepository.countByTypeRaw().","RoadDashboardDTO values returned by the dashboard endpoint are identical before/after the change",-
+Story,E14-5,Extract shared entity-info-page layout,,E14,Medium,8,frontend;refactor,"Extract a shared entity-info-page layout/hook consolidating RoadInfo.tsx/SiteInfo.tsx (edit-form state, isEditing toggle, save/cancel wiring, Map/MediaGallery/ModernReferencePicker layout).","RoadInfo/SiteInfo behavior unchanged per existing tests; duplicated layout/logic removed from both pages",-
+Story,E14-6,Unify road/site Redux Toolkit pattern,,E14,Medium,5,frontend;refactor,"Unify roadSlice/roadThunks and siteSlice/siteThunks on one Redux Toolkit pattern (createAsyncThunk + extraReducers) for the equivalent fetch-by-id operation.","Both slices/thunks follow the same pattern; existing tests for both stay green",-
+Story,E14-7,Replace blocking alert() save feedback,,E14,Medium,3,frontend;ux,"Replace the blocking alert() save-feedback in RoadInfo/SiteInfo with an in-app inline banner/toast consistent with existing loading/error UX.","Save success/failure is communicated without a blocking native alert(); existing save/cancel behavior otherwise unchanged",-
+Story,E14-8,Split useMapInteractions.ts by concern,,E14,Low,5,frontend;refactor,"Split useMapInteractions.ts into per-concern modules (useMarkerHighlight, useAutoZoom, useLayerPanelControl + gating helpers), updating consumer imports and tests.","No behavior change; each extracted module has one clear concern; existing useMapInteractions/MapContent/LayerPanel tests stay green",-
 ```
 
 ---
