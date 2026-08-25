@@ -128,6 +128,7 @@ class RoadServiceTests {
     @Test
     void shouldFindRoadByIdGeoJSON() {
         when(roadRepository.findById(road.getId())).thenReturn(Optional.ofNullable(road));
+        when(geoJsonConverter.convertRoad(road)).thenReturn(roadGeoJSON);
 
         String fetchedRoad = roadService.findByIdGeoJson(road.getId());
 
@@ -139,6 +140,7 @@ class RoadServiceTests {
     @Test
     void shouldListAllRoadsGeoJSON() {
         when(roadRepository.findAll()).thenReturn(roadList);
+        when(geoJsonConverter.convertRoads(any())).thenReturn(roadsGeoJSON);
 
         String fetchedRoadsGeoJSON = roadService.findAllGeoJson();
 

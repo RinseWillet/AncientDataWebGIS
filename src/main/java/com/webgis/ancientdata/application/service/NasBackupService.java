@@ -30,7 +30,7 @@ public class NasBackupService {
     private final NasBackupConfig config;
     private final BackupHistoryRepository backupHistoryRepository;
     private final Path mediaRoot;
-    Path nasBackupRoot;
+    private Path nasBackupRoot;
 
     public NasBackupService(
             NasBackupConfig config,

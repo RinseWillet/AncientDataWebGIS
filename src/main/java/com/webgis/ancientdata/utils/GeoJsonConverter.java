@@ -137,8 +137,9 @@ public class GeoJsonConverter {
             logger.warn("[GeoJsonConverter] Skipping Road '{}' (ID: {}) due to missing geometry.",
                     road.getName(), road.getId());
             geometry.put("type", "not_found");
+        } else {
+            geometry.put("type", road.getGeom().getGeometryType());
         }
-        geometry.put("type", road.getGeom().getGeometryType());
 
         Double[][][] coordinates = lineCoordinates(road);
 
