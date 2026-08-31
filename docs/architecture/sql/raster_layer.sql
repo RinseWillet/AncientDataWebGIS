@@ -87,14 +87,30 @@ INSERT INTO raster_layer (name, source, bounds_south, bounds_west, bounds_north,
 ('Sheet 14', 'ancientdata:1740-Kleve-DINA1-14_r', 51.73326775071595, 5.957216780600897, 51.76088538697168, 6.018964850841942, 12, 19, '1740 - Kleve', 'HISTORICAL_MAP', '1740 - Kleve', FALSE),
 ('Sheet 15', 'ancientdata:1740-Kleve-DINA1-15_r', 51.732550582035415, 5.92953195601755, 51.760620065038815, 5.988022815568189, 12, 19, '1740 - Kleve', 'HISTORICAL_MAP', '1740 - Kleve', FALSE),
 ('Sheet 16', 'ancientdata:1740-Kleve-DINA1-16_r', 51.72739911643023, 5.889941922033602, 51.762824002738, 5.955974491305206, 12, 19, '1740 - Kleve', 'HISTORICAL_MAP', '1740 - Kleve', FALSE),
-('DEM of Gelderland-NRW research area - Hillshade', 'ancientdata:research_area_Gelderland_NRW_hillshade_cog', 51.45783572791835, 5.419587299877188, 52.0690994943719, 6.865869726173805, 8, 17, 'AHN3 (NL) & DGM1 (NRW, DE) LiDAR', 'DEM', NULL, TRUE),
-('DEM of Gelderland-NRW research area', 'ancientdata:research_area_Gelderland_NRW_cog', 51.45783572791835, 5.419587299877188, 52.0690994943719, 6.865869726173805, 8, 17, 'AHN3 (NL) & DGM1 (NRW, DE) LiDAR', 'DEM', NULL, FALSE),
-('DEM of Swalmen area (AHN3 + DGM1) - Hillshade', 'ancientdata:merge_swalmen_hillshade_cog', 51.14425175970463, 5.965415083893099, 51.35358917449149, 6.409873937995263, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', NULL, TRUE),
-('DEM of Swalmen area (AHN3 + DGM1)', 'ancientdata:merge_swalmen_cog', 51.14425175970463, 5.965415083893099, 51.35358917449149, 6.409873937995263, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', NULL, FALSE),
-('DEM of Geldern - Venlo area (DGM1, AHN3) - Hillshade', 'ancientdata:merge_venlo_geldern_hillshade_cog', 51.3350043816511, 5.966035132096261, 51.54046275728694, 6.416339886112167, 8, 18, 'AHN3 & DGM1 LiDAR', 'DEM', NULL, TRUE),
-('DEM of Geldern - Venlo area (DGM1, AHN3)', 'ancientdata:merge_venlo_geldern_cog', 51.3350043816511, 5.966035132096261, 51.54046275728694, 6.416339886112167, 8, 18, 'AHN3 & DGM1 LiDAR', 'DEM', NULL, FALSE),
-('DEM of Mönchengladbach - Neuss area (DGM1) - Hillshade', 'ancientdata:dem_Mönchengladbach-Neuss-hillshade', 51.09919903622249, 6.423118334166201, 51.21238621797372, 6.685970391067374, 8, 17, 'DGM1 LiDAR', 'DEM', NULL, TRUE),
-('DEM of Mönchengladbach - Neuss area (DGM1)', 'ancientdata:Mönchengladbach-Neuss-merge_cog', 51.09919903622249, 6.423118334166201, 51.21238621797372, 6.685970391067374, 8, 17, 'DGM1 LiDAR', 'DEM', NULL, FALSE),
-('DEM of area west of Mönchengladbach (DGM1, AHN3) - Hillshade', 'ancientdata:Mönchengladbach_west-hillshade', 51.02210046622095, 6.192158255124815, 51.24292939309103, 6.433099522466674, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', NULL, TRUE),
-('DEM of area west of Mönchengladbach (DGM1, AHN3)', 'ancientdata:Mönchengladbach_west-merge_cog', 51.02210046622095, 6.192158255124815, 51.24292939309103, 6.433099522466674, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', NULL, FALSE)
+('DEM of Gelderland-NRW research area - Hillshade', 'ancientdata:research_area_Gelderland_NRW_hillshade_cog', 51.45783572791835, 5.419587299877188, 52.0690994943719, 6.865869726173805, 8, 17, 'AHN3 (NL) & DGM1 (NRW, DE) LiDAR', 'DEM', 'Gelderland-NRW', TRUE),
+('DEM of Gelderland-NRW research area', 'ancientdata:research_area_Gelderland_NRW_cog', 51.45783572791835, 5.419587299877188, 52.0690994943719, 6.865869726173805, 8, 17, 'AHN3 (NL) & DGM1 (NRW, DE) LiDAR', 'DEM', 'Gelderland-NRW', FALSE),
+('DEM of Swalmen area (AHN3 + DGM1) - Hillshade', 'ancientdata:merge_swalmen_hillshade_cog', 51.14425175970463, 5.965415083893099, 51.35358917449149, 6.409873937995263, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', 'Swalmen', TRUE),
+('DEM of Swalmen area (AHN3 + DGM1)', 'ancientdata:merge_swalmen_cog', 51.14425175970463, 5.965415083893099, 51.35358917449149, 6.409873937995263, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', 'Swalmen', FALSE),
+('DEM of Geldern - Venlo area (DGM1, AHN3) - Hillshade', 'ancientdata:merge_venlo_geldern_hillshade_cog', 51.3350043816511, 5.966035132096261, 51.54046275728694, 6.416339886112167, 8, 18, 'AHN3 & DGM1 LiDAR', 'DEM', 'Geldern - Venlo', TRUE),
+('DEM of Geldern - Venlo area (DGM1, AHN3)', 'ancientdata:merge_venlo_geldern_cog', 51.3350043816511, 5.966035132096261, 51.54046275728694, 6.416339886112167, 8, 18, 'AHN3 & DGM1 LiDAR', 'DEM', 'Geldern - Venlo', FALSE),
+('DEM of Mönchengladbach - Neuss area (DGM1) - Hillshade', 'ancientdata:dem_Mönchengladbach-Neuss-hillshade', 51.09919903622249, 6.423118334166201, 51.21238621797372, 6.685970391067374, 8, 17, 'DGM1 LiDAR', 'DEM', 'Mönchengladbach - Neuss', TRUE),
+('DEM of Mönchengladbach - Neuss area (DGM1)', 'ancientdata:Mönchengladbach-Neuss-merge_cog', 51.09919903622249, 6.423118334166201, 51.21238621797372, 6.685970391067374, 8, 17, 'DGM1 LiDAR', 'DEM', 'Mönchengladbach - Neuss', FALSE),
+('DEM of area west of Mönchengladbach (DGM1, AHN3) - Hillshade', 'ancientdata:Mönchengladbach_west-hillshade', 51.02210046622095, 6.192158255124815, 51.24292939309103, 6.433099522466674, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', 'Area west of Mönchengladbach', TRUE),
+('DEM of area west of Mönchengladbach (DGM1, AHN3)', 'ancientdata:Mönchengladbach_west-merge_cog', 51.02210046622095, 6.192158255124815, 51.24292939309103, 6.433099522466674, 8, 17, 'AHN3 & DGM1 LiDAR', 'DEM', 'Area west of Mönchengladbach', FALSE)
 ON CONFLICT (source) DO NOTHING;
+
+-- Backfill for the 10 DEM rows above if they were already inserted before `collection` was
+-- populated for DEM entries (i.e. `ON CONFLICT (source) DO NOTHING` above is a no-op against
+-- an existing shared DB) - groups each DEM with its hillshade sibling in the frontend's
+-- "Physical" LayerPanel section the same way Historical Maps sheets are grouped by atlas.
+-- Safe to re-run.
+UPDATE raster_layer SET collection = 'Gelderland-NRW' WHERE source IN (
+    'ancientdata:research_area_Gelderland_NRW_hillshade_cog', 'ancientdata:research_area_Gelderland_NRW_cog');
+UPDATE raster_layer SET collection = 'Swalmen' WHERE source IN (
+    'ancientdata:merge_swalmen_hillshade_cog', 'ancientdata:merge_swalmen_cog');
+UPDATE raster_layer SET collection = 'Geldern - Venlo' WHERE source IN (
+    'ancientdata:merge_venlo_geldern_hillshade_cog', 'ancientdata:merge_venlo_geldern_cog');
+UPDATE raster_layer SET collection = 'Mönchengladbach - Neuss' WHERE source IN (
+    'ancientdata:dem_Mönchengladbach-Neuss-hillshade', 'ancientdata:Mönchengladbach-Neuss-merge_cog');
+UPDATE raster_layer SET collection = 'Area west of Mönchengladbach' WHERE source IN (
+    'ancientdata:Mönchengladbach_west-hillshade', 'ancientdata:Mönchengladbach_west-merge_cog');
