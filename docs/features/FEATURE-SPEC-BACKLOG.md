@@ -36,7 +36,7 @@ It is structured to support:
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
 | E8 | Interactive Book / Research Narrative | 🚧 In Progress | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer |
-| E10 | Site & Road Type Registry Consolidation | To Do | Replace the scattered site/road type label, icon, and style definitions with one typed, single-source-of-truth registry, so adding/renaming/restyling a type (e.g. a new "watermill" site type) is a single-file change |
+| E10 | Site & Road Type Registry Consolidation | ✅ Done | Replace the scattered site/road type label, icon, and style definitions with one typed, single-source-of-truth registry, so adding/renaming/restyling a type (e.g. a new "watermill" site type) is a single-file change |
 | E11 | OAuth2/OIDC Migration | To Do | Replace the custom username/password + JWT auth flow with a self-hosted Keycloak IdP, converting the backend into an OAuth2 Resource Server and the frontend to Authorization Code + PKCE |
 | E12 | k3s Migration | To Do | Migrate the NAS deployment from Docker Compose to a single-node k3s cluster, with a validated rollback path to Compose (depends on E11 being stable first) |
 | E13 | NAS Infra Resilience & Incident Follow-up | To Do | Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage (Docker-daemon-level failure under memory pressure while loading a large DEM via GeoServer/WMS), and close the raster-pipeline documentation gap it exposed |
@@ -187,7 +187,7 @@ without a story for the same reason as the backend's small fixes.
 | E3-2 | E3 | Add raster layer catalog endpoint (name/source/bounds/zoom/attribution) | ✅ Done | High | M | E3-1 |
 | E3-3 | E3 | Add "Physical" group entries (toggle/opacity/order) to the `LayerPanel` from E9 | ✅ Done | High | M | E3-2, E9-4 |
 | E3-4 | E3 | Implement DEM delivery strategy for ~80GB source (overviews/tiling) | ✅ Done | High | L | E3-1 |
-| E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | Done    | Medium | S | E3-3, E9-5 |
+| E3-5 | E3 | Add DEM color-ramp data to `MapLegend`'s DEM hook (from E9-5) + metadata drawer | ✅ Done | Medium | S | E3-3, E9-5 |
 | E3-6 | E3 | DB-backed raster catalog (replacing E3-2's static Java list, 30 entries) with admin-only CRUD endpoints (no admin UI — see write-up) | ✅ Done | Low | L | E3-2 |
 | E3-7 | E3 | Gate Physical-layer selectability in `LayerPanel` by current map viewport: disable a raster layer's toggle unless its `bounds` (already in `RasterLayerDTO`/`PhysicalLayerState`, unused for gating today) intersects the visible map extent, and disable the whole Physical group below a global minimum zoom floor — so a fully zoomed-out user can't enable every published layer at once and overload GeoServer/the NAS | ✅ Done | High | M | E3-3 |
 | E3-8 | E3 | Extend E3-7's viewport-gating to Historical Maps sheets, but per-entry rather than a shared floor: a sheet is selectable only when zoom ≥ that entry's own curated `RasterZoomDTO.min` (already in `RasterLayerDTO`, unused for gating today, same situation `bounds` was in before E3-7) AND its bounds intersect the viewport — needed because sheet scale varies wildly (city-scale historical topo sheets vs. much larger-scale upcoming cadastral maps), so a single global zoom floor can't filter a small in-viewport sheet out at a wide zoom the way it could for Physical/DEM | ✅ Done | High | M | E3-7 |
@@ -203,9 +203,9 @@ without a story for the same reason as the backend's small fixes.
 | E5-1 | E5 | Add theme tokens + switcher based on CSS variables in `AncientDataWebGIS_FE/src/App.css` | To Do | Medium | S | E0-2 |
 | E5-2 | E5 | Persist theme preference in local storage | To Do | Low | S | E5-1 |
 | E5-3 | E5 | Add synthwave map style profile | To Do | Medium | M | E5-1 |
-| E10-1 | E10 | Consolidate site type label/icon definitions (currently split across `utils/siteTypes.ts`, `siteIcons.ts`, `Styles/markerStyles.ts`, and `Dashboard.tsx`'s own `LABEL_MAPPING`) into one typed `siteTypesConfig.ts`, sourced by `MapContent`, `MapInfoCard`, `SiteInfo`, `MapLegend`, and `Dashboard`; fixes `ptum` incorrectly rendering with the confirmed-tumulus icon instead of `possibleTumulusIcon` | To Do | Medium | M | E9-5 |
-| E10-2 | E10 | Consolidate road type label/style definitions into one typed source, building on `roadStyleEntries`/`roadStyleDifferentiator` (`utils/roadTypes.ts`, added in E9-5) as the starting point | To Do | Medium | S | E9-5 |
-| E10-3 | E10 | Document the "add a new site/road type" workflow (e.g. a comment block in the new config file(s) or a short `AGENTS.md` section) now that it is a single-file change | To Do | Low | S | E10-1, E10-2 |
+| E10-1 | E10 | Consolidate site type label/icon definitions (currently split across `utils/siteTypes.ts`, `siteIcons.ts`, `Styles/markerStyles.ts`, and `Dashboard.tsx`'s own `LABEL_MAPPING`) into one typed `siteTypesConfig.ts`, sourced by `MapContent`, `MapInfoCard`, `SiteInfo`, `MapLegend`, and `Dashboard`; fixes `ptum` incorrectly rendering with the confirmed-tumulus icon instead of `possibleTumulusIcon` | ✅ Done | Medium | M | E9-5 |
+| E10-2 | E10 | Consolidate road type label/style definitions into one typed source, building on `roadStyleEntries`/`roadStyleDifferentiator` (`utils/roadTypes.ts`, added in E9-5) as the starting point | ✅ Done | Medium | S | E9-5 |
+| E10-3 | E10 | Document the "add a new site/road type" workflow (e.g. a comment block in the new config file(s) or a short `AGENTS.md` section) now that it is a single-file change | ✅ Done | Low | S | E10-1, E10-2 |
 
 **E10 implementation notes:**
 - Trigger: raised during E9-5 smoke testing — site type labels/icons/styles are currently spread across `utils/siteTypes.ts` (`siteTypeLabels`), `siteIcons.ts` (`siteIconMap`), and `Styles/markerStyles.ts` (`siteTypeIconUrls`, plus the underlying `Icon` constructors), so adding a new type (e.g. "watermill") means touching 3+ files and keeping their keys in sync by hand. `E9-5` already did the equivalent consolidation for road styles (`roadStyleEntries`/`roadStyleDifferentiator` in `utils/roadTypes.ts`) — `E10-2` is mostly confirming/extending that, not starting from scratch.
@@ -304,7 +304,7 @@ without a story for the same reason as the backend's small fixes.
 ### P3 Done Criteria
 - Theme switch works globally and persists.
 - Synthwave mode remains legible for map and text UI.
-- A new site or road type (icon, label, style) can be added or changed by editing one config file/entry, with no other file requiring a matching manual edit.
+- A new site or road type (icon, label, style) can be added or changed by editing one config file/entry, with no other file requiring a matching manual edit. ✅ met (E10)
 
 ### E8 Done Criteria
 - Chapters are written as Markdown files under `src/content/book/`, rendered via a dynamic `/book/:slug` route.
@@ -367,7 +367,7 @@ Story,E3-1,Define raster publish pipeline,,E3,High,8,geoserver;raster,"Define in
 Story,E3-2,Add raster layer catalog endpoint,,E3,High,3,backend;raster,"Expose available raster layers and metadata for frontend discovery.","Catalog includes bounds/zoom/attribution",E3-1
 Story,E3-3,Add Physical group entries to LayerPanel,,E3,High,5,frontend;map;raster,"Add toggle/opacity/order controls for raster overlays as a Physical group in the E9 LayerPanel.","Controls apply instantly and persist session state",E3-2;E9-4
 Story,E3-4,Implement large DEM serving strategy,,E3,High,8,raster;dem;performance,"Use overviews and tiling for DEM serving, avoid raw file delivery.","Acceptable performance at target zoom ranges",✅ Done
-Story,E3-5,Wire DEM color ramp into MapLegend,,E3,Medium,2,frontend;raster,"Feed DEM color-ramp data into the E9 MapLegend's DEM hook + attribution details.","Legend/metadata visible for active DEM layer",E3-3;E9-5
+Story,E3-5,Wire DEM color ramp into MapLegend,,E3,Medium,2,frontend;raster,"Feed DEM color-ramp data into the E9 MapLegend's DEM hook + attribution details.","Legend/metadata visible for active DEM layer",✅ Done
 Story,E3-6,DB-backed raster catalog with admin CRUD endpoints,,E3,Low,8,backend;raster,"Replace E3-2's static Java catalog list (30 entries) with a raster_layer DB table + admin-only CRUD endpoints (no admin UI this pass).","✅ Done — public GET /api/raster/catalog contract unchanged",E3-2
 Story,E3-7,Gate Physical layer selectability by map viewport,,E3,High,5,frontend;raster;performance,"Disable a raster layer's toggle in the Physical group unless its bounds intersect the current map view, and disable the whole group below a minimum zoom floor, so a zoomed-out user can't enable every layer and overload GeoServer/the NAS.","Out-of-view or below-floor layers are disabled with an explanatory hint; enabling one is blocked",E3-3
 Story,E3-8,Gate Historical Maps sheet selectability by viewport + per-layer scale,,E3,High,5,frontend;raster;performance,"Extend E3-7's viewport-gating to the Historical Maps sheet list, using each entry's own curated RasterZoomDTO.min as a per-layer zoom floor (not a shared constant), since sheet scale varies wildly between historical topo sheets and much larger-scale cadastral maps.","A sheet is selectable only when zoom >= its own zoom.min AND bounds intersect the viewport; non-selectable sheets are hidden, not disabled; an empty collection is hidden entirely",E3-7
@@ -384,9 +384,9 @@ Story,E4-4,Add responsive QA matrix,,E4,High,2,qa;ux;mobile,"Create repeatable r
 Story,E5-1,Add theme switcher and tokens,,E5,Medium,2,frontend;theme,"Implement synthwave-ready theme token system and switcher.","Theme switches globally without breaking readability",E0-2
 Story,E5-2,Persist selected theme,,E5,Low,1,frontend;theme,"Save and load theme preference from storage.","Preference survives reload",E5-1
 Story,E5-3,Add synthwave map style profile,,E5,Medium,3,frontend;theme;map,"Tune map colors/icons for synthwave mode.","Map remains legible in synthwave",E5-1
-Story,E10-1,Consolidate site type registry,,E10,Medium,5,frontend;map;devx,"Merge siteTypeLabels/siteIconMap/siteTypeIconUrls/Dashboard LABEL_MAPPING into one typed siteTypesConfig.ts consumed by MapContent/MapInfoCard/SiteInfo/MapLegend/Dashboard; fix ptum rendering with the confirmed-tumulus icon instead of possibleTumulusIcon.","Adding a new site type requires editing only one file; possible-tumulus sites render with a distinct icon from confirmed tumuli",E9-5
-Story,E10-2,Consolidate road type registry,,E10,Medium,2,frontend;map;devx,"Confirm/extend roadStyleEntries/roadStyleDifferentiator (utils/roadTypes.ts) as the single source for road type labels/styles.","Adding a new road type requires editing only one file",E9-5
-Story,E10-3,Document type registry workflow,,E10,Low,1,docs;devx,"Document how to add/rename/restyle a site or road type now that it is a single-file change.","Workflow documented in the config file or AGENTS.md",E10-1;E10-2
+Story,E10-1,Consolidate site type registry,,E10,Medium,5,frontend;map;devx,"Merge siteTypeLabels/siteIconMap/siteTypeIconUrls/Dashboard LABEL_MAPPING into one typed siteTypesConfig.ts consumed by MapContent/MapInfoCard/SiteInfo/MapLegend/Dashboard; fix ptum rendering with the confirmed-tumulus icon instead of possibleTumulusIcon.","Adding a new site type requires editing only one file; possible-tumulus sites render with a distinct icon from confirmed tumuli",✅ Done
+Story,E10-2,Consolidate road type registry,,E10,Medium,2,frontend;map;devx,"Confirm/extend roadStyleEntries/roadStyleDifferentiator (utils/roadTypes.ts) as the single source for road type labels/styles.","Adding a new road type requires editing only one file",✅ Done
+Story,E10-3,Document type registry workflow,,E10,Low,1,docs;devx,"Document how to add/rename/restyle a site or road type now that it is a single-file change.","Workflow documented in the config file or AGENTS.md",✅ Done
 Story,E7-1,Document Cloudflare WARP remote-DB access convention,,E7,Medium,1,docs;devx,"Document LAN-IP-only DB_URL convention and WARP remote access in backend README.","README section explains WARP and never-forward-DB-port convention",✅ Done
 Story,E7-2,Add local-dev throwaway PostGIS container + profile,,E7,Medium,3,devx;docker;backend,"docker-compose.local-dev.yml + application-local-dev.properties for fully offline development.","docker compose -f docker-compose.local-dev.yml up -d works; local-dev profile boots app",✅ Done
 Story,E7-3,Add local-dev synthetic schema/seed script,,E7,Medium,1,devx;sql,"docs/architecture/sql/local-dev-seed.sql mirrors schema with synthetic rows, clearly marked non-authoritative.","Seed script auto-applies on container first start",✅ Done
@@ -858,6 +858,59 @@ a port that's intentionally never forwarded externally.
 
 ---
 
+### E10 — Site & Road Type Registry Consolidation ✅
+
+**Status:** Complete (August 2026)
+
+**Trigger:** Raised during E9-5 smoke testing — site type labels/icons/styles were spread
+across `utils/siteTypes.ts`, `siteIcons.ts`, and `Styles/markerStyles.ts`, so adding a new
+type meant touching 3+ files and keeping their keys in sync by hand. Pre-work analysis also
+found `ptum` ("possible barrow") incorrectly rendering with the confirmed-tumulus icon.
+
+**What was delivered:**
+- E10-1: New `AncientDataWebGIS_FE/src/utils/siteTypesConfig.ts` — one typed
+  `siteTypeEntries: SiteTypeEntry[]` array (`{ type, label, icon, iconUrl }`) covering all
+  17 site types, replacing `siteTypeLabels`, `siteIconMap`, and `siteTypeIconUrls`, with
+  `getSiteIcon`/`siteTypeConverter` helpers mirroring the old call shapes so consumers only
+  changed imports. Fixed the `ptum` bug: it now resolves to `possibleTumulusIcon`/
+  `ptumulus.png` instead of the confirmed-tumulus assets. Consumed by `MapContent`,
+  `MapComponent`, `useMapInteractions`, `MapInfoCard`, `SiteInfo`, `MapLegend`, and
+  `Dashboard`. `markerStyles.ts` was trimmed to the generic fallback icon, the `makeIcon`
+  helper, and road styles — `siteTypes.ts`/`siteIcons.ts` were deleted outright.
+  `Dashboard.tsx`'s own `LABEL_MAPPING` (which had drifted to different wording, e.g.
+  "Tumulus" vs. the registry's "barrow") was deleted in favor of reading from the shared
+  `siteTypeEntries`/`roadStyleEntries` registries — a deliberate call to let registry
+  wording win, confirmed with the repo owner before implementing.
+- E10-2: Confirmed `roadStyleEntries`/`roadStyleDifferentiator` (`utils/roadTypes.ts`,
+  built in E9-5) already satisfied the "one file per type" bar — no structural changes
+  needed, just a short doc-comment addition (see E10-3).
+- E10-3: Added a "how to add/rename/restyle a type" comment block to both
+  `siteTypesConfig.ts` and `roadTypes.ts`, plus a new `## Type Registries` section in
+  `AGENTS.md` pointing at both files as the sole place to touch.
+
+**Impact:**
+- Adding, renaming, or restyling a site or road type is now a single-file change
+  (`siteTypesConfig.ts` or `roadTypes.ts`), satisfying the P3 Done Criteria bar.
+- Possible-tumulus sites now render with a visually distinct marker from confirmed
+  tumuli, on both the map and in `MapLegend`.
+- Confirmed by the repo owner via manual smoke testing in the Atlas.
+
+**Files changed:**
+- `AncientDataWebGIS_FE/src/utils/siteTypesConfig.ts` (new), `siteTypesConfig.test.ts` (new)
+- `AncientDataWebGIS_FE/src/utils/siteTypes.ts` (deleted), `roadTypes.ts` (doc comment only)
+- `AncientDataWebGIS_FE/src/components/MapComponent/siteIcons.ts` (deleted)
+- `AncientDataWebGIS_FE/src/components/MapComponent/Styles/markerStyles.ts`, `MapContent.tsx`, `MapComponent.tsx`, `MapInfoCard.tsx`, `useMapInteractions.ts`
+- `AncientDataWebGIS_FE/src/components/MapLegend/MapLegend.tsx`, `demColorRamp.ts` (doc-comment cross-reference only)
+- `AncientDataWebGIS_FE/src/pages/SiteInfo.tsx`, `Dashboard.tsx`
+- `AncientDataWebGIS_FE/AGENTS.md` (new `## Type Registries` section)
+
+**Tests:**
+- New `siteTypesConfig.test.ts`: regression test asserting `getSiteIcon('ptum')` resolves
+  to a different icon than `getSiteIcon('tum')`.
+- Full frontend suite: 162/162 tests passing; lint and `npm run build` both clean.
+
+---
+
 ### E3 — Raster / GeoTIFF Delivery 🚧 (In Progress)
 
 **Status:** E3-1 through E3-8 all delivered (August 2026).
@@ -991,13 +1044,43 @@ a port that's intentionally never forwarded externally.
 
 **ADR:** Not needed. Per `AGENTS.md`'s ADR criteria (new tech/libraries, or a change to storage/CI-CD/security strategy), this story doesn't qualify — it stays within ADR-012's already-decided COG+GWC approach and fills in parameters the ADR explicitly deferred to this story, rather than introducing a new decision. Matches E3-2's precedent of recording a non-architectural decision in this write-up instead of touching the ADR. `ADR-012` itself is unchanged.
 
-**Outstanding / manual follow-up (E3-4, project owner):**
-- Run `gdalinfo` on the real ~80GB source DEM to confirm native pixel size and adjust the documented overview-level/zoom-range starting point (8–18) if needed.
-- Run the documented `gdal_translate -of COG` conversion (test the optional `LERC_ZSTD` compression variant if `DEFLATE` output size is still impractical for the NAS).
-- Copy the converted COG to `/volume1/docker/ancientdata/rastermaps/dem/<collection>/`, publish it as a GeoServer store/layer, enable GWC caching — same manual steps as every other raster (E3.1 runbook's general recipe).
-- Verify actual tile-serving performance on the NAS's 4GB RAM at the z8–18 range; if unacceptable, this is the documented trigger to fall back to Option B for this layer specifically (ADR-012 "When to Revisit").
-- Once published, add the `RasterLayerDTO` catalog entry (`category = DEM`, real bounds read from GeoServer) — small follow-up PR, same shape as E3-2's two historical-map entries.
-- Decide DEM visualization style (plain color ramp vs. hillshade/shaded relief) as part of E3-5, once real tiles exist to evaluate.
+**Outstanding / manual follow-up (E3-4, project owner) — resolved since this write-up, see E3-5 below:**
+- ~~Run `gdalinfo` on the real source DEM(s)~~ — done; real measured min/max per area recorded in `docs/features/dem-elevation-ramp.sld`'s header comment.
+- ~~Run the `gdal_translate -of COG` conversion, publish to GeoServer, enable GWC~~ — done; five DEM areas (Swalmen, Venlo-Geldern, Mönchengladbach x2, the regional Gelderland-NRW layer), each with an elevation layer and a hillshade sibling, are live in the catalog (`docs/architecture/sql/raster_layer.sql`).
+- ~~Decide DEM visualization style (plain color ramp vs. hillshade)~~ — resolved as **both, combined**: a shared elevation colour-ramp GeoServer style plus an independently-toggleable hillshade layer blended on top client-side. See E3-5.
+- Still open: verify actual tile-serving performance on the NAS's 4GB RAM under real usage — no measurement recorded yet; the documented fallback (ADR-012 "When to Revisit") remains available if it proves unacceptable.
+
+---
+
+**What was delivered (E3-5):**
+- **Visualization-style decision** (left open by E3-4): resolved as **hillshade + colour ramp combined**, not one or the other. A shared GeoServer `RasterSymbolizer` style (`docs/features/dem-elevation-ramp.sld`) renders every DEM-category elevation layer with one colour ramp; each elevation layer also has an independently-toggleable multidirectional-hillshade sibling (GeoServer's default greyscale style, flagged via a new `hillshade` boolean on `RasterLayerDTO`/the catalog). The ramp intentionally targets regional geomorphology reading (Veluwe/Reichswald moraine highs vs. Rhine/Maas lowlands) at small-to-mid zoom; revealing archaeological microrelief is the hillshade layer's job instead.
+- **Ramp range sourced from real data, not assumed:** `gdalinfo -stats` was run against all five published DEM areas; combined measured range -21.07m to 151.21m, padded to -25/155 for the 8-stop ramp — recorded in the SLD's header comment for traceability.
+- **Frontend rendering:** hillshade tiles render via a new `.physical-layer--hillshade` CSS class (`mix-blend-mode: multiply`) so they darken/texture whatever's beneath them instead of drawing as an opaque layer, relying on the hillshade sibling being ordered directly above its elevation counterpart in the Physical group's z-order (same `id`-ordering convention `raster_layer` already preserves, per E3-6). `RasterLayerDTO`'s new `hillshade` field threads through `RasterService.ts` → `PhysicalLayerState` (`useMapInteractions.ts`) → `buildPhysicalLayer` (`mapUtils.ts`).
+- **`MapLegend`'s Elevation section:** built out `demColorRamp.ts` (hand-kept TS mirror of the SLD's 8 `<ColorMapEntry>` stops — same "static/curated, kept in sync by hand" pattern as `roadStyleEntries`/`siteTypeEntries`) and wired it into the section body, plus the name/attribution meta line already scaffolded by E9-5/E3-3. Critically, the section keys off `useActiveDemLayer`'s DEM-**category** signal (E3-3), not "any visible Physical layer with `hillshade: true`" — a hillshade sibling has no colour ramp of its own to explain, so a hillshade-only-visible DEM area correctly does *not* trigger the Elevation section (dedicated regression test, see below).
+- Delivered across two commits: the backend SLD/`hillshade` field/GWC-header-passthrough work (`d19f7eb`, 2026-08-18) and the frontend `MapLegend`/`demColorRamp.ts` wiring (`1fa2e93`, 2026-08-24) in `AncientDataWebGIS_FE`.
+
+**Impact:**
+- The Atlas `MapLegend` now shows real elevation colour-ramp content and attribution whenever a DEM layer is visible, closing the seam E9-5/E3-3 intentionally left open.
+- Hillshade layers give the microrelief detail (Roman road embankments, tumuli, Celtic field lynchets) the flat colour ramp alone couldn't reveal, without requiring a second "Elevation" legend entry or new UI concept — same Physical-group toggle/opacity controls as any other raster.
+
+**Files changed (backend):**
+- `docs/features/dem-elevation-ramp.sld` (new)
+- `src/main/java/com/webgis/ancientdata/domain/dto/RasterLayerDTO.java` (`hillshade` field), `RasterCatalogService.java` (catalog entries), `RasterProxyService.java` (GWC cache-header passthrough)
+- `docs/architecture/sql/raster_layer.sql` (10 real DEM/hillshade entries across 5 areas)
+
+**Files changed (frontend):**
+- `AncientDataWebGIS_FE/src/components/MapLegend/demColorRamp.ts` (new), `MapLegend.tsx`, `MapLegend.css`
+- `AncientDataWebGIS_FE/src/components/MapComponent/MapContent.css` (`.physical-layer--hillshade`), `MapContent.tsx`, `mapUtils.ts`, `useMapInteractions.ts`
+- `AncientDataWebGIS_FE/src/types/raster.ts` (`hillshade` field)
+
+**Tests:**
+- `MapLegend.test.tsx`: every `demColorRamp` stop renders in the Elevation section once `activeDemLayerName` is set.
+- `MapContent.test.tsx`: a hillshade catalog entry renders with the `.physical-layer--hillshade` class; a dedicated regression test confirms the Elevation section does **not** appear when only a hillshade-category-`DEM` layer (not its elevation sibling) is visible.
+- Full frontend suite: 162/162 passing (current `AncientDataWebGIS_FE` state); `npm run lint`/`npm run build` clean.
+
+**Outstanding:** None known for this story specifically. NAS-scale tile-serving performance under real usage remains open under E3-4 (see above), not specific to the legend/hillshade rendering.
+
+**Also fixing:** This write-up itself — E3-5 had already shipped in both repos but was never documented here, so it read as outstanding in status summaries. No code changes were needed, only this backlog entry.
 
 ---
 
