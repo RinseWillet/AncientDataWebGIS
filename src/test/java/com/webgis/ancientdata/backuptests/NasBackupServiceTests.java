@@ -2,6 +2,8 @@ package com.webgis.ancientdata.backuptests;
 
 import com.webgis.ancientdata.application.service.NasBackupService;
 import com.webgis.ancientdata.config.NasBackupConfig;
+import com.webgis.ancientdata.domain.model.BackupOutcome;
+import com.webgis.ancientdata.domain.model.BackupRunResult;
 import com.webgis.ancientdata.domain.model.BackupType;
 import com.webgis.ancientdata.domain.repository.BackupHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +15,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class NasBackupServiceTests {
@@ -96,6 +99,43 @@ class NasBackupServiceTests {
 
         // Verify orphan file was deleted
         assertFalse(Files.exists(orphanFile));
+    }
+
+    @Test
+    void testSync_WhenEnabledAndFileExists_ReturnsSuccessResult() throws Exception {
+        config.setEnabled(true);
+        service.init();
+
+        Path localFile = mediaRoot.resolve("test.txt");
+        Files.writeString(localFile, "test content");
+
+        BackupRunResult result = service.sync();
+
+        assertEquals(BackupOutcome.SUCCESS, result.outcome());
+    }
+
+    @Test
+    void testSync_WhenMountUnavailable_ReturnsFailureResult() {
+        // nasBackupRoot stays null because init() was never called (or was
+        // disabled), mirroring the ADR-006 "mount disappeared after startup" case.
+        BackupRunResult result = service.sync();
+
+        assertEquals(BackupOutcome.FAILURE, result.outcome());
+    }
+
+    @Test
+    void testSync_WhenBackupHistoryPersistenceFails_StillReturnsRealOutcome() throws Exception {
+        // Simulates backup_history being missing on the shared, manually-migrated
+        // production database (docs/architecture/DB-MIGRATION-STRATEGY.md) — the
+        // real sync outcome must still reach the caller instead of a 500.
+        config.setEnabled(true);
+        service.init();
+        doThrow(new org.springframework.dao.InvalidDataAccessResourceUsageException("relation \"backup_history\" does not exist"))
+                .when(backupHistoryRepository).save(any());
+
+        BackupRunResult result = service.sync();
+
+        assertEquals(BackupOutcome.SUCCESS, result.outcome());
     }
 
     @Test

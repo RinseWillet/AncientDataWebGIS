@@ -5,6 +5,7 @@ import com.webgis.ancientdata.application.service.support.ProcessExecutor;
 import com.webgis.ancientdata.config.DbBackupConfig;
 import com.webgis.ancientdata.domain.model.BackupHistory;
 import com.webgis.ancientdata.domain.model.BackupOutcome;
+import com.webgis.ancientdata.domain.model.BackupRunResult;
 import com.webgis.ancientdata.domain.model.BackupType;
 import com.webgis.ancientdata.domain.repository.BackupHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,6 +95,39 @@ class DbBackupServiceTests {
         BackupHistory saved = captor.getValue();
         assertEquals(BackupOutcome.FAILURE, saved.getOutcome());
         assertTrue(saved.getMessage().contains("pg_dump not found"));
+    }
+
+    @Test
+    void testRun_WhenPgDumpSucceeds_ReturnsSuccessResult() throws Exception {
+        when(processExecutor.runToFile(any(), any(), any())).thenReturn(0);
+
+        BackupRunResult result = service.run();
+
+        assertEquals(BackupOutcome.SUCCESS, result.outcome());
+    }
+
+    @Test
+    void testRun_WhenPgDumpFails_ReturnsFailureResult() throws Exception {
+        when(processExecutor.runToFile(any(), any(), any())).thenReturn(1);
+
+        BackupRunResult result = service.run();
+
+        assertEquals(BackupOutcome.FAILURE, result.outcome());
+    }
+
+    @Test
+    void testRun_WhenBackupHistoryPersistenceFails_StillReturnsRealOutcome() throws Exception {
+        // Simulates backup_history being missing on the shared, manually-migrated
+        // production database (docs/architecture/DB-MIGRATION-STRATEGY.md) — the
+        // real pg_dump outcome must still reach the caller instead of a 500.
+        when(processExecutor.runToFile(any(), any(), any())).thenReturn(0);
+        doThrow(new org.springframework.dao.InvalidDataAccessResourceUsageException("relation \"backup_history\" does not exist"))
+                .when(backupHistoryRepository).save(any());
+
+        BackupRunResult result = service.run();
+
+        assertEquals(BackupOutcome.SUCCESS, result.outcome());
+        assertTrue(result.message().contains("Database backup written to"));
     }
 }
 

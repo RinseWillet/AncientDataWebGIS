@@ -98,7 +98,13 @@ The Docker image includes the `postgresql-client` package so `pg_dump` is availa
 
 ### Purpose
 
-Backs up both **PostgreSQL database** and **media files** as a single timestamped archive for disaster recovery.
+Backs up the **PostgreSQL database**, **media files**, and **GeoServer settings** (`data_dir` — workspaces,
+stores, styles, security config, GWC cache config) as a single timestamped archive for disaster recovery.
+
+Note: this GeoServer component is *not* the same thing as `NasBackupService`/`DbBackupService` above — it's
+the only mechanism that backs up GeoServer config at all. It intentionally does **not** include
+`/volume1/docker/ancientdata/rastermaps` (the raw source rasters) — ADR-012 keeps that mount separate from
+`data_dir` specifically so it can be backed up on its own without bloating this config archive.
 
 ### Location
 
@@ -129,8 +135,9 @@ scripts/backup.sh
 Creates timestamped archive:
 ```
 ancientdata-backup-20260611-150000.tar.gz
-├── ancientdata-backup-20260611-150000-db.sql      # PostgreSQL dump
-└── ancientdata-backup-20260611-150000-media.tar.gz # Media files
+├── ancientdata-backup-20260611-150000-db.sql         # PostgreSQL dump
+├── ancientdata-backup-20260611-150000-media.tar.gz    # Media files
+└── ancientdata-backup-20260611-150000-geoserver.tar.gz # GeoServer data_dir (settings)
 ```
 
 ### Configuration
@@ -142,6 +149,7 @@ Script reads from environment:
 - `POSTGRES_PASSWORD` — DB password (required, use .env)
 - `POSTGRES_DB` — database name (default: webGIS_DB)
 - `MEDIA_STORAGE_PATH` — media directory (default: /volume1/docker/ancientdata/media)
+- `GEOSERVER_DATA_PATH` — GeoServer data_dir (default: /volume1/docker/ancientdata/geoserver)
 
 ### Retention Policy
 
@@ -184,11 +192,8 @@ Script automatically keeps the last 7 backups and deletes older ones.
    0 2 * * * /volume1/docker/scripts/backup.sh /volume1/docker/ancientdata/backups >> /volume1/docker/ancientdata/backups/backup.log 2>&1
    ```
 
-4. **Copy external backups (e.g., USB):**
-   ```bash
-   # Weekly or monthly
-   cp /volume1/docker/ancientdata/backups/ancientdata-backup-*.tar.gz /mnt/external-drive/
-   ```
+4. **Off-device copy:** see "Part 3: Off-Device Redundancy" below — Cloud Sync to Google Drive supersedes a
+   manual `cp` to an external drive.
 
 ### Docker Compose (docker-compose.yml)
 
@@ -221,11 +226,87 @@ tar -xzf ancientdata-backup-20260611-150000.tar.gz
 PGPASSWORD="password" psql -h 84.84.172.110 -p 2665 -U postgres -d webGIS_DB < ancientdata-backup-20260611-150000-db.sql
 ```
 
+### Restore GeoServer Settings Only
+
+```bash
+# Extract GeoServer data_dir from backup archive
+tar -xzf ancientdata-backup-20260611-150000.tar.gz
+tar -xzf ancientdata-backup-20260611-150000-geoserver.tar.gz
+
+# Restore to the NAS bind-mounted path, then fix ownership/permissions
+# (see ancientdataworkspace/docs/deployment-recovery.md §11.F for the full
+# rationale — GeoServer's container UID/GID must be able to write here)
+sudo rm -rf /volume1/docker/ancientdata/geoserver
+sudo cp -r geoserver /volume1/docker/ancientdata/geoserver
+sudo chown -R 1000:1000 /volume1/docker/ancientdata/geoserver
+sudo find /volume1/docker/ancientdata/geoserver -type d -exec chmod 775 {} \;
+sudo find /volume1/docker/ancientdata/geoserver -type f -exec chmod 664 {} \;
+
+cd /volume1/docker/AncientDataWebGIS
+docker compose up -d --force-recreate geoserver
+```
+
 ### Full Restore
 
 1. Restore database (see above)
-2. Restore media (see above)
-3. Restart application
+2. Restore GeoServer settings (see above)
+3. Restore media (see above)
+4. Restart application
+
+---
+
+## Part 3: Off-Device Redundancy
+
+### Purpose
+
+Parts 1 and 2 both write to `/volume1/docker/ancientdata/backup*` — a *different folder*, but still the
+**same physical NAS** as the primary data. That protects against accidental deletion or a bad deploy, but
+not against NAS-level failure, theft, or fire. Synology **Cloud Sync** pushes these folders to Google Drive
+on a schedule, closing that gap without any extra physical media (see ADR-006, which flagged this as an
+open item).
+
+Cloud Sync is a **free** DSM package (Package Center, no Synology license/subscription) and authenticates
+via your own Google account's OAuth login — it writes against your normal Google Drive storage quota, the
+same as installing Google Drive on a laptop. This is a different mechanism from the original (abandoned)
+`GoogleDriveBackupService`, which used a **service account** with no storage quota of its own and hit
+`storageQuotaExceeded`; that specific blocker does not apply here. It's also unrelated to Synology C2
+(Synology's own paid cloud service) or Active Backup for Google Workspace (backs up *from* a paid Workspace
+account, the opposite direction) — no additional paid product is involved.
+
+This is DSM GUI/Package Center configuration on the NAS itself — there is no application code or CLI
+script for it, so it isn't executable from a dev machine or CI, though DSM (and Cloud Sync's setup wizard)
+is reachable remotely via QuickConnect if you're not on the home LAN. Configure it once, directly on the NAS:
+
+### Setup (Cloud Sync → Google Drive)
+
+1. **Package Center** → install **Cloud Sync** (free, bundled package listing).
+2. Open **Cloud Sync** → **+** → select **Google Drive** → sign in with your own Google account (OAuth
+   consent screen) → authorize.
+3. **Local path**: choose/create a dedicated folder, e.g. `/volume1/docker/ancientdata-cloud-sync/`, and
+   copy or symlink in the two folders to protect:
+   - `/volume1/docker/ancientdata/backup` (in-app DB dump + media mirror, `NasBackupService`/`DbBackupService`)
+   - `/volume1/docker/ancientdata/backups` (the full timestamped archive from `scripts/backup.sh`, now
+     including the GeoServer `data_dir` tar — see Part 2)
+
+   (Cloud Sync syncs a single configured local folder tree to the remote; point it at a parent directory
+   that contains both, or configure two separate Cloud Sync tasks — one per folder — if you'd rather keep
+   them as distinct Drive folders.)
+4. **Remote path**: a dedicated Drive folder, e.g. `AncientDataWebGIS-Backups`.
+5. **Sync direction**: Upload only (NAS → Google Drive) — this is a one-way backup, not a two-way sync;
+   nothing should ever be edited on the Drive side and synced back.
+6. **Schedule**: Cloud Sync watches the local folder continuously by default; if you'd rather it only run
+   at a fixed time (to avoid syncing partial files mid-write), use its task schedule settings and set it
+   for after the 02:00 `backup.sh` cron run and the 03:00 in-app media sync (e.g. 04:00).
+7. File versioning: Google Drive keeps its own revision history per file; Cloud Sync itself doesn't need
+   extra version-retention config for this use case (unlike Hyper Backup) — `backup.sh`'s own 7-archive
+   retention already keeps the working set bounded.
+
+### Verification
+
+- Trigger a manual sync (or wait for the schedule) and confirm the Drive folder contains the latest
+  `ancientdata-backup-*.tar.gz` and current `backup/db`, `backup/media` contents.
+- Periodically (e.g. after a schema or GeoServer config change) download one of the archived files from
+  Drive and verify it actually restores — an unverified backup is not a trustworthy backup.
 
 ---
 
@@ -267,6 +348,9 @@ fi
 | DB backup fails | PostgreSQL credentials wrong | Verify `POSTGRES_PASSWORD` in `.env` |
 | Old backups not deleted | No write permission | Check directory ownership/permissions |
 | Huge archive size | Media directory includes large files | Consider excluding in `backup.sh` tar command |
+| GeoServer member missing from archive | `GEOSERVER_DATA_PATH` not found on that run | Check `backup.log` for the `WARNING: GeoServer data_dir not found` line; verify the path/mount |
+| "Back up now" always says "Backup triggered" regardless of outcome, or returns a 500 / "Failed to trigger backup" | Old behavior before the outcome-reporting fix (see ADR-006 addendum); a 500 specifically meant `backup_history` was missing on the live DB and an unhandled save failure crashed the request | Redeploy the current backend — the response now reflects real success/failure, and a `backup_history` persistence failure is logged, not thrown |
+| Status panel keeps showing "Never"/stale even though "Back up now" reports success | `backup_history` table missing on the live DB (Flyway is disabled — schema is manual, see `DB-MIGRATION-STRATEGY.md`); the backup itself succeeds but its outcome isn't recorded | Apply `docs/architecture/sql/backup_history.sql` via `psql`/pgAdmin against the shared PostGIS DB |
 
 ---
 
@@ -277,4 +361,9 @@ fi
 - Endpoints: `POST /api/backup/sync`, `GET /api/backup/status` (admin only)
 - Schema: `docs/architecture/sql/backup_history.sql` (apply manually — see `docs/architecture/DB-MIGRATION-STRATEGY.md`)
 - Admin UI: `AncientDataWebGIS_FE/src/pages/AdminPanel.tsx`
+- Full backup script (DB + media + GeoServer): `scripts/backup.sh`
+- ADR: `docs/architecture/adr/ADR-006-media-backup-nas-sync.md` (media sync decision, DB backup addendum,
+  outcome-reporting fix addendum, off-device redundancy)
+- ADR: `docs/architecture/adr/ADR-012-raster-publishing-pipeline.md` (rationale for keeping `rastermaps`
+  separate from GeoServer's `data_dir`)
 

@@ -11,6 +11,7 @@ TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 BACKUP_NAME="ancientdata-backup-${TIMESTAMP}"
 DB_DUMP="${BACKUP_DIR}/${BACKUP_NAME}-db.sql"
 MEDIA_TAR="${BACKUP_DIR}/${BACKUP_NAME}-media.tar.gz"
+GEOSERVER_TAR="${BACKUP_DIR}/${BACKUP_NAME}-geoserver.tar.gz"
 ARCHIVE="${BACKUP_DIR}/${BACKUP_NAME}.tar.gz"
 LOG_FILE="${BACKUP_DIR}/backup.log"
 
@@ -20,6 +21,11 @@ DB_PORT="${DATABASE_PORT:-2665}"
 DB_USER="${POSTGRES_USER:-postgres}"
 DB_NAME="${POSTGRES_DB:-webGIS_DB}"
 MEDIA_PATH="${MEDIA_STORAGE_PATH:-/volume1/docker/ancientdata/media}"
+# GeoServer data_dir (workspaces, stores, styles, security config, GWC cache
+# config) — NOT the raw source rasters mount (rastermaps), which ADR-012
+# deliberately keeps as a separate top-level NAS directory so it can be
+# backed up independently without bloating this config archive.
+GEOSERVER_DATA_PATH="${GEOSERVER_DATA_PATH:-/volume1/docker/ancientdata/geoserver}"
 
 echo "[$(date)] Starting AncientDataWebGIS backup..." >> "$LOG_FILE"
 
@@ -50,9 +56,23 @@ else
     echo "[$(date)] WARNING: Media directory not found: $MEDIA_PATH" >> "$LOG_FILE"
 fi
 
-# 3. Create combined archive
+# 3. Backup GeoServer settings (data_dir: workspaces, stores, styles, security, GWC cache config)
+echo "[$(date)] Backing up GeoServer data_dir from: $GEOSERVER_DATA_PATH..." >> "$LOG_FILE"
+if [ -d "$GEOSERVER_DATA_PATH" ]; then
+    if tar -czf "$GEOSERVER_TAR" -C "$(dirname "$GEOSERVER_DATA_PATH")" "$(basename "$GEOSERVER_DATA_PATH")" 2>> "$LOG_FILE"; then
+        GEOSERVER_SIZE=$(du -h "$GEOSERVER_TAR" | cut -f1)
+        echo "[$(date)] GeoServer backup successful: $GEOSERVER_SIZE" >> "$LOG_FILE"
+    else
+        echo "[$(date)] ERROR: GeoServer backup failed" >> "$LOG_FILE"
+        exit 1
+    fi
+else
+    echo "[$(date)] WARNING: GeoServer data_dir not found: $GEOSERVER_DATA_PATH" >> "$LOG_FILE"
+fi
+
+# 4. Create combined archive
 echo "[$(date)] Creating combined backup archive..." >> "$LOG_FILE"
-if tar -czf "$ARCHIVE" -C "$BACKUP_DIR" "$(basename "$DB_DUMP")" "$(basename "$MEDIA_TAR")" 2>> "$LOG_FILE"; then
+if tar -czf "$ARCHIVE" -C "$BACKUP_DIR" "$(basename "$DB_DUMP")" "$(basename "$MEDIA_TAR")" "$(basename "$GEOSERVER_TAR")" 2>> "$LOG_FILE"; then
     ARCHIVE_SIZE=$(du -h "$ARCHIVE" | cut -f1)
     echo "[$(date)] Archive created successfully: $ARCHIVE_SIZE" >> "$LOG_FILE"
 
@@ -63,7 +83,7 @@ else
     exit 1
 fi
 
-# 4. Retention policy: keep only last 7 backups (optional)
+# 5. Retention policy: keep only last 7 backups (optional)
 echo "[$(date)] Cleaning up old backups (keeping last 7)..." >> "$LOG_FILE"
 ls -t "$BACKUP_DIR"/ancientdata-backup-*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm -v >> "$LOG_FILE" 2>&1
 
