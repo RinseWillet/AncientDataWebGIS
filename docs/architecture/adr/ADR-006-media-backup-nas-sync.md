@@ -129,4 +129,60 @@ Key design points:
 - Negative: no automated retention for app-triggered DB dumps yet (deferred, tracked as a follow-up); `pg_dump` invocation depends on network/DNS reachability to the shared PostGIS host from the app container, same as the existing JDBC connection.
 - This does not change the offsite/cloud-backup gap noted above (Alternative A) — dumps still land on the same NAS. Synology HyperBackup (or similar) remains the recommended path for true offsite redundancy.
 
+---
+
+## Addendum (2026-09-04): Fix outcome reporting on `POST /api/backup/sync`
+
+**Context:** This ADR's own "Negative" consequences section (item 3, and E2-BACKUP-NAS-4's addendum) already
+flagged that `POST /api/backup/sync` returns `{"status":"ok"}` even when the underlying sync/dump actually
+failed — `BackupController.runAndReport()` never inspected the real outcome. Investigating a report that the
+admin panel's "Back up now" button "did not work," a second, more severe instance of the same root cause was
+found: `NasBackupService.recordHistory()` / `DbBackupService.recordHistory()` both call
+`backupHistoryRepository.save(...)` **outside** any try/catch. Because `backup_history` is schema owned
+outside this app (Flyway disabled, manual SQL — see `DB-MIGRATION-STRATEGY.md` and
+`docs/architecture/sql/backup_history.sql`), if that table was never applied to the live production database,
+every backup attempt threw an uncaught `DataAccessException` straight out of `run()`/`sync()`, causing the
+endpoint to return `500` and the frontend to show "Failed to trigger backup. Please try again." — a much more
+direct explanation for "the button did not work" than the previously-documented false-positive.
+
+**Decision:**
+- `DbBackupService.run()` / `NasBackupService.sync()` now return a `BackupRunResult` (outcome + message)
+  instead of `void`. `BackupController.runAndReport()` builds its response from this real result
+  (`"ok"`/`"error"`) instead of a hardcoded success message.
+- `recordHistory()` in both services now wraps `backupHistoryRepository.save(...)` in its own try/catch: a
+  persistence failure is logged but no longer prevents the real pg_dump/sync outcome from reaching the
+  caller. The trade-off is explicit — a `backup_history` write failure means that run won't show up in
+  `GET /api/backup/status`/the admin panel's status list, but it will no longer take down the whole
+  request or misreport the backup itself as having failed.
+
+**Consequences:**
+- Positive: the admin panel now shows the real outcome/message on the same click, and a missing/broken
+  `backup_history` table degrades to "status not recorded" instead of "backup trigger crashes."
+- Negative: still no alerting if `backup_history` silently stops recording (only a log line) — acceptable
+  for a single-operator deployment, revisit if this proves easy to miss in practice.
+- This closes item 3 of this ADR's "Negative" consequences and the "Negative" note in the E2-BACKUP-NAS-4
+  addendum above (both superseded by the fix described here).
+- See `docs/BACKUP-STRATEGY.md`'s Troubleshooting table for the operator-facing symptom description.
+
+## Addendum (2026-09-04): Off-device redundancy resolved via Cloud Sync → Google Drive
+
+The "Negative" consequence above ("Synology HyperBackup... remains the recommended path for true offsite
+redundancy") and Alternative B ("retained as a complementary layer, not the primary application backup")
+are now actioned — but via Synology **Cloud Sync** to Google Drive rather than Hyper Backup/USB Copy to a
+physical drive (project owner preferred not to depend on physical media attached to the NAS).
+`docs/BACKUP-STRATEGY.md` Part 3 documents configuring Cloud Sync to push both
+`/volume1/docker/ancientdata/backup` and `/volume1/docker/ancientdata/backups` to a dedicated Google Drive
+folder on a schedule. This is DSM-side configuration, not application code, so it isn't tracked as a code
+change here — see the linked doc for setup steps.
+
+**Why this doesn't repeat the original Google Drive rejection (this ADR's "Alternatives Considered" A, and
+the abandoned `GoogleDriveBackupService`/`plan-nasBackupMigration.prompt.md`):** that attempt used a Google
+Drive API **service account**, which has no storage quota of its own on personal (non-Workspace) Drive,
+hence `storageQuotaExceeded`. Cloud Sync authenticates as the project owner's own Google account via OAuth
+and writes against that account's normal Drive storage — a fundamentally different auth path, not a retry
+of the same blocked approach. It also doesn't reintroduce the "operational coupling" objection from
+Alternative A (`rclone` as an OS-level dependency with separate credential management) — Cloud Sync is a
+first-party DSM package configured entirely through the GUI, the same operational tier as Hyper Backup,
+which this ADR already accepted as the recommended offsite layer.
+
 

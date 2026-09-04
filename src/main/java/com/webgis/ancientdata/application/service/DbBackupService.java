@@ -4,6 +4,7 @@ import com.webgis.ancientdata.application.service.support.ProcessExecutor;
 import com.webgis.ancientdata.config.DbBackupConfig;
 import com.webgis.ancientdata.domain.model.BackupHistory;
 import com.webgis.ancientdata.domain.model.BackupOutcome;
+import com.webgis.ancientdata.domain.model.BackupRunResult;
 import com.webgis.ancientdata.domain.model.BackupType;
 import com.webgis.ancientdata.domain.repository.BackupHistoryRepository;
 import org.slf4j.Logger;
@@ -44,12 +45,16 @@ public class DbBackupService {
 
     /**
      * Runs pg_dump and records the outcome. Never throws — failures are captured
-     * as a FAILURE row in backup_history.
+     * as a FAILURE row in backup_history (best-effort; see {@link #recordHistory}).
+     *
+     * @return the actual outcome of this run, for callers (e.g. the admin "back up
+     *         now" endpoint) that need to report real success/failure rather than
+     *         assuming the call succeeded just because it returned.
      */
-    public void run() {
+    public BackupRunResult run() {
         if (!config.isEnabled()) {
             logger.info("Database backup is disabled");
-            return;
+            return BackupRunResult.failure("Database backup is not enabled");
         }
 
         Instant startedAt = Instant.now();
@@ -91,8 +96,15 @@ public class DbBackupService {
         }
 
         recordHistory(startedAt, outcome, message);
+        return new BackupRunResult(outcome, message);
     }
 
+    /**
+     * Persists the outcome for audit/status purposes. This is best-effort: a
+     * persistence failure here (e.g. the backup_history table missing on the
+     * shared, manually-migrated production database — see DB-MIGRATION-STRATEGY.md)
+     * must not mask the real pg_dump outcome from the caller by throwing.
+     */
     private void recordHistory(Instant startedAt, BackupOutcome outcome, String message) {
         BackupHistory history = new BackupHistory();
         history.setBackupType(BackupType.DATABASE);
@@ -100,7 +112,11 @@ public class DbBackupService {
         history.setStartedAt(startedAt);
         history.setFinishedAt(Instant.now());
         history.setMessage(message);
-        backupHistoryRepository.save(history);
+        try {
+            backupHistoryRepository.save(history);
+        } catch (RuntimeException e) {
+            logger.error("Failed to persist backup_history row for database backup: {}", e.getMessage(), e);
+        }
     }
 }
 

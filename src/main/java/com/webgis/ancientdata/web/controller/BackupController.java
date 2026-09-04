@@ -6,6 +6,8 @@ import com.webgis.ancientdata.application.service.NasBackupService;
 import com.webgis.ancientdata.config.DbBackupConfig;
 import com.webgis.ancientdata.config.NasBackupConfig;
 import com.webgis.ancientdata.domain.dto.BackupStatusDTO;
+import com.webgis.ancientdata.domain.model.BackupOutcome;
+import com.webgis.ancientdata.domain.model.BackupRunResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("/api/backup")
@@ -60,9 +63,10 @@ public class BackupController {
         return ResponseEntity.ok(backupStatusService.getStatus());
     }
 
-    private Map<String, String> runAndReport(Runnable backupAction) {
-        backupAction.run();
-        return Map.of(STATUS, "ok", MESSAGE, "Backup triggered");
+    private Map<String, String> runAndReport(Supplier<BackupRunResult> backupAction) {
+        BackupRunResult result = backupAction.get();
+        String status = result.outcome() == BackupOutcome.SUCCESS ? "ok" : "error";
+        return Map.of(STATUS, status, MESSAGE, result.message());
     }
 }
 

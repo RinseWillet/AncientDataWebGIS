@@ -3,6 +3,7 @@ package com.webgis.ancientdata.application.service;
 import com.webgis.ancientdata.config.NasBackupConfig;
 import com.webgis.ancientdata.domain.model.BackupHistory;
 import com.webgis.ancientdata.domain.model.BackupOutcome;
+import com.webgis.ancientdata.domain.model.BackupRunResult;
 import com.webgis.ancientdata.domain.model.BackupType;
 import com.webgis.ancientdata.domain.repository.BackupHistoryRepository;
 import jakarta.annotation.PostConstruct;
@@ -78,14 +79,19 @@ public class NasBackupService {
     /**
      * Full bidirectional sync: copies new/modified local files to NAS,
      * deletes remote files whose local counterpart no longer exists.
+     *
+     * @return the actual outcome of this run, for callers (e.g. the admin "back up
+     *         now" endpoint) that need to report real success/failure rather than
+     *         assuming the call succeeded just because it returned.
      */
-    public void sync() {
+    public BackupRunResult sync() {
         Instant startedAt = Instant.now();
 
         if (nasBackupRoot == null || !Files.exists(nasBackupRoot)) {
             logger.warn("NAS backup mount not available — skipping sync");
-            recordHistory(startedAt, BackupOutcome.FAILURE, "NAS backup mount not available");
-            return;
+            String message = "NAS backup mount not available";
+            recordHistory(startedAt, BackupOutcome.FAILURE, message);
+            return BackupRunResult.failure(message);
         }
 
         logger.info("Starting NAS backup sync...");
@@ -94,13 +100,23 @@ public class NasBackupService {
             Set<String> localKeys = syncLocalFiles(remoteFiles);
             deleteOrphanedRemoteFiles(remoteFiles, localKeys);
             logger.info("NAS backup sync completed");
-            recordHistory(startedAt, BackupOutcome.SUCCESS, "Synced " + localKeys.size() + " file(s)");
+            String message = "Synced " + localKeys.size() + " file(s)";
+            recordHistory(startedAt, BackupOutcome.SUCCESS, message);
+            return BackupRunResult.success(message);
         } catch (IOException e) {
             logger.error("NAS backup sync failed: {}", e.getMessage());
-            recordHistory(startedAt, BackupOutcome.FAILURE, "NAS backup sync failed: " + e.getMessage());
+            String message = "NAS backup sync failed: " + e.getMessage();
+            recordHistory(startedAt, BackupOutcome.FAILURE, message);
+            return BackupRunResult.failure(message);
         }
     }
 
+    /**
+     * Persists the outcome for audit/status purposes. This is best-effort: a
+     * persistence failure here (e.g. the backup_history table missing on the
+     * shared, manually-migrated production database — see DB-MIGRATION-STRATEGY.md)
+     * must not mask the real sync outcome from the caller by throwing.
+     */
     private void recordHistory(Instant startedAt, BackupOutcome outcome, String message) {
         BackupHistory history = new BackupHistory();
         history.setBackupType(BackupType.MEDIA);
@@ -108,7 +124,11 @@ public class NasBackupService {
         history.setStartedAt(startedAt);
         history.setFinishedAt(Instant.now());
         history.setMessage(message);
-        backupHistoryRepository.save(history);
+        try {
+            backupHistoryRepository.save(history);
+        } catch (RuntimeException e) {
+            logger.error("Failed to persist backup_history row for media backup: {}", e.getMessage(), e);
+        }
     }
 
     /**
