@@ -104,7 +104,12 @@ stores, styles, security config, GWC cache config) as a single timestamped archi
 Note: this GeoServer component is *not* the same thing as `NasBackupService`/`DbBackupService` above — it's
 the only mechanism that backs up GeoServer config at all. It intentionally does **not** include
 `/volume1/docker/ancientdata/rastermaps` (the raw source rasters) — ADR-012 keeps that mount separate from
-`data_dir` specifically so it can be backed up on its own without bloating this config archive.
+`data_dir` specifically so it can be backed up on its own without bloating this config archive. It also
+excludes GWC's rendered tile cache (`data_dir/gwc/<layer>/`) — regenerable render output, not config, that
+would otherwise dwarf the archive and grow unbounded as layers are published. GWC's own config files
+directly under `gwc/` (`geowebcache.xml`, `geowebcache-diskquota.xml`, etc.) are kept. A restore without the
+tile cache works identically — GeoServer just re-renders each tile on first request instead of serving a
+cached one, then GWC repopulates normally.
 
 ### Location
 
