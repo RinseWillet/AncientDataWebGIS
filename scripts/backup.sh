@@ -57,9 +57,19 @@ else
 fi
 
 # 3. Backup GeoServer settings (data_dir: workspaces, stores, styles, security, GWC cache config)
+# GWC's rendered tile cache (data_dir/gwc/<workspace>_<layer>_.../) is excluded — it's regenerable
+# render output, not config, and would otherwise dwarf the rest of this archive (grows unbounded
+# as layers are published/re-rendered). GWC's own config files directly under gwc/ (geowebcache.xml,
+# geowebcache-diskquota.xml, etc.) are kept. Per-layer cache dirs are named after the "ancientdata"
+# GeoServer workspace; gwc/tmp and gwc/diskquota_page_store_hsql are GWC's own scratch/bookkeeping
+# dirs, safe to drop and rebuilt automatically.
 echo "[$(date)] Backing up GeoServer data_dir from: $GEOSERVER_DATA_PATH..." >> "$LOG_FILE"
 if [ -d "$GEOSERVER_DATA_PATH" ]; then
-    if tar -czf "$GEOSERVER_TAR" -C "$(dirname "$GEOSERVER_DATA_PATH")" "$(basename "$GEOSERVER_DATA_PATH")" 2>> "$LOG_FILE"; then
+    if tar -czf "$GEOSERVER_TAR" \
+        --exclude="$(basename "$GEOSERVER_DATA_PATH")/gwc/ancientdata_*" \
+        --exclude="$(basename "$GEOSERVER_DATA_PATH")/gwc/tmp" \
+        --exclude="$(basename "$GEOSERVER_DATA_PATH")/gwc/diskquota_page_store_hsql" \
+        -C "$(dirname "$GEOSERVER_DATA_PATH")" "$(basename "$GEOSERVER_DATA_PATH")" 2>> "$LOG_FILE"; then
         GEOSERVER_SIZE=$(du -h "$GEOSERVER_TAR" | cut -f1)
         echo "[$(date)] GeoServer backup successful: $GEOSERVER_SIZE" >> "$LOG_FILE"
     else
