@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -48,6 +49,28 @@ public class GlobalExceptionHandler {
         response.put("error", exception.getStatusCode());
         response.put("message", exception.getReason());
         response.put("details", exception.getMessage());
+        response.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(response, exception.getStatusCode());
+    }
+
+    /**
+     * Missing static asset (e.g. a stale/renamed chunk requested by a cached HTML
+     * page). This does NOT extend ResponseStatusException - it implements the
+     * separate ErrorResponse interface instead - so without this handler it fell
+     * through to {@link #handleUnhandledExceptions} below, which hardcodes 500 and
+     * turned every ordinary 404 for a missing file into a misleading "unexpected
+     * error" response.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFoundException(
+            NoResourceFoundException exception, WebRequest request) {
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", exception.getStatusCode().value());
+        response.put("error", exception.getStatusCode());
+        response.put("message", "Resource not found: " + exception.getResourcePath());
         response.put("path", request.getDescription(false).replace("uri=", ""));
 
         return new ResponseEntity<>(response, exception.getStatusCode());
