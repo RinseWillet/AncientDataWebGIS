@@ -66,6 +66,7 @@ public class SecurityConfig {
                         // API endpoints
                         .requestMatchers(HttpMethod.GET, SITES_URL).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/sites/*/modern-reference").hasAnyRole(USER, ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/api/sites/*/ancient-reference").hasAnyRole(USER, ADMIN)
                         .requestMatchers(HttpMethod.POST, SITES_URL).denyAll()
                         .requestMatchers(HttpMethod.PUT, SITES_URL).denyAll()
                         .requestMatchers(HttpMethod.DELETE, SITES_URL).denyAll()
@@ -76,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, ROAD_URL).denyAll()
                         .requestMatchers(HttpMethod.GET, DASHBOARD_URL).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/modernreferences/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ancientreferences/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/media").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/media/files/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/media/admin").hasRole(ADMIN)

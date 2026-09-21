@@ -1,10 +1,13 @@
 package com.webgis.ancientdata.application.service;
 
 import com.webgis.ancientdata.constants.ErrorMessages;
+import com.webgis.ancientdata.domain.dto.AncientReferenceDTO;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
+import com.webgis.ancientdata.domain.model.AncientReference;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.domain.repository.AncientReferenceRepository;
 import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.domain.repository.SiteRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
@@ -34,13 +37,16 @@ public class SiteService {
 
 	private final ModernReferenceRepository modernReferenceRepository;
 
+	private final AncientReferenceRepository ancientReferenceRepository;
+
 	private final SiteRepository siteRepository;
 
 	private final GeoJsonConverter geoJsonConverter;
 
-	public SiteService(SiteRepository siteRepository, ModernReferenceRepository modernReferenceRepository, GeoJsonConverter geoJsonConverter) {
+	public SiteService(SiteRepository siteRepository, ModernReferenceRepository modernReferenceRepository, AncientReferenceRepository ancientReferenceRepository, GeoJsonConverter geoJsonConverter) {
 		this.siteRepository = siteRepository;
 		this.modernReferenceRepository = modernReferenceRepository;
+		this.ancientReferenceRepository = ancientReferenceRepository;
 		this.geoJsonConverter = geoJsonConverter;
 	}
 
@@ -61,6 +67,27 @@ public class SiteService {
 
 		}).orElseThrow(() -> {
 			logger.warn("Site with ID {} not found to add a modern reference to", siteId);
+			return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
+		});
+	}
+
+	public Site addAncientReferenceToSite(long siteId, AncientReferenceDTO dto) {
+		return siteRepository.findById(siteId).map(site -> {
+			AncientReference ancientReference;
+
+			if (dto.id() != null) {
+				ancientReference = ancientReferenceRepository.findById(dto.id())
+						.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.ANCIENT_REFERENCE_NOT_FOUND));
+			} else {
+				ancientReference = new AncientReference(dto.name(), dto.author(), dto.work(), dto.book(), dto.page());
+			}
+
+			site.addAncientReference(ancientReference);
+			logger.info("Added ancient reference to site ID {}", siteId);
+			return siteRepository.save(site);
+
+		}).orElseThrow(() -> {
+			logger.warn("Site with ID {} not found to add an ancient reference to", siteId);
 			return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
 		});
 	}
@@ -99,6 +126,15 @@ public class SiteService {
 	public List<ModernReferenceDTO> findModernReferencesBySiteId(long siteId) {
 		return siteRepository.findById(siteId)
 				.map(site -> getModernReferenceDTOList(site.getModernReferenceList()))
+				.orElseThrow(() -> {
+					logger.warn("Site with ID {} not found", siteId);
+					return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
+				});
+	}
+
+	public List<AncientReferenceDTO> findAncientReferencesBySiteId(long siteId) {
+		return siteRepository.findById(siteId)
+				.map(site -> getAncientReferenceDTOList(site.getAncientReferenceList()))
 				.orElseThrow(() -> {
 					logger.warn("Site with ID {} not found", siteId);
 					return new ResponseStatusException(HttpStatus.NOT_FOUND, ErrorMessages.SITE_NOT_FOUND);
@@ -176,6 +212,21 @@ public class SiteService {
 			));
 		}
 		return modernReferenceDTOList;
+	}
+
+	private List<AncientReferenceDTO> getAncientReferenceDTOList(List<AncientReference> ancientReferenceList) {
+		List<AncientReferenceDTO> ancientReferenceDTOList = new ArrayList<>();
+		for (AncientReference ancientReference : ancientReferenceList) {
+			ancientReferenceDTOList.add(new AncientReferenceDTO(
+					ancientReference.getId(),
+					ancientReference.getName(),
+					ancientReference.getAuthor(),
+					ancientReference.getWork(),
+					ancientReference.getBook(),
+					ancientReference.getPage()
+			));
+		}
+		return ancientReferenceDTOList;
 	}
 
 	private void validateSiteDTO(SiteDTO siteDTO) {

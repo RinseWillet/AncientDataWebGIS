@@ -265,6 +265,7 @@ work correctly end-to-end as-is). Full design write-up:
 | E7-3 | E7 | Add `docs/architecture/sql/local-dev-seed.sql` synthetic schema/seed mirror for offline dev | ✅ Done | Medium | S | E7-2 |
 | E7-4 | E7 | Document both remote/offline dev paths in `.env.example` and record decision in `ADR-010` | ✅ Done | Low | S | E7-1, E7-2 |
 | E7-5 | E7 | Fix stale NAS LAN IP (`192.168.1.50` → `192.168.2.13`) across docs/config; verify QGIS remote-edit connectivity end-to-end over WARP | ✅ Done | Medium | S | E7-1 |
+| E7-6 | E7 | Grant `qgis_user` privileges on `arch_sites` (was missing entirely — `roads`/`fieldsystems`/`modernrefs`/`unidentified_linear_objects` are `qgis_user`-owned per `ADR-003`, but `arch_sites` was still `root`-only, so QGIS couldn't read or edit sites at all over the WARP path) | ✅ Done | Medium | S | E7-5 |
 
 ## E11 — OAuth2/OIDC Migration
 
