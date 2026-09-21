@@ -264,6 +264,7 @@ work correctly end-to-end as-is). Full design write-up:
 | E7-2 | E7 | Add optional `docker-compose.local-dev.yml` throwaway PostGIS container + `local-dev` Spring profile | ✅ Done | Medium | M | None |
 | E7-3 | E7 | Add `docs/architecture/sql/local-dev-seed.sql` synthetic schema/seed mirror for offline dev | ✅ Done | Medium | S | E7-2 |
 | E7-4 | E7 | Document both remote/offline dev paths in `.env.example` and record decision in `ADR-010` | ✅ Done | Low | S | E7-1, E7-2 |
+| E7-5 | E7 | Fix stale NAS LAN IP (`192.168.1.50` → `192.168.2.13`) across docs/config; verify QGIS remote-edit connectivity end-to-end over WARP | ✅ Done | Medium | S | E7-1 |
 
 ## E11 — OAuth2/OIDC Migration
 
@@ -1047,7 +1048,7 @@ found `ptum` ("possible barrow") incorrectly rendering with the confirmed-tumulu
 **Outstanding / manual follow-up (E3-3):** None. Automated verification relied on the real-DOM `MapContent.test.tsx` tests (live-browser verification wasn't possible from the initial dev sandbox — no reachable PostGIS/GeoServer backend, same limitation noted under E9). The project owner subsequently smoke-tested live from a real browser (backend on `local-dev` DB profile + real GeoServer over Cloudflare WARP) and confirmed both `1818-de-man-a2`/`a3` render correctly in the Atlas `LayerPanel`'s Physical section, toggle/opacity work, and `useActiveDemLayer`'s category gating behaves as intended (no Elevation section fires for these `HISTORICAL_MAP`-category layers). Tile load latency during that test was higher than production will be, due to the WARP-tunnel-hop dev path — not a code issue (see ADR-012's GWC caching notes).
 
 **Also found during live smoke testing (E3-3, not a code defect — documented here for traceability):**
-- The NAS's actual current LAN IP is `192.168.2.13`, not `192.168.1.50` as `ADR-010`, the E3.1 runbook, `docker-compose.yml`'s comments, and `.env.example` all state — those docs are stale and should be corrected in a follow-up pass.
+- The NAS's actual current LAN IP is `192.168.2.13`, not `192.168.1.50` as `ADR-010`, the E3.1 runbook, `docker-compose.yml`'s comments, and `.env.example` all state — those docs are stale and should be corrected in a follow-up pass. **Fixed under E7-5**: corrected in `.env`, `.env.example`, `README.md`, `ADR-010`, `ADR-012`, the E3.1 runbook, and `ancientdataworkspace/deploy/README.md` §8.
 - Reaching GeoServer from off-LAN via WARP required a Private Network CIDR route the project's Cloudflare Tunnel didn't have configured yet (Zero Trust dashboard → tunnel → **Add a route → Private CIDR** → `192.168.2.0/24`), plus a WARP client Device Settings Profile Split Tunnel setting switched from the default "Exclude" mode (which excludes all private IP ranges by default) to "Include IPs and domains" with that same CIDR explicitly listed. Neither of these was previously documented as a required one-time setup step for a *new* WARP client device beyond what `ADR-010`/the E3.1 runbook already describe for reusing an *already-configured* one.
 
 ---
