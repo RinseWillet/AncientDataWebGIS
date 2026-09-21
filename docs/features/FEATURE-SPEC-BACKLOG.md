@@ -41,6 +41,7 @@ It is structured to support:
 | E12 | k3s Migration | To Do | Migrate the NAS deployment from Docker Compose to a single-node k3s cluster, with a validated rollback path to Compose (depends on E11 being stable first) |
 | E13 | NAS Infra Resilience & Incident Follow-up | To Do | Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage (Docker-daemon-level failure under memory pressure while loading a large DEM via GeoServer/WMS), and close the raster-pipeline documentation gap it exposed |
 | E14 | Backend & Frontend Road/Site Duplication Hardening | To Do | Reduce Road/Site duplication and layering violations surfaced by the 2026-08-25 readability/maintainability audit — backend: HTTP exceptions leaking into `application/service`, duplicated CRUD/exception-translation logic across `RoadService`/`SiteService`, JPA-unsafe Lombok `@Data` entities; frontend (`AncientDataWebGIS_FE`): near-duplicate `RoadInfo`/`SiteInfo` pages, two different Redux Toolkit patterns for the same "fetch by id" operation, an oversized multi-concern `useMapInteractions.ts` — no change to external API behavior or, beyond E14-7, to user-visible UI behavior |
+| E15 | Automatic Image Resizing for Oversized Media Uploads | To Do | Instead of rejecting an admin's photo upload for exceeding the 10 MB `media_asset` limit (`MediaService.MAX_FILE_SIZE`), automatically downscale/recompress it server-side to fit, targeting ~300 DPI print quality where feasible, so a large phone/camera JPEG isn't a dead end |
 
 ---
 
@@ -179,6 +180,26 @@ without a story for the same reason as the backend's small fixes.
 - `useMapInteractions.ts` no longer exists as a single 500+ line file; each extracted module has a single clear concern.
 - `npm run test:run`, `npm run lint` (`--max-warnings 0`), and `npm run build` stay green throughout.
 
+## P1.7 - Automatic Image Resizing for Oversized Media Uploads
+
+Trigger: an admin's 6 MB phone JPEG was rejected by `MediaService.validateFile()`'s
+10 MB `MAX_FILE_SIZE` check (`ErrorMessages.MEDIA_FILE_TOO_LARGE`) — no incident, a
+straightforward UX gap found while investigating an unrelated "upload stuck on
+'Uploading…'" report (that report turned out to be an infra/deployment issue, not a
+code bug in the current upload path — see the reporting conversation for the local
+repro that confirmed `MediaController`/`MediaService`/`FileSystemMediaStorageService`
+work correctly end-to-end as-is). Full design write-up:
+`docs/features/E15-image-resize-on-upload.md`.
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E15-1 | E15 | Add an `ImageResizeService` (Java `ImageIO`, no new runtime dependency) that downscales/recompresses a JPEG/PNG/WebP to fit a target byte ceiling, preserving aspect ratio | To Do | High | M | None |
+| E15-2 | E15 | Wire `MediaService.upload()` to call `ImageResizeService` instead of rejecting when a file exceeds 10 MB; keep a hard-reject ceiling (50 MB, matching the existing Spring `multipart.max-file-size`/nginx `client_max_body_size` bounds) for files too large or corrupt to process | To Do | High | M | E15-1 |
+| E15-3 | E15 | Best-effort: set the output JPEG's JFIF pixel-density metadata to 300 DPI via `IIOMetadata` when resizing a JPEG; skip silently (no error) for formats/cases where this isn't practical | To Do | Medium | S | E15-1 |
+| E15-4 | E15 | Surface a non-error notice in `MediaUploadForm` when the uploaded photo was resized (e.g. `MediaAssetDTO` gains a `resized: boolean` flag the upload response returns), so an admin doesn't wonder why their file looks smaller on disk | To Do | Medium | S | E15-2 |
+| E15-5 | E15 | Tests: resize triggers only above the threshold, output stays under the ceiling, aspect ratio preserved, DPI tag present on resized JPEGs, hard-reject ceiling still rejects with `MEDIA_FILE_TOO_LARGE`-equivalent error, corrupt/unsupported files still rejected | To Do | High | M | E15-2, E15-3 |
+| E15-6 | E15 | Write `ADR-015-oversized-media-resize-strategy.md` (library choice — plain `ImageIO` vs. a resize library — target dimensions/quality search strategy, DPI approach, hard-reject ceiling rationale) | To Do | Medium | S | E15-1 |
+
 ## P2 - Then
 
 | Story ID | Epic | Story | Status  | Priority | Size | Dependencies |
@@ -243,6 +264,8 @@ without a story for the same reason as the backend's small fixes.
 | E7-2 | E7 | Add optional `docker-compose.local-dev.yml` throwaway PostGIS container + `local-dev` Spring profile | ✅ Done | Medium | M | None |
 | E7-3 | E7 | Add `docs/architecture/sql/local-dev-seed.sql` synthetic schema/seed mirror for offline dev | ✅ Done | Medium | S | E7-2 |
 | E7-4 | E7 | Document both remote/offline dev paths in `.env.example` and record decision in `ADR-010` | ✅ Done | Low | S | E7-1, E7-2 |
+| E7-5 | E7 | Fix stale NAS LAN IP (`192.168.1.50` → `192.168.2.13`) across docs/config; verify QGIS remote-edit connectivity end-to-end over WARP | ✅ Done | Medium | S | E7-1 |
+| E7-6 | E7 | Grant `qgis_user` privileges on `arch_sites` (was missing entirely — `roads`/`fieldsystems`/`modernrefs`/`unidentified_linear_objects` are `qgis_user`-owned per `ADR-003`, but `arch_sites` was still `root`-only, so QGIS couldn't read or edit sites at all over the WARP path) | ✅ Done | Medium | S | E7-5 |
 
 ## E11 — OAuth2/OIDC Migration
 
@@ -337,6 +360,7 @@ Epic,E11,OAuth2/OIDC Migration,OAuth2/OIDC Migration,,High,,ancientdata;security
 Epic,E12,k3s Migration,k3s Migration,,High,,ancientdata;devops;kubernetes,"Migrate the NAS deployment from Docker Compose to a single-node k3s cluster with a validated rollback path.","App runs on k3s with parity to Compose; rollback documented and tested; ADR-014 written",E11
 Epic,E13,NAS Infra Resilience & Incident Follow-up,NAS Infra Resilience & Incident Follow-up,,High,,ancientdata;infra;security;incident,"Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage and close the raster-pipeline documentation gap it exposed.","Credentials rotated/externalized; live-restore evaluated; RasterProxyService streams instead of buffering; ADR-012 written",-
 Epic,E14,Backend & Frontend Road/Site Duplication Hardening,Backend & Frontend Road/Site Duplication Hardening,,Medium,,ancientdata;backend;frontend;refactor;code-quality,"Reduce Road/Site duplication and layering violations across both repos (backend: HTTP exceptions in application/service, duplicated CRUD/exception-translation logic, JPA-unsafe Lombok @Data entities; frontend: near-duplicate RoadInfo/SiteInfo pages, inconsistent Redux Toolkit patterns, oversized useMapInteractions.ts) surfaced by a 2026-08-25 readability/maintainability audit.","No change to external API behavior or (beyond E14-7) user-visible UI behavior; ./gradlew test and npm run test:run/lint/build stay green; ADR written for the domain-exception pattern",-
+Epic,E15,Automatic Image Resizing for Oversized Media Uploads,Automatic Image Resizing for Oversized Media Uploads,,Medium,,ancientdata;backend;frontend;media,"Downscale/recompress oversized photo uploads server-side instead of rejecting them outright, targeting ~300 DPI print quality where feasible.","Files over 10MB are resized to fit rather than rejected; a much higher hard-reject ceiling remains for corrupt/unprocessable files; ADR-015 written",-
 Story,E0-1,Externalize compose credentials,,E0,Critical,2,security;config,"Replace hardcoded credentials in docker-compose with env vars and document .env usage.","No plaintext credentials committed; startup works with env values",-
 Story,E0-2,Normalize HTTPS map layer URLs,,E0,High,2,frontend;map,"Ensure all map tile/WMS URLs are HTTPS-safe or proxied.","No mixed-content errors in HTTPS context",E0-1
 Story,E0-3,Fix pleiades DTO naming mismatch,,E0,High,2,frontend;backend;api,"Align `pleiadesId` naming across DTOs/forms/services.","Site updates persist the intended field correctly",-
@@ -417,6 +441,12 @@ Story,E14-5,Extract shared entity-info-page layout,,E14,Medium,8,frontend;refact
 Story,E14-6,Unify road/site Redux Toolkit pattern,,E14,Medium,5,frontend;refactor,"Unify roadSlice/roadThunks and siteSlice/siteThunks on one Redux Toolkit pattern (createAsyncThunk + extraReducers) for the equivalent fetch-by-id operation.","Both slices/thunks follow the same pattern; existing tests for both stay green",-
 Story,E14-7,Replace blocking alert() save feedback,,E14,Medium,3,frontend;ux,"Replace the blocking alert() save-feedback in RoadInfo/SiteInfo with an in-app inline banner/toast consistent with existing loading/error UX.","Save success/failure is communicated without a blocking native alert(); existing save/cancel behavior otherwise unchanged",-
 Story,E14-8,Split useMapInteractions.ts by concern,,E14,Low,5,frontend;refactor,"Split useMapInteractions.ts into per-concern modules (useMarkerHighlight, useAutoZoom, useLayerPanelControl + gating helpers), updating consumer imports and tests.","No behavior change; each extracted module has one clear concern; existing useMapInteractions/MapContent/LayerPanel tests stay green",-
+Story,E15-1,Add ImageResizeService,,E15,High,5,backend;media,"Add an ImageResizeService (plain javax.imageio, no new dependency) that downscales/recompresses a JPEG/PNG/WebP to fit a target byte ceiling, preserving aspect ratio.","Given an oversized valid image, output is under the target ceiling with aspect ratio preserved",-
+Story,E15-2,Wire resize into MediaService.upload,,E15,High,5,backend;media,"Call ImageResizeService instead of rejecting when a file exceeds 10MB; add a 50MB hard-reject ceiling for files too large/corrupt to process.","Files 10-50MB are resized and stored; files over 50MB or corrupt still rejected with a clear error",E15-1
+Story,E15-3,Best-effort 300 DPI metadata on resize,,E15,Medium,2,backend;media,"Set the output JPEG's JFIF pixel-density metadata to 300 DPI via IIOMetadata when resizing; skip silently when impractical.","Resized JPEGs report 300 DPI where the write succeeds; no upload failure if the metadata write is skipped",E15-1
+Story,E15-4,Surface resized flag to admin,,E15,Medium,2,backend;frontend;media,"Add a resized boolean to MediaAssetDTO/upload response; MediaUploadForm shows an inline notice when true.","Admin sees a non-error notice when their upload was auto-resized",E15-2
+Story,E15-5,Tests for resize behavior,,E15,High,5,test;backend,"Cover threshold trigger, output-under-ceiling, aspect ratio, DPI tag presence, hard-reject ceiling, and corrupt-file rejection.","All listed scenarios covered and passing",E15-2;E15-3
+Story,E15-6,Write oversized-media resize strategy ADR,,E15,Medium,2,docs;adr,"Document the ImageIO-vs-library choice, quality-search strategy, and hard-reject ceiling rationale in ADR-015.","ADR-015 Accepted",E15-1
 ```
 
 ---
@@ -1019,7 +1049,7 @@ found `ptum` ("possible barrow") incorrectly rendering with the confirmed-tumulu
 **Outstanding / manual follow-up (E3-3):** None. Automated verification relied on the real-DOM `MapContent.test.tsx` tests (live-browser verification wasn't possible from the initial dev sandbox — no reachable PostGIS/GeoServer backend, same limitation noted under E9). The project owner subsequently smoke-tested live from a real browser (backend on `local-dev` DB profile + real GeoServer over Cloudflare WARP) and confirmed both `1818-de-man-a2`/`a3` render correctly in the Atlas `LayerPanel`'s Physical section, toggle/opacity work, and `useActiveDemLayer`'s category gating behaves as intended (no Elevation section fires for these `HISTORICAL_MAP`-category layers). Tile load latency during that test was higher than production will be, due to the WARP-tunnel-hop dev path — not a code issue (see ADR-012's GWC caching notes).
 
 **Also found during live smoke testing (E3-3, not a code defect — documented here for traceability):**
-- The NAS's actual current LAN IP is `192.168.2.13`, not `192.168.1.50` as `ADR-010`, the E3.1 runbook, `docker-compose.yml`'s comments, and `.env.example` all state — those docs are stale and should be corrected in a follow-up pass.
+- The NAS's actual current LAN IP is `192.168.2.13`, not `192.168.1.50` as `ADR-010`, the E3.1 runbook, `docker-compose.yml`'s comments, and `.env.example` all state — those docs are stale and should be corrected in a follow-up pass. **Fixed under E7-5**: corrected in `.env`, `.env.example`, `README.md`, `ADR-010`, `ADR-012`, the E3.1 runbook, and `ancientdataworkspace/deploy/README.md` §8.
 - Reaching GeoServer from off-LAN via WARP required a Private Network CIDR route the project's Cloudflare Tunnel didn't have configured yet (Zero Trust dashboard → tunnel → **Add a route → Private CIDR** → `192.168.2.0/24`), plus a WARP client Device Settings Profile Split Tunnel setting switched from the default "Exclude" mode (which excludes all private IP ranges by default) to "Include IPs and domains" with that same CIDR explicitly listed. Neither of these was previously documented as a required one-time setup step for a *new* WARP client device beyond what `ADR-010`/the E3.1 runbook already describe for reusing an *already-configured* one.
 
 ---

@@ -7,6 +7,12 @@ public final class ErrorMessages {
     public static final String COULD_NOT_DELETE_MODERN_REFERENCE = "Could not delete modern reference";
     public static final String INVALID_MODERN_REFERENCE = "Invalid modern reference data";
 
+    public static final String ANCIENT_REFERENCE_NOT_FOUND = "Ancient reference not found";
+    public static final String COULD_NOT_SAVE_ANCIENT_REFERENCE = "Could not save ancient reference";
+    public static final String COULD_NOT_UPDATE_ANCIENT_REFERENCE = "Could not update ancient reference";
+    public static final String COULD_NOT_DELETE_ANCIENT_REFERENCE = "Could not delete ancient reference";
+    public static final String INVALID_ANCIENT_REFERENCE = "Invalid ancient reference data";
+
     public static final String ROAD_NOT_FOUND = "Road not found";
     public static final String COULD_NOT_SAVE_ROAD = "Could not save road";
     public static final String COULD_NOT_UPDATE_ROAD = "Could not update road";

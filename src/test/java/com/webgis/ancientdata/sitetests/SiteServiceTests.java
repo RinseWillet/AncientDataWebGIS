@@ -3,10 +3,13 @@ package com.webgis.ancientdata.sitetests;
 import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.application.service.SiteService;
 import com.webgis.ancientdata.constants.ErrorMessages;
+import com.webgis.ancientdata.domain.dto.AncientReferenceDTO;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
+import com.webgis.ancientdata.domain.model.AncientReference;
 import com.webgis.ancientdata.domain.model.ModernReference;
 import com.webgis.ancientdata.domain.model.Site;
+import com.webgis.ancientdata.domain.repository.AncientReferenceRepository;
 import com.webgis.ancientdata.domain.repository.ModernReferenceRepository;
 import com.webgis.ancientdata.domain.repository.SiteRepository;
 import com.webgis.ancientdata.utils.GeoJsonConverter;
@@ -44,12 +47,19 @@ class SiteServiceTests {
     private List<ModernReference> modernReferenceList;
     private ModernReferenceDTO modernReferenceDTO;
     private List<ModernReferenceDTO> modernReferenceDTOList;
+    private AncientReference ancientReference;
+    private List<AncientReference> ancientReferenceList;
+    private AncientReferenceDTO ancientReferenceDTO;
+    private List<AncientReferenceDTO> ancientReferenceDTOList;
 
     @Mock
     private SiteRepository siteRepository;
 
     @Mock
     private ModernReferenceRepository modernReferenceRepository;
+
+    @Mock
+    private AncientReferenceRepository ancientReferenceRepository;
 
     @Mock
     private GeoJsonConverter geoJsonConverter;
@@ -83,6 +93,23 @@ class SiteServiceTests {
         modernReferenceDTOList.add(modernReferenceDTO);
 
         site.setModernReferenceList(modernReferenceList);
+
+        ancientReferenceDTOList = new ArrayList<>();
+        ancientReferenceList = new ArrayList<>();
+
+        Long ancientId = RandomUtils.insecure().randomLong();
+        String ancientName = RandomStringUtils.insecure().nextAlphabetic(100);
+        String author = RandomStringUtils.insecure().nextAlphabetic(20);
+        String work = RandomStringUtils.insecure().nextAlphabetic(20);
+        String book = RandomStringUtils.insecure().nextAlphabetic(5);
+
+        ancientReference = new AncientReference(ancientName, author, work, book, null);
+        ancientReference.setId(ancientId);
+        ancientReferenceList.add(ancientReference);
+        ancientReferenceDTO = new AncientReferenceDTO(ancientId, ancientName, author, work, book, null);
+        ancientReferenceDTOList.add(ancientReferenceDTO);
+
+        site.setAncientReferences(ancientReferenceList);
     }
 
     @AfterEach
@@ -95,6 +122,10 @@ class SiteServiceTests {
         modernReferenceList = null;
         modernReferenceDTO = null;
         modernReferenceDTOList = null;
+        ancientReference = null;
+        ancientReferenceList = null;
+        ancientReferenceDTO = null;
+        ancientReferenceDTOList = null;
         randomSiteGenerator = null;
     }
 
@@ -210,6 +241,29 @@ class SiteServiceTests {
 
         verify(siteRepository, times(1)).findById(site.getId());
         verify(modernReferenceRepository, times(1)).findById(modernReferenceDTO.id());
+        verify(siteRepository, times(1)).save(site);
+    }
+
+    @Test
+    void shouldFindAncientReferencesBySiteId() {
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
+
+        assertEquals(siteService.findAncientReferencesBySiteId(site.getId()), ancientReferenceDTOList);
+
+        verify(siteRepository, times(1)).findById(site.getId());
+    }
+
+    @Test
+    void shouldAddAncientReferenceToSite() {
+        when(siteRepository.findById(site.getId())).thenReturn(Optional.of(site));
+        when(ancientReferenceRepository.findById(ancientReferenceDTO.id())).thenReturn(Optional.of(ancientReference));
+        when(siteRepository.save(site)).thenReturn(site);
+
+        Site result = siteService.addAncientReferenceToSite(site.getId(), ancientReferenceDTO);
+        assertEquals(result, site);
+
+        verify(siteRepository, times(1)).findById(site.getId());
+        verify(ancientReferenceRepository, times(1)).findById(ancientReferenceDTO.id());
         verify(siteRepository, times(1)).save(site);
     }
 

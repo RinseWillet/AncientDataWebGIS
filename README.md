@@ -89,13 +89,13 @@ Test reports are written to `build/reports/tests/test/index.html`.
 
 ## Developing Away From Home / Office
 
-The real `DB_URL` should always target the NAS's **LAN IP** (e.g. `192.168.1.50:2665`), never a public IP — that database port is intentionally never forwarded to the internet (see `ancientdataworkspace/deploy/README.md` §8 "Database & GeoServer access"). You have two options when you're not on the home LAN:
+The real `DB_URL` should always target the NAS's **LAN IP** (e.g. `192.168.2.13:2665`), never a public IP — that database port is intentionally never forwarded to the internet (see `ancientdataworkspace/deploy/README.md` §8 "Database & GeoServer access"). You have two options when you're not on the home LAN:
 
 ### Option A — Cloudflare WARP (recommended, reaches the real data)
 
 1. Install the **Cloudflare WARP** client and log into the project's Zero Trust team.
-2. Once the NAS's private network route is configured in the Tunnel (already set up — see the deploy README), `192.168.1.50:2665` becomes reachable transparently from anywhere, exactly as if you were on the home LAN.
-3. No `.env` change needed — keep `DB_URL` pointed at `192.168.1.50`.
+2. Once the NAS's private network route is configured in the Tunnel (already set up — see the deploy README), `192.168.2.13:2665` becomes reachable transparently from anywhere, exactly as if you were on the home LAN.
+3. No `.env` change needed — keep `DB_URL` pointed at `192.168.2.13`.
 
 Full walkthrough: `ancientdataworkspace/deploy/README.md` §8, and `docs/architecture/adr/ADR-010-remote-offline-dev-environment.md`.
 

@@ -1,9 +1,12 @@
 package com.webgis.ancientdata.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -43,5 +46,22 @@ public class AncientReference {
         this.work = work;
         this.book = book;
         this.page = page;
+    }
+
+    //child
+    @JsonIgnore
+    @ManyToMany(mappedBy = "ancientReferenceList", fetch = FetchType.LAZY)
+    private List<Site> siteList;
+
+    public List<Site> getSites(){
+        return siteList;
+    }
+
+    public void setSites(List<Site> siteSet) {
+        this.siteList = siteSet;
+    }
+
+    public void addSite(Site site) {
+        this.siteList.add(site);
     }
 }

@@ -53,10 +53,6 @@ public class Site implements Serializable {
     @Column(name = "description", length=5000)
     private String description;
 
-//    //ancientreference(s)
-//    @Column(name = "ancrefs")
-//    private ArrayList<AncientReference> ancientReferences;
-//
 //    //epigraphicreference(s)
 //    @Column(name = "eprefs")
 //    private ArrayList<EpigraphicReference> epigraphicReferences;
@@ -68,6 +64,14 @@ public class Site implements Serializable {
             joinColumns = @JoinColumn(name="site_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "modernref_id", referencedColumnName = "id"))
     private List<ModernReference> modernReferenceList;
+
+    //parent
+    @JsonIgnore
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @JoinTable(name = "ancientrefs_sites_mapping",
+            joinColumns = @JoinColumn(name="site_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "ancientref_id", referencedColumnName = "id"))
+    private List<AncientReference> ancientReferenceList;
 
     public Site(Integer pleiadesId,
                 String name,
@@ -98,5 +102,17 @@ public class Site implements Serializable {
 
     public void addModernReference(ModernReference modernReference) {
         this.modernReferenceList.add(modernReference);
+    }
+
+    public List<AncientReference> getAncientReferences(){
+        return ancientReferenceList;
+    }
+
+    public void setAncientReferences(List<AncientReference> ancientReferenceSet) {
+        this.ancientReferenceList = ancientReferenceSet;
+    }
+
+    public void addAncientReference(AncientReference ancientReference) {
+        this.ancientReferenceList.add(ancientReference);
     }
 }

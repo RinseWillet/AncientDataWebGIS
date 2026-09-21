@@ -181,6 +181,37 @@ CREATE TABLE IF NOT EXISTS modernrefs_roads_mapping
 )
     );
 
+CREATE TABLE IF NOT EXISTS ancientrefs
+(
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    author VARCHAR(255),
+    work VARCHAR(255),
+    book VARCHAR(64),
+    page INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS ancientrefs_sites_mapping
+(
+    site_id BIGINT NOT NULL REFERENCES arch_sites(id) ON DELETE CASCADE,
+    ancientref_id BIGINT NOT NULL REFERENCES ancientrefs(id) ON DELETE CASCADE,
+    PRIMARY KEY (site_id, ancientref_id)
+);
+
+-- eprefs: same schema-drift bug as ancientrefs (EpigraphicReference is an
+-- @Entity with no backing table). No Java wiring exists or is being added
+-- for it (out of scope, no epigraphic data to import) — this table only
+-- exists so Hibernate's ddl-auto=validate has something to validate against.
+CREATE TABLE IF NOT EXISTS eprefs
+(
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    corpus VARCHAR(255),
+    book VARCHAR(255),
+    number INTEGER,
+    link VARCHAR(1000)
+);
+
 -- ── Backend-owned tables (mirrors media_asset.sql / backup_history.sql /
 --    data_suggestions.sql — see those files if this ever needs updating) ────
 

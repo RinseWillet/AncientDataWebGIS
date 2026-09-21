@@ -10,7 +10,7 @@
 ## Context
 
 The shared PostGIS database only exists on the home NAS and is deliberately **never**
-exposed via its public IP/port — only reachable on the home LAN (`192.168.1.50:2665`)
+exposed via its public IP/port — only reachable on the home LAN (`192.168.2.13:2665`)
 or, when off-site, via Cloudflare WARP private network routing (already documented in
 `ancientdataworkspace/deploy/README.md` §8 for QGIS/GeoServer access).
 
@@ -29,7 +29,7 @@ Support two explicit, documented ways to develop away from home, instead of one
 undocumented one:
 
 1. **Cloudflare WARP (primary)** — reuses the Tunnel/Zero Trust setup already in place
-   for GeoServer/QGIS access. Once configured, `192.168.1.50:2665` is reachable from
+   for GeoServer/QGIS access. Once configured, `192.168.2.13:2665` is reachable from
    anywhere with no `.env`/code changes — this is the "develop against the real data"
    path and should be preferred whenever real data matters (dashboard numbers, media
    galleries, etc.).

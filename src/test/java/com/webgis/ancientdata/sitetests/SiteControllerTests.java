@@ -3,6 +3,7 @@ package com.webgis.ancientdata.sitetests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webgis.ancientdata.RandomSiteGenerator;
 import com.webgis.ancientdata.application.service.SiteService;
+import com.webgis.ancientdata.domain.dto.AncientReferenceDTO;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.Site;
@@ -49,6 +50,10 @@ class SiteControllerTests {
 
 	private List<ModernReferenceDTO> modernReferenceDTOList;
 
+	private AncientReferenceDTO ancientReferenceDTO;
+
+	private List<AncientReferenceDTO> ancientReferenceDTOList;
+
 	private RandomSiteGenerator randomSiteGenerator;
 
 	private Site site;
@@ -74,6 +79,11 @@ class SiteControllerTests {
 
 		modernReferenceDTO = new ModernReferenceDTO(id, shortRef, fullRef, url);
 		modernReferenceDTOList = List.of(modernReferenceDTO);
+
+		Long ancientId = 1L + random.nextInt(999);
+		String ancientName = UUID.randomUUID().toString();
+		ancientReferenceDTO = new AncientReferenceDTO(ancientId, ancientName, "Author", "Work", "I", null);
+		ancientReferenceDTOList = List.of(ancientReferenceDTO);
 	}
 
 	@Test
@@ -91,6 +101,36 @@ class SiteControllerTests {
 				.andDo(MockMvcResultHandlers.print());
 
 		verify(siteService, times(1)).addModernReferenceToSite(eq(site.getId()), any(ModernReferenceDTO.class));
+	}
+
+	@Test
+	@WithMockUser(roles = "USER")
+	void shouldAddAncientReferenceToSite() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		when(siteService.addAncientReferenceToSite(eq(site.getId()), any(AncientReferenceDTO.class)))
+				.thenReturn(site);
+
+		mockMvc.perform(post("/api/sites/" + site.getId() + "/ancient-reference")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(ancientReferenceDTO)))
+				.andExpect(status().isOk())
+				.andDo(MockMvcResultHandlers.print());
+
+		verify(siteService, times(1)).addAncientReferenceToSite(eq(site.getId()), any(AncientReferenceDTO.class));
+	}
+
+	@Test
+	void shouldFindAncientReferencesBySiteId() throws Exception {
+		when(siteService.findAncientReferencesBySiteId(site.getId()))
+				.thenReturn(ancientReferenceDTOList);
+
+		mockMvc.perform(get("/api/sites/ancref/" + site.getId())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andDo(MockMvcResultHandlers.print());
+
+		verify(siteService, times(1)).findAncientReferencesBySiteId(site.getId());
 	}
 
 	@Test
@@ -306,5 +346,7 @@ class SiteControllerTests {
 		siteJSON = null;
 		modernReferenceDTO = null;
 		modernReferenceDTOList = null;
+		ancientReferenceDTO = null;
+		ancientReferenceDTOList = null;
 	}
 }

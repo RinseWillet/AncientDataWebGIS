@@ -2,6 +2,7 @@ package com.webgis.ancientdata.web.controller;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.webgis.ancientdata.application.service.SiteService;
+import com.webgis.ancientdata.domain.dto.AncientReferenceDTO;
 import com.webgis.ancientdata.domain.dto.ModernReferenceDTO;
 import com.webgis.ancientdata.domain.dto.SiteDTO;
 import com.webgis.ancientdata.domain.model.Site;
@@ -43,6 +44,11 @@ public class SiteController {
         return ResponseEntity.ok(siteService.findModernReferencesBySiteId(id));
     }
 
+    @GetMapping("/ancref/{id}")
+    public ResponseEntity<List<AncientReferenceDTO>> findAncientReferencesBySiteId(@PathVariable long id) {
+        return ResponseEntity.ok(siteService.findAncientReferencesBySiteId(id));
+    }
+
     // Protected Endpoints
 
     @PreAuthorize("denyAll()")
@@ -73,6 +79,16 @@ public class SiteController {
             @Valid @RequestBody ModernReferenceDTO referenceDTO
     ) {
         Site updatedSite = siteService.addModernReferenceToSite(id, referenceDTO);
+        return ResponseEntity.ok(SiteMapper.toDto(updatedSite));
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/{id}/ancient-reference")
+    public ResponseEntity<SiteDTO> addAncientReferenceToSite(
+            @PathVariable Long id,
+            @Valid @RequestBody AncientReferenceDTO referenceDTO
+    ) {
+        Site updatedSite = siteService.addAncientReferenceToSite(id, referenceDTO);
         return ResponseEntity.ok(SiteMapper.toDto(updatedSite));
     }
 }
