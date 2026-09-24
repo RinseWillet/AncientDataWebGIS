@@ -42,6 +42,7 @@ It is structured to support:
 | E13 | NAS Infra Resilience & Incident Follow-up | To Do | Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage (Docker-daemon-level failure under memory pressure while loading a large DEM via GeoServer/WMS), and close the raster-pipeline documentation gap it exposed |
 | E14 | Backend & Frontend Road/Site Duplication Hardening | To Do | Reduce Road/Site duplication and layering violations surfaced by the 2026-08-25 readability/maintainability audit — backend: HTTP exceptions leaking into `application/service`, duplicated CRUD/exception-translation logic across `RoadService`/`SiteService`, JPA-unsafe Lombok `@Data` entities; frontend (`AncientDataWebGIS_FE`): near-duplicate `RoadInfo`/`SiteInfo` pages, two different Redux Toolkit patterns for the same "fetch by id" operation, an oversized multi-concern `useMapInteractions.ts` — no change to external API behavior or, beyond E14-7, to user-visible UI behavior |
 | E15 | Automatic Image Resizing for Oversized Media Uploads | To Do | Instead of rejecting an admin's photo upload for exceeding the 10 MB `media_asset` limit (`MediaService.MAX_FILE_SIZE`), automatically downscale/recompress it server-side to fit, targeting ~300 DPI print quality where feasible, so a large phone/camera JPEG isn't a dead end |
+| E16 | Site-Type Icons: PNG → Inline SVG | 🚧 In Progress | Replace `AncientDataWebGIS_FE`'s PNG-image-based site-type marker icons with inline-SVG `DivIcon`s, so a type's visual size or "possible"-variant color is a config value in `siteTypesConfig.ts` (a `sizePercent`/`fillColor` argument) rather than a redrawn image asset |
 
 ---
 
@@ -288,6 +289,15 @@ work correctly end-to-end as-is). Full design write-up:
 | E12-5 | E12 | Document the new deployment path and rollback-to-Compose steps in `ancientdataworkspace/docs/deployment-recovery.md` | To Do | Medium | S | E12-4 |
 | E12-6 | E12 | Write `ADR-014-k3s-migration.md` | To Do | Medium | S | E12-1 |
 
+## E16 — Site-Type Icons: PNG → Inline SVG
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E16-1 | E16 | Build `svgIconShapes.ts` (parameterized geometric-family shape generators) + `makeSvgIcon`/`svgToDataUri` in `markerStyles.ts`; fix `.site-type-icon`'s CSS selector to drop its `img` tag qualifier so the click-precision touch-target fix keeps applying once markers are `DivIcon`s | ✅ Done | High | M | None |
+| E16-2 | E16 | Convert the geometric-family types in `siteTypesConfig.ts` to inline SVG: castellum/pos_castellum/legfort, sett/settS/psett, villa/pvilla, tum/ptum, bridge, histSett, generic `site` fallback | ✅ Done | High | M | E16-1 |
+| E16-3 | E16 | Hand-author the 7 bespoke pictogram shapes (city, cem, watchtower, sanctuary, ship/pship, milestone) in `svgIconShapes.ts`, matching each current PNG's silhouette; wire them in `siteTypesConfig.ts` | ✅ Done | Medium | M | E16-1 |
+| E16-4 | E16 | Remove the now-unused PNG assets under `src/assets/` for every converted type, once visually verified against the local-dev seed data | To Do | Low | S | E16-2, E16-3 |
+
 ---
 
 ## 4) Acceptance Criteria (Per Priority Wave)
@@ -336,6 +346,13 @@ work correctly end-to-end as-is). Full design write-up:
 - A table of contents and prev/next chapter navigation exist so chapters read like a book.
 - Book content is versioned via git (push-to-remote is the documented backup expectation); any data-linked photos routed through the media pipeline are covered by the existing NAS/DB backup services.
 - MDX upgrade (live embedded components) is explicitly deferred and tracked as E8-10, not silently dropped.
+
+### E16 Done Criteria
+- Every site-type icon renders as an inline SVG `DivIcon`; no PNG asset remains under `src/assets/` for a converted type once E16-4 completes.
+- A type's visual size or color can be changed by editing its `sizePercent`/`fillColor` argument in `siteTypesConfig.ts` alone — no image file touched, no other file requiring a matching edit (preserves E10's P3 principle above).
+- `MapLegend`, `MapInfoCard`, `SiteInfo`, and `Dashboard` all continue to render correct icons/labels with zero code changes to those four files.
+- The click-precision touch-target CSS (`.site-type-icon`) still applies to every marker post-conversion.
+- `npm run build`, `npm run lint`, `npm run test:run` all pass.
 
 ---
 
