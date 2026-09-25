@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.mediatests;
 
+import com.webgis.ancientdata.application.service.ImageResizeService;
 import com.webgis.ancientdata.application.service.MediaService;
 import com.webgis.ancientdata.application.service.MediaStorageService;
 import com.webgis.ancientdata.domain.dto.MediaAssetDTO;
@@ -14,15 +15,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import javax.imageio.ImageIO;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +45,12 @@ class MediaServiceTests {
 
     @Mock
     private MediaStorageService mediaStorageService;
+
+    // Real instance (spied so Mockito's constructor injection wires it in) — resize
+    // is pure image processing, cheaper and more meaningful to exercise for real
+    // than to mock out.
+    @Spy
+    private ImageResizeService imageResizeService = new ImageResizeService();
 
     @InjectMocks
     private MediaService mediaService;
@@ -253,6 +267,94 @@ class MediaServiceTests {
 
         assertEquals(51.5, result.latitude());
         assertEquals(4.5, result.longitude());
+    }
+
+    @Test
+    void upload_fileUnderThreshold_isNotResized() throws IOException {
+        setBaseUrl();
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "photo.jpg", "image/jpeg", new byte[]{1, 2, 3});
+
+        when(mediaStorageService.store(anyString(), anyString(), any())).thenReturn("site/42/uuid.jpg");
+        when(mediaAssetRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        MediaAssetDTO result = mediaService.upload(new MediaUploadRequest(
+                file, TargetType.SITE, 42L,
+                null, null, null, null, null, null, null, false, "admin"));
+
+        assertFalse(result.resized());
+        verifyNoInteractions(imageResizeService);
+    }
+
+    @Test
+    void upload_fileOverThresholdUnderCeiling_isResizedAndFitsLimit() throws IOException {
+        setBaseUrl();
+        byte[] oversizedButValidJpeg = padJpegPastThreshold(11L * 1024 * 1024);
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "photo.jpg", "image/jpeg", oversizedButValidJpeg);
+
+        when(mediaStorageService.store(anyString(), anyString(), any())).thenReturn("site/42/uuid.jpg");
+        when(mediaAssetRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        MediaAssetDTO result = mediaService.upload(new MediaUploadRequest(
+                file, TargetType.SITE, 42L,
+                null, null, null, null, null, null, null, false, "admin"));
+
+        assertTrue(result.resized());
+
+        ArgumentCaptor<MediaAsset> captor = ArgumentCaptor.forClass(MediaAsset.class);
+        verify(mediaAssetRepository).save(captor.capture());
+        assertEquals("image/jpeg", captor.getValue().getMimeType());
+        assertTrue(captor.getValue().getFileSizeBytes() <= 10L * 1024 * 1024,
+                "resized file should fit under the 10 MB threshold");
+    }
+
+    @Test
+    void upload_fileOverHardCeiling_rejectedWithoutAttemptingResize() {
+        setBaseUrl();
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "huge.jpg", "image/jpeg", new byte[(int) (51L * 1024 * 1024)]);
+
+        MediaUploadRequest request = new MediaUploadRequest(file, TargetType.SITE, 42L,
+                null, null, null, null, null, null, null, false, "admin");
+
+        assertThrows(ResponseStatusException.class, () -> mediaService.upload(request));
+        verifyNoInteractions(imageResizeService, mediaStorageService, mediaAssetRepository);
+    }
+
+    @Test
+    void upload_oversizedCorruptFile_rejectedAsCorrupt() {
+        setBaseUrl();
+        // Declared size triggers the resize path, but the bytes aren't a real image —
+        // ImageIO can't decode it, so it should be rejected rather than crash.
+        byte[] garbage = new byte[(int) (11L * 1024 * 1024)];
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "corrupt.jpg", "image/jpeg", garbage);
+
+        MediaUploadRequest request = new MediaUploadRequest(file, TargetType.SITE, 42L,
+                null, null, null, null, null, null, null, false, "admin");
+
+        assertThrows(ResponseStatusException.class, () -> mediaService.upload(request));
+        verifyNoInteractions(mediaStorageService, mediaAssetRepository);
+    }
+
+    // Builds a small, genuinely decodable JPEG and pads it with trailing zero bytes
+    // past the given size — ImageIO stops at the JPEG EOI marker, so the padding is
+    // ignored on decode while MultipartFile#getSize() still reports the padded length.
+    private byte[] padJpegPastThreshold(long minSize) throws IOException {
+        BufferedImage image = new BufferedImage(200, 150, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+        g.setColor(Color.CYAN);
+        g.fillRect(0, 0, 200, 150);
+        g.dispose();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", baos);
+        byte[] validJpeg = baos.toByteArray();
+
+        byte[] padded = new byte[(int) minSize];
+        System.arraycopy(validJpeg, 0, padded, 0, validJpeg.length);
+        return padded;
     }
 
     private byte[] readTestFixture(String name) throws Exception {

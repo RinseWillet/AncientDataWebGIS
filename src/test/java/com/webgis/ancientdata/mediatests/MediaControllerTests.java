@@ -45,7 +45,7 @@ class MediaControllerTests {
             "http://localhost:8081/api/media/files/site/42/abc.jpg",
             "A Roman temple", "John", "fieldwork", "CC-BY-4.0",
             LocalDate.of(2025, Month.JUNE, 15), 52.09, 5.12, true, "APPROVED",
-            Instant.now(), Instant.now()
+            Instant.now(), Instant.now(), false
     );
 
 
@@ -163,7 +163,7 @@ class MediaControllerTests {
                 "http://localhost:8081/api/media/files/site/42/abc.jpg",
                 "Updated caption", "John", "fieldwork", "CC-BY-4.0",
                 LocalDate.of(2025, Month.JUNE, 15), 52.09, 5.12, true, "APPROVED",
-                Instant.now(), Instant.now()
+                Instant.now(), Instant.now(), false
         );
 
         when(mediaService.updateMetadata(any(MediaUpdateRequest.class)))

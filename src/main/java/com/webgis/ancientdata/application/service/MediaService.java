@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -35,18 +36,26 @@ public class MediaService {
     private static final Set<String> ALLOWED_MIME_TYPES = Set.of(
             "image/jpeg", "image/png", "image/webp"
     );
+    // Files at or under this size are stored as-is. Larger files are downscaled/
+    // recompressed by ImageResizeService to fit this ceiling instead of being rejected.
     private static final long MAX_FILE_SIZE = 10L * 1024 * 1024; // 10 MB
+    // Outright reject above this — bounds worst-case resize CPU/memory work and
+    // catches files too large or corrupt to be worth processing.
+    private static final long HARD_REJECT_CEILING = 50L * 1024 * 1024; // 50 MB
 
     private final MediaAssetRepository mediaAssetRepository;
     private final MediaStorageService mediaStorageService;
+    private final ImageResizeService imageResizeService;
     private final String mediaBaseUrl;
 
     public MediaService(
             MediaAssetRepository mediaAssetRepository,
             MediaStorageService mediaStorageService,
+            ImageResizeService imageResizeService,
             @Value("${media.base-url}") String mediaBaseUrl) {
         this.mediaAssetRepository = mediaAssetRepository;
         this.mediaStorageService = mediaStorageService;
+        this.imageResizeService = imageResizeService;
         this.mediaBaseUrl = mediaBaseUrl;
     }
 
@@ -54,16 +63,41 @@ public class MediaService {
 
         validateFile(request.file());
 
-        String contentType = request.file().getContentType();
-        // contentType is guaranteed non-null here — validateFile rejects null
+        byte[] content;
+        String contentType;
+        boolean resized = false;
+
+        if (request.file().getSize() > MAX_FILE_SIZE) {
+            try {
+                ImageResizeService.ResizeResult result =
+                        imageResizeService.resize(request.file().getInputStream(), MAX_FILE_SIZE);
+                content = result.data();
+                contentType = result.mimeType();
+                resized = true;
+            } catch (ImageProcessingException | IOException e) {
+                logger.warn("Failed to resize oversized upload for {} {}: {}",
+                        request.targetType(), request.targetId(), e.getMessage());
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.MEDIA_FILE_CORRUPT);
+            }
+        } else {
+            try {
+                content = request.file().getBytes();
+            } catch (IOException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.MEDIA_FILE_CORRUPT);
+            }
+            contentType = request.file().getContentType();
+        }
+        // contentType is guaranteed non-null here — validateFile rejects null, and
+        // ImageResizeService always returns "image/jpeg" on the resize path
         assert contentType != null;
+
         String extension = extensionFromMimeType(contentType);
         String filename = UUID.randomUUID() + extension;
         String targetDir = request.targetType().name().toLowerCase() + "/" + request.targetId();
 
         String storageKey;
         try {
-            storageKey = mediaStorageService.store(targetDir, filename, request.file());
+            storageKey = mediaStorageService.store(targetDir, filename, new ByteArrayInputStream(content));
         } catch (IOException e) {
             logger.error("Failed to store media file for {} {}: {}", request.targetType(), request.targetId(), e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.MEDIA_STORAGE_FAILED);
@@ -74,7 +108,7 @@ public class MediaService {
         asset.setTargetId(request.targetId());
         asset.setStorageKey(storageKey);
         asset.setMimeType(contentType);
-        asset.setFileSizeBytes(request.file().getSize());
+        asset.setFileSizeBytes((long) content.length);
         asset.setCaption(request.caption());
         asset.setAuthor(request.author());
         asset.setSource(request.source());
@@ -86,9 +120,10 @@ public class MediaService {
         asset.setCreatedBy(request.createdBy());
 
         MediaAsset saved = mediaAssetRepository.save(asset);
-        logger.info("Uploaded media asset {} for {} {}", saved.getId(), request.targetType(), request.targetId());
+        logger.info("Uploaded media asset {} for {} {}{}", saved.getId(), request.targetType(), request.targetId(),
+                resized ? " (resized to fit size limit)" : "");
 
-        return MediaAssetMapper.toDto(saved, mediaBaseUrl);
+        return MediaAssetMapper.toDto(saved, mediaBaseUrl, resized);
     }
 
     @Transactional(readOnly = true)
@@ -160,7 +195,7 @@ public class MediaService {
         if (file == null || file.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.MEDIA_FILE_EMPTY);
         }
-        if (file.getSize() > MAX_FILE_SIZE) {
+        if (file.getSize() > HARD_REJECT_CEILING) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorMessages.MEDIA_FILE_TOO_LARGE);
         }
         if (file.getContentType() == null || !ALLOWED_MIME_TYPES.contains(file.getContentType())) {

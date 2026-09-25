@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.web.exception;
 
+import com.webgis.ancientdata.constants.ErrorMessages;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -112,6 +114,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", "Bad Request", "message", errorMessage));
+    }
+
+    /**
+     * Thrown by Spring's multipart resolver itself when a request exceeds
+     * {@code spring.servlet.multipart.max-file-size}/{@code max-request-size} —
+     * this happens while resolving the controller's {@code MultipartFile} argument,
+     * before {@code MediaService.upload()}'s own (lower) hard-reject-ceiling check
+     * ever runs. Without this handler it fell through to
+     * {@link #handleUnhandledExceptions}, surfacing as a generic 500 instead of the
+     * same friendly "file too large" message a slightly-smaller oversized upload gets.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceeded(
+            MaxUploadSizeExceededException exception, WebRequest request) {
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.CONTENT_TOO_LARGE.value());
+        response.put("error", HttpStatus.CONTENT_TOO_LARGE.getReasonPhrase());
+        response.put("message", ErrorMessages.MEDIA_FILE_TOO_LARGE);
+        response.put("details", exception.getMessage());
+        response.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(response, HttpStatus.CONTENT_TOO_LARGE);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
