@@ -19,6 +19,11 @@ plugins {
 group = 'com.webgis'
 version = '0.0.1-SNAPSHOT'
 
+// Spring Boot 4.1.0's BOM still manages Tomcat 11.0.22; override to 11.0.25 for
+// Dependabot #94/#95/#96 (CVE-2026-65182, CVE-2026-65905, CVE-2026-68525 — all Critical).
+// Remove once Spring Boot's BOM catches up (tracked upstream for 4.2.0-M2).
+ext['tomcat.version'] = '11.0.25'
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)

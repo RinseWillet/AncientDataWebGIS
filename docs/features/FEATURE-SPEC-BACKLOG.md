@@ -91,7 +91,7 @@ It is structured to support:
 | E6-1 | E6 | Fix stale/broken Dependabot dependency-graph submission (JDK mismatch, unpinned actions in old `ci.yml`) | ✅ Done | Critical | S | None |
 | E6-2 | E6 | Confirm dependency graph refreshes on `main` and re-verify all open alerts against actually-resolved versions | ✅ Done | Critical | S | E6-1 |
 | E6-3 | E6 | Triage `jackson-databind` manifest alert — confirm Spring Boot BOM version is safe or pin explicitly | ✅ Done | High | S | E6-2 |
-| E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | To Do | Critical | S | E6-2 |
+| E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | ✅ Done | Critical | S | E6-2 |
 | E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | To Do | Medium | S | E6-4 |
 
 ## P0.6 - NAS Infra Resilience (Post-Incident, 2026-08-20)
@@ -707,27 +707,27 @@ Deliverable target: secure baseline + first usable dashboard.
 
 ### E6-4 — Tomcat Critical CVE Triage ✅
 
-**Status:** Complete (July 2026)
+**Status:** Complete (September 2026)
 
-**What was found:** Cross-referenced the 4 critical Tomcat alerts against the GitHub Advisory Database (public API, no auth needed):
+**Note:** This section previously described a July 2026 fix (Spring Boot 3.5.14 → 3.5.16, Tomcat → 10.1.55) that does not match this repo's actual history — `build.gradle` has never pinned a 3.5.x Spring Boot plugin version. That text has been replaced below with what was actually verified and done.
 
-| Alert | CVE | GHSA | Fixed in (10.1.x line) | Status vs our 10.1.54 |
-|---|---|---|---|---|
-| #15 Potential RCE via partial PUT | CVE-2025-24813 | GHSA-83qj-6fr2-vhqg | 10.1.35 | ✅ Already fixed (10.1.54 > 10.1.35) |
-| #62 HTTP/2 request headers not validated | CVE-2026-41293 | GHSA-r29c-68gh-xp6x | 10.1.55 | ❌ Vulnerable (10.1.54 < 10.1.55) |
-| #65 Digest authenticator authenticates any unknown user | CVE-2026-43512 | GHSA-h6fc-48rj-7qqh | 10.1.55 | ❌ Vulnerable (10.1.54 < 10.1.55) |
-| #67 Security constraints not correctly applied | CVE-2026-43515 | GHSA-5m62-pw8w-7w9f | 10.1.55 | ❌ Vulnerable (10.1.54 < 10.1.55) |
+**What was found:** By the time this story was picked up, the project had already moved past Spring Boot 3.x to the Spring Boot 4.1.0 / Tomcat 11.x line (unrelated prior work). Re-checked current Dependabot alerts rather than trusting the story's alert numbers:
+- Alerts **#15, #62, #65, #67** (the story's original targets) were already `state: fixed` — closed as part of that earlier Tomcat 10.1.x → 11.x jump. Nothing to do there.
+- However, 3 **new, open, Critical** `tomcat-embed-core` alerts existed on the 11.x line, all fixed in **11.0.25**:
+  - **#94** CVE-2026-65182 — Improper Access Control / Incorrect Authorization
+  - **#95** CVE-2026-65905 — DIGEST authenticator auth bypass (capture-replay)
+  - **#96** CVE-2026-68525 — FORM authentication incorrect authorization
+- `./gradlew dependencies` confirmed `tomcat-embed-core`/`tomcat-embed-el`/`tomcat-embed-websocket` all resolved to `11.0.22`, below the `11.0.25` fix. Spring Boot 4.1.0's BOM doesn't manage `11.0.25` yet (tracked upstream for `4.2.0-M2`).
 
 **What was delivered:**
-- Confirmed Spring Boot **3.5.16**'s BOM manages `tomcat.version` **10.1.55**, which fixes all 3 remaining CVEs.
-- Bumped `build.gradle` plugin version `org.springframework.boot` from `3.5.14` → `3.5.16` (patch-only bump, same minor line).
-- Verified via `./gradlew dependencies` that `tomcat-embed-core` now resolves to `10.1.55`.
-- `./gradlew test` and `./gradlew build` both green after the bump.
+- Added `ext['tomcat.version'] = '11.0.25'` to `build.gradle` to override the BOM-managed Tomcat version.
+- Verified via `./gradlew dependencies` that all `tomcat-embed-*` artifacts now resolve to `11.0.25`.
+- `./gradlew test` green after the change.
 
 **Files changed:**
-- `build.gradle` (Spring Boot plugin version bump only)
+- `build.gradle` (added `tomcat.version` override)
 
-**Impact:** All 4 critical Tomcat alerts are now resolved on `main` once this change merges and the dependency graph refreshes.
+**Impact:** Closes Dependabot alerts #94/#95/#96 once this change merges and the dependency graph refreshes. The story's original 4 alert numbers (#15/#62/#65/#67) were already stale/closed and needed no action.
 
 ---
 
