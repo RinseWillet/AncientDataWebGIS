@@ -24,6 +24,7 @@ An Architecture Decision Record captures a single decision, its context, the alt
 | [ADR-012](./ADR-012-raster-publishing-pipeline.md) | Raster Publishing Pipeline — GeoServer via Backend Proxy | Accepted | 2026-08-10 | This directory |
 | [ADR-013](./ADR-013-raster-catalog-storage.md) | Raster Catalog Storage — DB Table, Superseding the E3-2 Static List | Accepted | 2026-08-24 | This directory |
 | [ADR-014](./ADR-014-positron-basemap-vector-tiles.md) | Positron Basemap — CARTO Raster to OpenFreeMap Vector Tiles | Accepted | 2026-08-31 | This directory |
+| [ADR-015](./ADR-015-oversized-media-resize-strategy.md) | Oversized Media Resize Strategy — Plain `ImageIO`, Downscale-to-Fit on Upload | Accepted | 2026-09-24 | This directory |
 
 ## How to create a new ADR
 

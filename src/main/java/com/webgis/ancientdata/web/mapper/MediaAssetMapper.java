@@ -9,6 +9,13 @@ public class MediaAssetMapper {
     }
 
     public static MediaAssetDTO toDto(MediaAsset entity, String baseUrl) {
+        return toDto(entity, baseUrl, false);
+    }
+
+    // resized: true only on the immediate upload response for a file that was
+    // server-side downscaled/recompressed to fit — a one-time notice, not a
+    // persisted/queryable attribute of the asset.
+    public static MediaAssetDTO toDto(MediaAsset entity, String baseUrl, boolean resized) {
         String fullUrl = baseUrl + "/" + entity.getStorageKey();
         return new MediaAssetDTO(
                 entity.getId(),
@@ -25,7 +32,8 @@ public class MediaAssetMapper {
                 entity.isCover(),
                 entity.getVisibilityStatus().name(),
                 entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getUpdatedAt(),
+                resized
         );
     }
 }

@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +33,7 @@ public class FileSystemMediaStorageService implements MediaStorageService {
     }
 
     @Override
-    public String store(String targetDir, String filename, MultipartFile file) throws IOException {
+    public String store(String targetDir, String filename, InputStream content) throws IOException {
         Path dir = rootLocation.resolve(targetDir).normalize();
         if (!dir.startsWith(rootLocation)) {
             throw new IOException("Cannot store file outside media root");
@@ -45,7 +45,7 @@ public class FileSystemMediaStorageService implements MediaStorageService {
             throw new IOException("Cannot store file outside media root");
         }
 
-        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(content, destination, StandardCopyOption.REPLACE_EXISTING);
         logger.info("Stored media file: {}", destination);
 
         return targetDir + "/" + filename;

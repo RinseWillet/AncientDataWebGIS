@@ -1,5 +1,6 @@
 package com.webgis.ancientdata.rastertests;
 
+import com.webgis.ancientdata.constants.ErrorMessages;
 import com.webgis.ancientdata.web.exception.GlobalExceptionHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.Map;
 
@@ -64,5 +66,25 @@ class GlobalExceptionHandlerTests {
         Map<String, Object> body = result.getBody();
         assertNotNull(body);
         assertEquals("boom", body.get("details"));
+    }
+
+    @Test
+    void handleMaxUploadSizeExceeded_ReturnsFriendlyMediaTooLargeMessage() {
+        // Regression test: a file large enough to exceed Spring's own
+        // multipart.max-file-size never reaches MediaService.upload()'s own
+        // (lower) hard-reject-ceiling check at all — Spring throws this exception
+        // while resolving the MultipartFile controller argument. Without this
+        // handler it fell through to handleUnhandledExceptions, surfacing a
+        // generic 500 "unexpected error" instead of the same MEDIA_FILE_TOO_LARGE
+        // message a slightly-smaller oversized upload gets from MediaService.
+        ServletWebRequest request = new ServletWebRequest(new MockHttpServletRequest());
+        MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(55L * 1024 * 1024);
+
+        ResponseEntity<Map<String, Object>> result = handler.handleMaxUploadSizeExceeded(exception, request);
+
+        assertEquals(HttpStatus.CONTENT_TOO_LARGE, result.getStatusCode());
+        Map<String, Object> body = result.getBody();
+        assertNotNull(body);
+        assertEquals(ErrorMessages.MEDIA_FILE_TOO_LARGE, body.get("message"));
     }
 }

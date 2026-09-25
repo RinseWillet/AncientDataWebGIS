@@ -18,6 +18,7 @@ public record MediaAssetDTO(
         boolean isCover,
         String visibilityStatus,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        boolean resized
 ) {}
 
