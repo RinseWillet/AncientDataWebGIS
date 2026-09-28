@@ -107,7 +107,7 @@ follow-up work.
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
-| E13-1 | E13 | Rotate PostGIS root password and pgAdmin admin credentials — currently plaintext in the live NAS `compose.yaml` and exposed during this incident's investigation session | To Do | Critical | S | None |
+| E13-1 | E13 | Rotate PostGIS root password and pgAdmin admin credentials — currently plaintext in the live NAS `compose.yaml` and exposed during this incident's investigation session | ✅ Done | Critical | S | None |
 | E13-2 | E13 | Migrate `/volume1/docker/ancientdata/postgis_admin/compose.yaml` to the `${VAR}`-from-`.env` credential pattern already used by `docs/ci-cd/docker-infra-compose.yml`, and `chmod 600` the file (currently world-readable/writable) | To Do | High | S | E13-1 |
 | E13-3 | E13 | Investigate enabling Docker daemon `live-restore` on Synology Container Manager, so a future daemon restart reattaches to already-running containers instead of stopping every container across all three compose stacks at once (`dockerd.json` was not found at its expected path during investigation — may only be settable via the Container Manager GUI) | To Do | High | M | None |
 | E13-4 | E13 | Replace `RasterProxyService.forward()`'s `response.getBody().readAllBytes()` full-buffering with a streaming proxy response, so a large upstream GeoServer/WMS response can't fully load into `ancientdata`'s JVM heap | To Do | High | M | None |
