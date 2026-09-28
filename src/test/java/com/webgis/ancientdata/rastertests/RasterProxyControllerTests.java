@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -35,8 +36,9 @@ class RasterProxyControllerTests {
     void proxy_ExtractsSubPathAndQueryString_AndReturnsServiceResponse() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
+        StreamingResponseBody body = outputStream -> outputStream.write("tile".getBytes());
         when(rasterProxyService.forward("/ancientdata/wms", "service=WMS&request=GetMap"))
-                .thenReturn(new ResponseEntity<>("tile".getBytes(), headers, HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(body, headers, HttpStatus.OK));
 
         mockMvc.perform(get("/api/raster/ancientdata/wms?service=WMS&request=GetMap"))
                 .andExpect(status().isOk());
