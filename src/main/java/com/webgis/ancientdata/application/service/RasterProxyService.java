@@ -75,7 +75,7 @@ public class RasterProxyService {
             // instead of closing it once headers are read, so the StreamingResponseBody below can
             // pipe the body straight to the client in bounded chunks - a large upstream DEM/GeoTIFF
             // response used to be fully buffered into a byte[] here, which was the root cause of
-            // the 2026-08-20 host-wide outage (see ADR-012 postmortem).
+            // the 2026-08-20 host-wide outage (see ADR-016).
             return restClient.get().uri(uri).exchange((_, response) -> {
                 HttpHeaders upstreamHeaders = response.getHeaders();
 
