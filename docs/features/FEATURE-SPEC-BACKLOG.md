@@ -113,6 +113,8 @@ follow-up work.
 | E13-4 | E13 | Replace `RasterProxyService.forward()`'s `response.getBody().readAllBytes()` full-buffering with a streaming proxy response, so a large upstream GeoServer/WMS response can't fully load into `ancientdata`'s JVM heap | To Do | High | M | None |
 | E13-5 | E13 | Write `ADR-012-raster-publishing-pipeline.md`, covering the DEM/COG delivery decision (E3-1/E3-4) and the 2026-08-20 outage postmortem — root cause was a Docker-daemon-level failure under host memory pressure, which stopped every container in every stack at once because none had `mem_limit` or a restart policy that survives a clean exit | To Do | Medium | S | E13-3, E13-4 |
 
+**Also found while executing E13-1 (2026-09-28), not part of its formal scope — documented here for E13-5's postmortem:** a second, orphaned compose file existed at `/volume1/docker/ancientdata/compose.yaml`, pre-dating the current `postgis_admin/` + `AncientDataWebGIS/docker-compose.yml` split layout and pointing at old `/volume1/docker/postgis_pgadmin_stack/...` volume paths. It held stale plaintext copies of the PostGIS root, pgAdmin admin, and GeoServer admin credentials. Confirmed via `docker inspect <container> --format '{{index .Config.Labels "com.docker.compose.project.config_files"}}'` that it wasn't driving any live container, then deleted. Also discovered during the same rotation: the live NAS `AncientDataWebGIS/.env` sets `DB_USER=root` for the app's main JPA datasource — not `webgis_client` as `.env.example` assumes — meaning the app's normal runtime DB access is not actually isolated from the superuser account in production today.
+
 ## P1.5 - Map Clarity & Layer Redesign (✅ Done — unblocked E3)
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
