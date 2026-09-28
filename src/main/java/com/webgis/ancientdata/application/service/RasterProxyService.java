@@ -5,11 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.net.URI;
 import java.util.List;
@@ -55,7 +57,7 @@ public class RasterProxyService {
      * @param subPath     the request path after "/api/raster", e.g. "/ancientdata/wms"
      * @param queryString raw query string (may be null)
      */
-    public ResponseEntity<byte[]> forward(String subPath, String queryString) {
+    public ResponseEntity<StreamingResponseBody> forward(String subPath, String queryString) {
         if (isDeniedPath(subPath)) {
             logger.warn("Blocked raster proxy request to admin path: {}", subPath);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -69,8 +71,12 @@ public class RasterProxyService {
             // composed URI and forwards it verbatim, rather than as a template it re-encodes
             // (which would double-encode e.g. "%2C" into "%252C" and corrupt query params).
             URI uri = URI.create(targetUrl);
+            // exchange(fn, false) keeps the upstream ClientHttpResponse open past this callback
+            // instead of closing it once headers are read, so the StreamingResponseBody below can
+            // pipe the body straight to the client in bounded chunks - a large upstream DEM/GeoTIFF
+            // response used to be fully buffered into a byte[] here, which was the root cause of
+            // the 2026-08-20 host-wide outage (see ADR-012 postmortem).
             return restClient.get().uri(uri).exchange((_, response) -> {
-                byte[] body = response.getBody().readAllBytes();
                 HttpHeaders upstreamHeaders = response.getHeaders();
 
                 HttpHeaders headers = new HttpHeaders();
@@ -93,8 +99,18 @@ public class RasterProxyService {
                     headers.set(HttpHeaders.CACHE_CONTROL, DEFAULT_CACHE_CONTROL);
                 }
 
-                return new ResponseEntity<>(body, headers, response.getStatusCode());
-            });
+                HttpStatusCode status = response.getStatusCode();
+                StreamingResponseBody body = outputStream -> {
+                    // try-with-resources on the upstream response (not just its InputStream) so the
+                    // underlying connection is released once streaming finishes, whether it succeeds,
+                    // the client disconnects mid-stream, or upstream drops the connection.
+                    try (response) {
+                        response.getBody().transferTo(outputStream);
+                    }
+                };
+
+                return new ResponseEntity<>(body, headers, status);
+            }, false);
         } catch (IllegalArgumentException e) {
             logger.warn("Malformed raster proxy request {}: {}", subPath, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

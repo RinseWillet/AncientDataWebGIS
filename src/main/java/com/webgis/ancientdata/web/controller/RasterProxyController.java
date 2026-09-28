@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /**
  * Public read-only proxy to the internal GeoServer container, so raster
@@ -23,7 +24,7 @@ public class RasterProxyController {
     }
 
     @GetMapping("/**")
-    public ResponseEntity<byte[]> proxy(HttpServletRequest request) {
+    public ResponseEntity<StreamingResponseBody> proxy(HttpServletRequest request) {
         String fullPath = request.getRequestURI();
         String subPath = fullPath.substring(fullPath.indexOf("/api/raster") + "/api/raster".length());
         return rasterProxyService.forward(subPath, request.getQueryString());
