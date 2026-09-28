@@ -48,6 +48,13 @@ It is structured to support:
 
 ## 3) Story Backlog (Prioritized)
 
+Waves run P0 → P3 in priority order; a `.5`/`.6` suffix marks a gate or
+incident-driven wave inserted between two whole-number waves (e.g. P0.5 is a
+security gate before P1 work continues, P0.6 is 2026-08-20 incident
+follow-up). E7 (Dev Tooling), E8, E11, E12, and E16 are tracked as their own
+initiatives outside the P-wave numbering — see the Epics table in section 2
+for their status — and are grouped at the end of this section in epic order.
+
 ## P0 - Start Here
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
@@ -59,30 +66,6 @@ It is structured to support:
 | E1-1 | E1 | Add `GET /api/dashboard/summary` combining road + site metrics | ✅ Done | High | M | E0-4 |
 | E1-2 | E1 | Add PostGIS road length aggregation (km total + by type) | ✅ Done | High | M | E1-1 |
 | E1-3 | E1 | Add frontend dashboard page with loading/error states | ✅ Done | High | M | E1-1 |
-
-## P1 - Next
-
-| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
-|---|---|---|---|---|---|---|
-| E1-4 | E1 | Add date/type filters on dashboard | ✅ Done | Medium | M | E1-3 |
-| E1-5 | E1 | Add CSV export for dashboard aggregates | ✅ Done | Medium | S | E1-3 |
-| E2-0 | E2 | Define media storage foundation and delivery strategy (filesystem/NAS vs object storage), with operator runbook | ✅ Done | High | M | E0-4 |
-| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | ✅ Done | High | M | E2-0 |
-| E2-2 | E2 | Store media metadata (caption/license/source/author/date) | ✅ Done | High | S | E2-1 |
-| E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | ✅ Done | High | M | E2-1 |
-| E2-4 | E2 | Add map info card cover image | ✅ Done | Medium | S | E2-3 |
-| E2-5 | E2 | Add admin media moderation flow | ✅ Done | Medium | M | E2-1 |
-| E2-UI-1 | E2 | Admin upload component — MediaUploadForm with file picker, metadata fields, calls POST /api/media | ✅ Done | High | M | E2-3 |
-| E2-UI-2 | E2 | Admin media management — edit/delete controls on gallery thumbnails (PATCH/DELETE /api/media/{id}) | ✅ Done | High | M | E2-UI-1 |
-| E2-UI-3 | E2 | Admin view of pending/hidden media — admins see all statuses with badges via GET /api/media/admin | ✅ Done | High | S | E2-UI-2 |
-| ~~E2-BACKUP-1~~ | E2 | ~~Add Google Drive backup service~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
-| ~~E2-BACKUP-2~~ | E2 | ~~Add scheduled Google Drive sync task~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
-| ~~E2-BACKUP-3~~ | E2 | ~~Add manual Google Drive sync trigger~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
-| E2-BACKUP-NAS-1 | E2 | Add NAS filesystem backup service — `NasBackupService` + `NasBackupConfig` syncing local media dir to a mounted NAS path | ✅ Done | High | M | E2-1 |
-| E2-BACKUP-NAS-2 | E2 | Scheduled NAS sync — cron-based background sync via `@Scheduled`, configurable via `backup.nas.sync-cron` env var | ✅ Done | High | S | E2-BACKUP-NAS-1 |
-| E2-BACKUP-NAS-3 | E2 | Manual sync trigger endpoint — `POST /api/backup/sync` (ADMIN) for on-demand backup, returns sync status | ✅ Done | Medium | S | E2-BACKUP-NAS-1 |
-| E2-BACKUP-NAS-4 | E2 | Database backup (`DbBackupService`, pg_dump) + `backup_history` table + `GET /api/backup/status` + FE "Back up now" button with staleness indicator in `AdminPanel` | ✅ Done | Medium | M | E2-BACKUP-NAS-3 |
-| E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | ✅ Done | Medium | M | E2-UI-1 |
 
 ## P0.5 - Security Hardening (Pre-Deployment)
 
@@ -114,6 +97,30 @@ follow-up work.
 | E13-5 | E13 | Write `ADR-012-raster-publishing-pipeline.md`, covering the DEM/COG delivery decision (E3-1/E3-4) and the 2026-08-20 outage postmortem — root cause was a Docker-daemon-level failure under host memory pressure, which stopped every container in every stack at once because none had `mem_limit` or a restart policy that survives a clean exit | To Do | Medium | S | E13-3, E13-4 |
 
 **Also found while executing E13-1 (2026-09-28), not part of its formal scope — documented here for E13-5's postmortem:** a second, orphaned compose file existed at `/volume1/docker/ancientdata/compose.yaml`, pre-dating the current `postgis_admin/` + `AncientDataWebGIS/docker-compose.yml` split layout and pointing at old `/volume1/docker/postgis_pgadmin_stack/...` volume paths. It held stale plaintext copies of the PostGIS root, pgAdmin admin, and GeoServer admin credentials. Confirmed via `docker inspect <container> --format '{{index .Config.Labels "com.docker.compose.project.config_files"}}'` that it wasn't driving any live container, then deleted. Also discovered during the same rotation: the live NAS `AncientDataWebGIS/.env` sets `DB_USER=root` for the app's main JPA datasource — not `webgis_client` as `.env.example` assumes — meaning the app's normal runtime DB access is not actually isolated from the superuser account in production today.
+
+## P1 - Next
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E1-4 | E1 | Add date/type filters on dashboard | ✅ Done | Medium | M | E1-3 |
+| E1-5 | E1 | Add CSV export for dashboard aggregates | ✅ Done | Medium | S | E1-3 |
+| E2-0 | E2 | Define media storage foundation and delivery strategy (filesystem/NAS vs object storage), with operator runbook | ✅ Done | High | M | E0-4 |
+| E2-1 | E2 | Add `media_asset` model (polymorphic: ROAD/SITE + id) | ✅ Done | High | M | E2-0 |
+| E2-2 | E2 | Store media metadata (caption/license/source/author/date) | ✅ Done | High | S | E2-1 |
+| E2-3 | E2 | Add gallery UI to `RoadInfo` and `SiteInfo` | ✅ Done | High | M | E2-1 |
+| E2-4 | E2 | Add map info card cover image | ✅ Done | Medium | S | E2-3 |
+| E2-5 | E2 | Add admin media moderation flow | ✅ Done | Medium | M | E2-1 |
+| E2-UI-1 | E2 | Admin upload component — MediaUploadForm with file picker, metadata fields, calls POST /api/media | ✅ Done | High | M | E2-3 |
+| E2-UI-2 | E2 | Admin media management — edit/delete controls on gallery thumbnails (PATCH/DELETE /api/media/{id}) | ✅ Done | High | M | E2-UI-1 |
+| E2-UI-3 | E2 | Admin view of pending/hidden media — admins see all statuses with badges via GET /api/media/admin | ✅ Done | High | S | E2-UI-2 |
+| ~~E2-BACKUP-1~~ | E2 | ~~Add Google Drive backup service~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
+| ~~E2-BACKUP-2~~ | E2 | ~~Add scheduled Google Drive sync task~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
+| ~~E2-BACKUP-3~~ | E2 | ~~Add manual Google Drive sync trigger~~ — superseded by NAS-sync approach (see ADR-006) | Won't Do | — | — | — |
+| E2-BACKUP-NAS-1 | E2 | Add NAS filesystem backup service — `NasBackupService` + `NasBackupConfig` syncing local media dir to a mounted NAS path | ✅ Done | High | M | E2-1 |
+| E2-BACKUP-NAS-2 | E2 | Scheduled NAS sync — cron-based background sync via `@Scheduled`, configurable via `backup.nas.sync-cron` env var | ✅ Done | High | S | E2-BACKUP-NAS-1 |
+| E2-BACKUP-NAS-3 | E2 | Manual sync trigger endpoint — `POST /api/backup/sync` (ADMIN) for on-demand backup, returns sync status | ✅ Done | Medium | S | E2-BACKUP-NAS-1 |
+| E2-BACKUP-NAS-4 | E2 | Database backup (`DbBackupService`, pg_dump) + `backup_history` table + `GET /api/backup/status` + FE "Back up now" button with staleness indicator in `AdminPanel` | ✅ Done | Medium | M | E2-BACKUP-NAS-3 |
+| E2-GEO-1 | E2 | Photo geotagging — extract/store GPS coordinates from EXIF data and allow manual placement on map; display geotagged photos as markers | ✅ Done | Medium | M | E2-UI-1 |
 
 ## P1.5 - Map Clarity & Layer Redesign (✅ Done — unblocked E3)
 
@@ -239,6 +246,17 @@ work correctly end-to-end as-is). Full design write-up:
 - Bug to fix as part of E10-1 (found during pre-work analysis, not a new regression to chase separately): `siteIconMap` (`siteIcons.ts`) and `siteTypeIconUrls` (`markerStyles.ts`) both map `ptum` ("possible barrow") to `tumulusIcon`/`tumulus.png` instead of the already-built-but-unused `possibleTumulusIcon`/`ptumulus.png`, so possible-tumulus sites currently render with the confirmed-tumulus marker on both the map and in `MapLegend`. Every other confirmed/possible pair (`castellum`/`pos_castellum`, `villa`/`pvilla`, `ship`/`pship`) already has a visually distinct icon — only tumulus regressed. Labels are unaffected (`siteTypeLabels` and `Dashboard.tsx`'s `LABEL_MAPPING` already distinguish `tum`/`ptum` correctly); this is an icon-wiring fix only, not a data-model or dating/certainty change.
 - `Dashboard.tsx` maintains a fifth, independent label source (`LABEL_MAPPING`, used for chart labels) that duplicates `siteTypeLabels` with different wording for the same keys. Fold it into `siteTypesConfig.ts` as the label source — `Dashboard` only needs text, not icons — so the registry is truly single-source, per the epic outcome.
 
+## Dev Tooling (Out of priority wave — infra/developer experience)
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E7-1 | E7 | Document Cloudflare WARP remote-DB access convention (LAN-IP-only `DB_URL`) in backend `README.md` | ✅ Done | Medium | S | None |
+| E7-2 | E7 | Add optional `docker-compose.local-dev.yml` throwaway PostGIS container + `local-dev` Spring profile | ✅ Done | Medium | M | None |
+| E7-3 | E7 | Add `docs/architecture/sql/local-dev-seed.sql` synthetic schema/seed mirror for offline dev | ✅ Done | Medium | S | E7-2 |
+| E7-4 | E7 | Document both remote/offline dev paths in `.env.example` and record decision in `ADR-010` | ✅ Done | Low | S | E7-1, E7-2 |
+| E7-5 | E7 | Fix stale NAS LAN IP (`192.168.1.50` → `192.168.2.13`) across docs/config; verify QGIS remote-edit connectivity end-to-end over WARP | ✅ Done | Medium | S | E7-1 |
+| E7-6 | E7 | Grant `qgis_user` privileges on `arch_sites` (was missing entirely — `roads`/`fieldsystems`/`modernrefs`/`unidentified_linear_objects` are `qgis_user`-owned per `ADR-003`, but `arch_sites` was still `root`-only, so QGIS couldn't read or edit sites at all over the WARP path) | ✅ Done | Medium | S | E7-5 |
+
 ## E8 — Interactive Book / Research Narrative
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
@@ -256,19 +274,6 @@ work correctly end-to-end as-is). Full design write-up:
 | E8-11 | E8 | Redesign `About` page as a lightweight project intro (photo, "how this project came about", tech stack, GitHub repo links) now that long-form research content lives in the Book | ✅ Done | Medium | S | E8-7 |
 | E8-12 | E8 | Convert `News` page into a dated changelog list; publish the `rinsewillet.net` deployment announcement | ✅ Done | Low | S | None |
 | E8-13 | E8 | **(Deferred)** Manuscript ingestion workflow — convert the author's existing ~20-page `.docx` manuscript into `src/content/book/*.md` chapters (e.g. via `pandoc`), with a review pass per chapter | Deferred | Medium | L | E8-7 |
-
-
-
-## Dev Tooling (Out of priority wave — infra/developer experience)
-
-| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
-|---|---|---|---|---|---|---|
-| E7-1 | E7 | Document Cloudflare WARP remote-DB access convention (LAN-IP-only `DB_URL`) in backend `README.md` | ✅ Done | Medium | S | None |
-| E7-2 | E7 | Add optional `docker-compose.local-dev.yml` throwaway PostGIS container + `local-dev` Spring profile | ✅ Done | Medium | M | None |
-| E7-3 | E7 | Add `docs/architecture/sql/local-dev-seed.sql` synthetic schema/seed mirror for offline dev | ✅ Done | Medium | S | E7-2 |
-| E7-4 | E7 | Document both remote/offline dev paths in `.env.example` and record decision in `ADR-010` | ✅ Done | Low | S | E7-1, E7-2 |
-| E7-5 | E7 | Fix stale NAS LAN IP (`192.168.1.50` → `192.168.2.13`) across docs/config; verify QGIS remote-edit connectivity end-to-end over WARP | ✅ Done | Medium | S | E7-1 |
-| E7-6 | E7 | Grant `qgis_user` privileges on `arch_sites` (was missing entirely — `roads`/`fieldsystems`/`modernrefs`/`unidentified_linear_objects` are `qgis_user`-owned per `ADR-003`, but `arch_sites` was still `root`-only, so QGIS couldn't read or edit sites at all over the WARP path) | ✅ Done | Medium | S | E7-5 |
 
 ## E11 — OAuth2/OIDC Migration
 
