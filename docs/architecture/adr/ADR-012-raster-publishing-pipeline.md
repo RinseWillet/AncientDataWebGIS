@@ -95,3 +95,19 @@ Relevant existing state:
 **Refinement (does not change the Decision above):** Source GeoTIFFs live in their own top-level NAS directory, `/volume1/docker/ancientdata/rastermaps`, bind-mounted into the `geoserver` container read-only at `/opt/geoserver/data_dir/rastermaps` — nested from the container's point of view (so GeoServer's store-creation file browser can reach it), but a fully independent directory on the NAS host, so the NAS backup job from this ADR's original Decision can target it precisely without also backing up GeoServer's regenerable cache.
 
 **Files changed:** `docker-compose.yml` (new `rastermaps` bind mount on the `geoserver` service), `docs/features/E3.1-raster-publishing-pipeline.md` (updated paths).
+
+---
+
+## Addendum (2026-09-28): See ADR-016 for the 2026-08-20 outage postmortem
+
+**Context:** A large DEM `GetMap` request through the proxy this ADR establishes
+(`RasterProxyService.forward()`) caused a host-wide outage on 2026-08-20 — the
+proxy fully buffered each upstream response into a `byte[]`, and a sufficiently
+large one drove the NAS into enough memory pressure to hang the Docker daemon
+itself. This does not change the Decision above (GeoServer + COG + GWC remains
+the approach); the proxy's *implementation* was the gap, not the pipeline
+architecture.
+
+**See:** `ADR-016-nas-outage-postmortem.md` for the full root cause, the
+streaming-proxy fix (`RestClient.exchange(fn, false)` + `StreamingResponseBody`),
+and the related NAS-resilience follow-up (Epic E13).
