@@ -31,18 +31,18 @@ It is structured to support:
 | E2 | Photo & Media Integration | ✅ Done | Link and present images/media for roads/sites |
 | E6 | Security & Dependency Hardening | ✅ Done | Resolve open Dependabot alerts and confirm a clean dependency graph before NAS deployment |
 | E9 | Map Clarity & Layer Control Redesign | ✅ Done | Restrict selection/base-layer chrome to the Atlas, add a legend, and replace the bulky Leaflet grouped-layer control with a custom collapsible side panel — **unblocks E3** |
-| E3 | Raster / GeoTIFF Delivery | 🚧 In Progress | Publish and consume large rasters via tile services (depends on E9) |
+| E3 | Raster / GeoTIFF Delivery | ✅ Done | Publish and consume large rasters via tile services (depends on E9) |
 | E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
 | E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
-| E8 | Interactive Book / Research Narrative | 🚧 In Progress | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer |
+| E8 | Interactive Book / Research Narrative | ✅ Done | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer — E8-10/E8-13 remain explicitly Deferred, not blocking |
 | E10 | Site & Road Type Registry Consolidation | ✅ Done | Replace the scattered site/road type label, icon, and style definitions with one typed, single-source-of-truth registry, so adding/renaming/restyling a type (e.g. a new "watermill" site type) is a single-file change |
 | E11 | OAuth2/OIDC Migration | To Do | Replace the custom username/password + JWT auth flow with a self-hosted Keycloak IdP, converting the backend into an OAuth2 Resource Server and the frontend to Authorization Code + PKCE |
 | E12 | k3s Migration | To Do | Migrate the NAS deployment from Docker Compose to a single-node k3s cluster, with a validated rollback path to Compose (depends on E11 being stable first) |
 | E13 | NAS Infra Resilience & Incident Follow-up | ✅ Done | Harden the NAS deployment against a repeat of the 2026-08-20 host-wide outage (Docker-daemon-level failure under memory pressure while loading a large DEM via GeoServer/WMS), and close the raster-pipeline documentation gap it exposed |
 | E14 | Backend & Frontend Road/Site Duplication Hardening | To Do | Reduce Road/Site duplication and layering violations surfaced by the 2026-08-25 readability/maintainability audit — backend: HTTP exceptions leaking into `application/service`, duplicated CRUD/exception-translation logic across `RoadService`/`SiteService`, JPA-unsafe Lombok `@Data` entities; frontend (`AncientDataWebGIS_FE`): near-duplicate `RoadInfo`/`SiteInfo` pages, two different Redux Toolkit patterns for the same "fetch by id" operation, an oversized multi-concern `useMapInteractions.ts` — no change to external API behavior or, beyond E14-7, to user-visible UI behavior |
 | E15 | Automatic Image Resizing for Oversized Media Uploads | ✅ Done | Instead of rejecting an admin's photo upload for exceeding the 10 MB `media_asset` limit (`MediaService.MAX_FILE_SIZE`), automatically downscale/recompress it server-side to fit, targeting ~300 DPI print quality where feasible, so a large phone/camera JPEG isn't a dead end |
-| E16 | Site-Type Icons: PNG → Inline SVG | 🚧 In Progress | Replace `AncientDataWebGIS_FE`'s PNG-image-based site-type marker icons with inline-SVG `DivIcon`s, so a type's visual size or "possible"-variant color is a config value in `siteTypesConfig.ts` (a `sizePercent`/`fillColor` argument) rather than a redrawn image asset |
+| E16 | Site-Type Icons: PNG → Inline SVG | ✅ Done | Replace `AncientDataWebGIS_FE`'s PNG-image-based site-type marker icons with inline-SVG `DivIcon`s, so a type's visual size or "possible"-variant color is a config value in `siteTypesConfig.ts` (a `sizePercent`/`fillColor` argument) rather than a redrawn image asset |
 
 ---
 
@@ -75,7 +75,7 @@ for their status — and are grouped at the end of this section in epic order.
 | E6-2 | E6 | Confirm dependency graph refreshes on `main` and re-verify all open alerts against actually-resolved versions | ✅ Done | Critical | S | E6-1 |
 | E6-3 | E6 | Triage `jackson-databind` manifest alert — confirm Spring Boot BOM version is safe or pin explicitly | ✅ Done | High | S | E6-2 |
 | E6-4 | E6 | Triage 4 critical `tomcat-embed-core` alerts (#15, #62, #65, #67) — confirm resolved 10.1.54 fixes them or upgrade further | ✅ Done | Critical | S | E6-2 |
-| E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | To Do | Medium | S | E6-4 |
+| E6-5 | E6 | Document a recurring dependency-alert triage cadence (e.g. monthly check + `./gradlew dependencies` verification steps) | ✅ Done | Medium | S | E6-4 |
 
 ## P0.6 - NAS Infra Resilience (Post-Incident, 2026-08-20) — ✅ Epic Closed (2026-09-28)
 
@@ -278,8 +278,8 @@ work correctly end-to-end as-is). Full design write-up:
 | E8-5 | E8 | Add `ChapterNav` prev/next chapter footer component | ✅ Done | Medium | S | E8-4 |
 | E8-6 | E8 | Responsive CSS pass for book chapters (prose max-width via `ch` units, image scaling, breakpoints matching existing `InfoPage.css` conventions) | ✅ Done | High | S | E8-3 |
 | E8-7 | E8 | Migrate first 1-2 chapters from author's existing written content into `src/content/book/` as a working smoke test | ✅ Done | High | M | E8-1, E8-2, E8-3, E8-6 |
-| E8-8 | E8 | Document git-push-as-backup expectation for book content in frontend `README.md`/`AGENTS.md` | To Do | Medium | S | E8-1 |
-| E8-9 | E8 | Verify/document that a `media/book/` convention (for data-linked photos, if used) is swept by the existing NAS backup sync — verification only, no new backend code | To Do | Low | S | None |
+| E8-8 | E8 | Document git-push-as-backup expectation for book content in frontend `README.md`/`AGENTS.md` | ✅ Done | Medium | S | E8-1 |
+| E8-9 | E8 | Verify/document that a `media/book/` convention (for data-linked photos, if used) is swept by the existing NAS backup sync — verification only, no new backend code | ✅ Done | Low | S | None |
 | E8-10 | E8 | **(Deferred)** Upgrade Markdown pipeline to MDX for embedded live components (`<SiteLink>`, `<InlineMap>`, `<InlinePhotoGallery>`) enabling deep links from prose into the map/data explorer | Deferred | Medium | L | E8-7 |
 | E8-11 | E8 | Redesign `About` page as a lightweight project intro (photo, "how this project came about", tech stack, GitHub repo links) now that long-form research content lives in the Book | ✅ Done | Medium | S | E8-7 |
 | E8-12 | E8 | Convert `News` page into a dated changelog list; publish the `rinsewillet.net` deployment announcement | ✅ Done | Low | S | None |
@@ -313,7 +313,7 @@ work correctly end-to-end as-is). Full design write-up:
 | E16-1 | E16 | Build `svgIconShapes.ts` (parameterized geometric-family shape generators) + `makeSvgIcon`/`svgToDataUri` in `markerStyles.ts`; fix `.site-type-icon`'s CSS selector to drop its `img` tag qualifier so the click-precision touch-target fix keeps applying once markers are `DivIcon`s | ✅ Done | High | M | None |
 | E16-2 | E16 | Convert the geometric-family types in `siteTypesConfig.ts` to inline SVG: castellum/pos_castellum/legfort, sett/settS/psett, villa/pvilla, tum/ptum, bridge, histSett, generic `site` fallback | ✅ Done | High | M | E16-1 |
 | E16-3 | E16 | Hand-author the 7 bespoke pictogram shapes (city, cem, watchtower, sanctuary, ship/pship, milestone) in `svgIconShapes.ts`, matching each current PNG's silhouette; wire them in `siteTypesConfig.ts` | ✅ Done | Medium | M | E16-1 |
-| E16-4 | E16 | Remove the now-unused PNG assets under `src/assets/` for every converted type, once visually verified against the local-dev seed data | To Do | Low | S | E16-2, E16-3 |
+| E16-4 | E16 | Remove the now-unused PNG assets under `src/assets/` for every converted type, once visually verified against the local-dev seed data | ✅ Done | Low | S | E16-2, E16-3 |
 
 ---
 
