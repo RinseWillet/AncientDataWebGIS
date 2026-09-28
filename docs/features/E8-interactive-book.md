@@ -91,6 +91,8 @@ See `ADR-011-book-content-storage-and-backup.md` for the full decision record. S
 - Any photographs that are also scientific/dataset records (tied to a site/road) should continue to be uploaded through the existing `MediaAsset` pipeline rather than duplicated as static book assets — this keeps them covered by the existing `NasBackupService` (weekly NAS sync) and `scripts/backup.sh` (nightly full archive) with zero new backend work.
 - No database-backed content model (headless CMS, new Spring entities) is planned for this epic — the project is single-author right now, so file-based content with git as the backup layer is the right-sized solution. Revisit only if multi-author, non-technical editing becomes a real requirement (see ADR-011 "When to Revisit").
 
+**E8-9 verification (2026-09-28):** confirmed directly against `NasBackupService.syncLocalFiles()` (`AncientDataWebGIS/src/main/java/com/webgis/ancientdata/application/service/NasBackupService.java`) — it walks the entire `media.storage-path` root (`Files.walk(mediaRoot)`) recursively with no subdirectory include/exclude filtering, syncing every regular file it finds to the NAS mount by relative path. So if a data-linked book photo is ever uploaded through the normal `MediaAsset` pipeline under a `book/` prefix (e.g. `media/book/...`), it is automatically covered by the existing sync with no additional backend change — the "if used" convention in this section holds today, verified against the live code rather than only asserted in ADR-011.
+
 ---
 
 ## Stories
@@ -99,7 +101,7 @@ See `FEATURE-SPEC-BACKLOG.md` § "E8 — Interactive Book / Research Narrative" 
 
 ## Outstanding / deferred
 
-- **E8-8 / E8-9:** Document the git-push-as-backup expectation, and verify/document NAS coverage for any future `media/book/` data-linked photos. Not yet done — no code changes required, documentation only.
+- **E8-8 / E8-9 (✅ Done, 2026-09-28):** Git-push-as-backup expectation documented in `AncientDataWebGIS_FE/README.md` § "Book Content Backup" (and pointed to from `AGENTS.md`); NAS coverage for any future `media/book/` data-linked photos verified against `NasBackupService`'s live code (see above) — no code changes were needed for either.
 - **E8-10 (Deferred):** MDX upgrade for embedded live components (`<SiteLink>`, `<InlineMap>`, `<InlinePhotoGallery>`) enabling prose to deep-link directly into `/atlas/site_:id` and `/datalist/siteinfo/:id`, or embed a live `MapComponent`/`MediaGallery` inline. Not started; revisit once the base Markdown reading experience wants richer in-text interactivity.
 - **E8-13 (Deferred):** Ingest the author's existing ~20-page `.docx` manuscript into further `src/content/book/*.md` chapters. Candidate approach: `pandoc manuscript.docx -o chapter.md --extract-media=./src/assets/book` to get a first-pass Markdown conversion plus extracted images, followed by a manual per-chapter review/cleanup pass (heading levels, captions, stray formatting artifacts) before publishing each chapter. Not started — pending the author sharing the manuscript file.
 
