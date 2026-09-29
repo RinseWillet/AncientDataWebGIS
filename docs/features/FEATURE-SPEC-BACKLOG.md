@@ -244,7 +244,7 @@ work correctly end-to-end as-is). Full design write-up:
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
 | E5-1 | E5 | Add Day/Night/Hercules theme tokens (`docs/redesign/theme/tokens.css`) + `useTheme()` switcher into `App.tsx`/`App.css`: Day follows device preference until chosen, Night is a header toggle, Hercules is F9 | To Do | Medium | S | E0-2 |
-| E5-2 | E5 | Persist theme preference (day/night/hercules) in local storage | To Do | Low | S | E5-1 |
+| E5-2 | E5 | Persist theme preference (day/night/hercules) in local storage | ✅ Done | Low | S | E5-1 |
 | E5-3 | E5 | Add per-theme MapLibre basemap styles (`basemap/ancientdata-{day,night,hercules}.json`) + per-theme DEM color-ramp SLDs, swapped via `layersConfig.ts`'s vector base layer `styleUrl` and the WMS `styles` param | To Do | Medium | M | E5-1 |
 | E5-4 | E5 | Add evidence-based road line styles (`map/roadStyles.ts`: solid=excavated/observed, dashed=traced/reconstructed, dotted=hypothetical, thin dash-dot=historical record only), driven by the existing `Road.type` field; add a `certain: boolean` flag per entry in `siteTypesConfig.ts` (derived from the existing confirmed/possible prefix convention, e.g. `tum` vs `ptum`) driving filled-vs-outline site markers | To Do | Medium | M | E5-1, E10-2 |
 | E10-1 | E10 | Consolidate site type label/icon definitions (currently split across `utils/siteTypes.ts`, `siteIcons.ts`, `Styles/markerStyles.ts`, and `Dashboard.tsx`'s own `LABEL_MAPPING`) into one typed `siteTypesConfig.ts`, sourced by `MapContent`, `MapInfoCard`, `SiteInfo`, `MapLegend`, and `Dashboard`; fixes `ptum` incorrectly rendering with the confirmed-tumulus icon instead of `possibleTumulusIcon` | ✅ Done | Medium | M | E9-5 |
@@ -476,7 +476,7 @@ Story,E4-2,Improve touch targets and spacing,,E4,High,2,frontend;ux;mobile,"Ensu
 Story,E4-3,Improve DataList mobile UX,,E4,Medium,3,frontend;ux;mobile,"Refine table/list behavior for small screens.","Readability and actions remain usable",✅ Done
 Story,E4-4,Add responsive QA matrix,,E4,High,2,qa;ux;mobile,"Create repeatable responsive regression checklist.","Checklist adopted in release flow",✅ Done
 Story,E5-1,Add theme switcher and tokens,,E5,Medium,2,frontend;theme,"Implement synthwave-ready theme token system and switcher.","Theme switches globally without breaking readability",E0-2
-Story,E5-2,Persist selected theme,,E5,Low,1,frontend;theme,"Save and load theme preference from storage.","Preference survives reload",E5-1
+Story,E5-2,Persist selected theme,,E5,Low,1,frontend;theme,"Save and load theme preference from storage.","Preference survives reload",E5-1,✅ Done
 Story,E5-3,Add synthwave map style profile,,E5,Medium,3,frontend;theme;map,"Tune map colors/icons for synthwave mode.","Map remains legible in synthwave",E5-1
 Story,E10-1,Consolidate site type registry,,E10,Medium,5,frontend;map;devx,"Merge siteTypeLabels/siteIconMap/siteTypeIconUrls/Dashboard LABEL_MAPPING into one typed siteTypesConfig.ts consumed by MapContent/MapInfoCard/SiteInfo/MapLegend/Dashboard; fix ptum rendering with the confirmed-tumulus icon instead of possibleTumulusIcon.","Adding a new site type requires editing only one file; possible-tumulus sites render with a distinct icon from confirmed tumuli",✅ Done
 Story,E10-2,Consolidate road type registry,,E10,Medium,2,frontend;map;devx,"Confirm/extend roadStyleEntries/roadStyleDifferentiator (utils/roadTypes.ts) as the single source for road type labels/styles.","Adding a new road type requires editing only one file",✅ Done
