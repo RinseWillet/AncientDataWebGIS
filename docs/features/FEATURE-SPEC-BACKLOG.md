@@ -243,7 +243,7 @@ work correctly end-to-end as-is). Full design write-up:
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
-| E5-1 | E5 | Add Day/Night/Hercules theme tokens (`docs/redesign/theme/tokens.css`) + `useTheme()` switcher into `App.tsx`/`App.css`: Day follows device preference until chosen, Night is a header toggle, Hercules is F9 | To Do | Medium | S | E0-2 |
+| E5-1 | E5 | Add Day/Night/Hercules theme tokens (`docs/redesign/theme/tokens.css`) + `useTheme()` switcher into `App.tsx`/`App.css`: Day follows device preference until chosen, Night is a header toggle, Hercules is F9 | ✅ Done | Medium | S | E0-2 |
 | E5-2 | E5 | Persist theme preference (day/night/hercules) in local storage | ✅ Done | Low | S | E5-1 |
 | E5-3 | E5 | Add per-theme MapLibre basemap styles (`basemap/ancientdata-{day,night,hercules}.json`) + per-theme DEM color-ramp SLDs, swapped via `layersConfig.ts`'s vector base layer `styleUrl` and the WMS `styles` param | To Do | Medium | M | E5-1 |
 | E5-4 | E5 | Add evidence-based road line styles (`map/roadStyles.ts`: solid=excavated/observed, dashed=traced/reconstructed, dotted=hypothetical, thin dash-dot=historical record only), driven by the existing `Road.type` field; add a `certain: boolean` flag per entry in `siteTypesConfig.ts` (derived from the existing confirmed/possible prefix convention, e.g. `tum` vs `ptum`) driving filled-vs-outline site markers | To Do | Medium | M | E5-1, E10-2 |
