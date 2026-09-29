@@ -520,6 +520,32 @@ VALUES (100001, 'Castellum Nigrum Pullum (dev seed)', ST_SetSRID(ST_MakePoint(4.
         'Synthetic local-dev seed site — not real archaeological data.'),
        (100021, 'Cluster Site F - Historically Attested (dev seed)', ST_SetSRID(ST_MakePoint(5.6638, 52.0415), 4326), 'Germania Inferior',
         'histSett', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       -- Remaining siteTypesConfig.ts types not yet covered above, added for
+       -- full type-registry/theme visual coverage (redesign E5).
+       (100022, 'Sample Possible Castellum (dev seed)', ST_SetSRID(ST_MakePoint(5.0100, 51.8900), 4326), 'Germania Inferior',
+        'pos_castellum', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       (100023, 'Sample Legionary Fortress (dev seed)', ST_SetSRID(ST_MakePoint(5.8600, 51.9600), 4326), 'Germania Inferior',
+        'legfort', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       (100024, 'Sample Autonomous City (dev seed)', ST_SetSRID(ST_MakePoint(5.1000, 52.1600), 4326), 'Germania Inferior',
+        'city', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       (100025, 'Sample Sanctuary (dev seed)', ST_SetSRID(ST_MakePoint(4.9700, 51.9700), 4326), 'Germania Inferior',
+        'sanctuary', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       (100026, 'Sample Shipwreck (dev seed)', ST_SetSRID(ST_MakePoint(4.6200, 51.9200), 4326), 'Germania Inferior',
+        'ship', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       (100027, 'Sample Possible Shipwreck (dev seed)', ST_SetSRID(ST_MakePoint(4.7000, 51.8700), 4326), 'Germania Inferior',
+        'pship', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       (100028, 'Sample Generic Site (dev seed)', ST_SetSRID(ST_MakePoint(5.7200, 52.0900), 4326), 'Germania Inferior',
+        'site', NULL, NULL,
+        'Synthetic local-dev seed site — not real archaeological data.'),
+       (100029, 'Sample Milestone (dev seed)', ST_SetSRID(ST_MakePoint(5.0800, 52.0300), 4326), 'Germania Inferior',
+        'milestone', NULL, NULL,
         'Synthetic local-dev seed site — not real archaeological data.') ON CONFLICT DO NOTHING;
 
 INSERT INTO roads (cat_nr, cat_name, geom, type, cat_type_descr, cat_location, cat_description, cat_date, cat_ref,
@@ -535,6 +561,17 @@ VALUES (9001, 'Dev Seed Road A',
        (9002, 'Dev Seed Road C',
         ST_SetSRID(ST_GeomFromText('MULTILINESTRING((4.34920 52.0577, 4.3145 52.03396, 4.25665 52.01647))'), 4326),
         'hypothetical route', 'just a guess of a route', 'Loose in Western Netherlands',
+        'Synthetic local-dev seed road — not real archaeological data.', NULL, NULL, NULL),
+       -- Remaining road evidence types (RoadService.java's type constants) not
+       -- yet covered above, added for full evidence-style visual coverage
+       -- (redesign E5-4: solid/dashed/dotted/thin dash-dot line styles).
+       (9003, 'Dev Seed Road D (Historical Reconstruction)',
+        ST_SetSRID(ST_GeomFromText('MULTILINESTRING((5.0100 51.8900, 5.1500 51.9300, 5.3000 51.9700))'), 4326),
+        'hist_rec', '19th-century historical reconstruction', 'Loose in the eastern dev-seed area',
+        'Synthetic local-dev seed road — not real archaeological data.', NULL, NULL, NULL),
+       (9004, 'Dev Seed Road E (Other)',
+        ST_SetSRID(ST_GeomFromText('MULTILINESTRING((5.8600 51.9600, 5.7800 52.0200, 5.7200 52.0900))'), 4326),
+        'other', 'unclassified', 'Loose near the dev-seed cluster',
         'Synthetic local-dev seed road — not real archaeological data.', NULL, NULL, NULL) ON CONFLICT DO NOTHING;
 
 INSERT INTO modernrefs (short_ref, full_ref, url)
