@@ -33,7 +33,7 @@ It is structured to support:
 | E9 | Map Clarity & Layer Control Redesign | ✅ Done | Restrict selection/base-layer chrome to the Atlas, add a legend, and replace the bulky Leaflet grouped-layer control with a custom collapsible side panel — **unblocks E3** |
 | E3 | Raster / GeoTIFF Delivery | ✅ Done | Publish and consume large rasters via tile services (depends on E9) |
 | E4 | Responsive UX for Field Use | ✅ Done | Improve mobile/tablet workflows on map and list views |
-| E5 | Synthwave Theme (Optional) | To Do | Add alternate visual theme with persistent preference |
+| E5 | Day / Night / Hercules Theme Core | To Do | Add the three-look theme system (tokens, switcher, persisted preference, per-theme basemap/DEM/road-and-site styling) from the Claude Design canvas redesign — supersedes the earlier "Synthwave Theme" framing; `E17` builds the rest of the redesign on top of this |
 | E7 | Remote & Offline Dev Environment | ✅ Done | Enable developing/smoke-testing away from the home LAN, with or without network access |
 | E8 | Interactive Book / Research Narrative | ✅ Done | Publish long-form research narrative chapters (Markdown, with embedded QGIS-generated images) alongside the data explorer — E8-10/E8-13 remain explicitly Deferred, not blocking |
 | E10 | Site & Road Type Registry Consolidation | ✅ Done | Replace the scattered site/road type label, icon, and style definitions with one typed, single-source-of-truth registry, so adding/renaming/restyling a type (e.g. a new "watermill" site type) is a single-file change |
@@ -43,6 +43,7 @@ It is structured to support:
 | E14 | Backend & Frontend Road/Site Duplication Hardening | To Do | Reduce Road/Site duplication and layering violations surfaced by the 2026-08-25 readability/maintainability audit — backend: HTTP exceptions leaking into `application/service`, duplicated CRUD/exception-translation logic across `RoadService`/`SiteService`, JPA-unsafe Lombok `@Data` entities; frontend (`AncientDataWebGIS_FE`): near-duplicate `RoadInfo`/`SiteInfo` pages, two different Redux Toolkit patterns for the same "fetch by id" operation, an oversized multi-concern `useMapInteractions.ts` — no change to external API behavior or, beyond E14-7, to user-visible UI behavior |
 | E15 | Automatic Image Resizing for Oversized Media Uploads | ✅ Done | Instead of rejecting an admin's photo upload for exceeding the 10 MB `media_asset` limit (`MediaService.MAX_FILE_SIZE`), automatically downscale/recompress it server-side to fit, targeting ~300 DPI print quality where feasible, so a large phone/camera JPEG isn't a dead end |
 | E16 | Site-Type Icons: PNG → Inline SVG | ✅ Done | Replace `AncientDataWebGIS_FE`'s PNG-image-based site-type marker icons with inline-SVG `DivIcon`s, so a type's visual size or "possible"-variant color is a config value in `siteTypesConfig.ts` (a `sizePercent`/`fillColor` argument) rather than a redrawn image asset |
+| E17 | AncientData Redesign — Atlas, Records & Pages | To Do | Implement the Atlas interaction (tap picker, mobile clustering, near-me), the Records reading experience (side panel, full-page reading mode, figure viewer), the Home/News/Data/Suggest page redesign, and the Hercules easter-egg mode from the Claude Design canvas redesign — depends on `E5`'s theme core |
 
 ---
 
@@ -51,7 +52,7 @@ It is structured to support:
 Waves run P0 → P3 in priority order; a `.5`/`.6` suffix marks a gate or
 incident-driven wave inserted between two whole-number waves (e.g. P0.5 is a
 security gate before P1 work continues, P0.6 is 2026-08-20 incident
-follow-up). E7 (Dev Tooling), E8, E11, E12, and E16 are tracked as their own
+follow-up). E7 (Dev Tooling), E8, E11, E12, E16, and E17 are tracked as their own
 initiatives outside the P-wave numbering — see the Epics table in section 2
 for their status — and are grouped at the end of this section in epic order.
 
@@ -242,9 +243,10 @@ work correctly end-to-end as-is). Full design write-up:
 
 | Story ID | Epic | Story | Status | Priority | Size | Dependencies |
 |---|---|---|---|---|---|---|
-| E5-1 | E5 | Add theme tokens + switcher based on CSS variables in `AncientDataWebGIS_FE/src/App.css` | To Do | Medium | S | E0-2 |
-| E5-2 | E5 | Persist theme preference in local storage | To Do | Low | S | E5-1 |
-| E5-3 | E5 | Add synthwave map style profile | To Do | Medium | M | E5-1 |
+| E5-1 | E5 | Add Day/Night/Hercules theme tokens (`docs/redesign/theme/tokens.css`) + `useTheme()` switcher into `App.tsx`/`App.css`: Day follows device preference until chosen, Night is a header toggle, Hercules is F9 | To Do | Medium | S | E0-2 |
+| E5-2 | E5 | Persist theme preference (day/night/hercules) in local storage | To Do | Low | S | E5-1 |
+| E5-3 | E5 | Add per-theme MapLibre basemap styles (`basemap/ancientdata-{day,night,hercules}.json`) + per-theme DEM color-ramp SLDs, swapped via `layersConfig.ts`'s vector base layer `styleUrl` and the WMS `styles` param | To Do | Medium | M | E5-1 |
+| E5-4 | E5 | Add evidence-based road line styles (`map/roadStyles.ts`: solid=excavated/observed, dashed=traced/reconstructed, dotted=hypothetical, thin dash-dot=historical record only), driven by the existing `Road.type` field; add a `certain: boolean` flag per entry in `siteTypesConfig.ts` (derived from the existing confirmed/possible prefix convention, e.g. `tum` vs `ptum`) driving filled-vs-outline site markers | To Do | Medium | M | E5-1, E10-2 |
 | E10-1 | E10 | Consolidate site type label/icon definitions (currently split across `utils/siteTypes.ts`, `siteIcons.ts`, `Styles/markerStyles.ts`, and `Dashboard.tsx`'s own `LABEL_MAPPING`) into one typed `siteTypesConfig.ts`, sourced by `MapContent`, `MapInfoCard`, `SiteInfo`, `MapLegend`, and `Dashboard`; fixes `ptum` incorrectly rendering with the confirmed-tumulus icon instead of `possibleTumulusIcon` | ✅ Done | Medium | M | E9-5 |
 | E10-2 | E10 | Consolidate road type label/style definitions into one typed source, building on `roadStyleEntries`/`roadStyleDifferentiator` (`utils/roadTypes.ts`, added in E9-5) as the starting point | ✅ Done | Medium | S | E9-5 |
 | E10-3 | E10 | Document the "add a new site/road type" workflow (e.g. a comment block in the new config file(s) or a short `AGENTS.md` section) now that it is a single-file change | ✅ Done | Low | S | E10-1, E10-2 |
@@ -315,6 +317,30 @@ work correctly end-to-end as-is). Full design write-up:
 | E16-3 | E16 | Hand-author the 7 bespoke pictogram shapes (city, cem, watchtower, sanctuary, ship/pship, milestone) in `svgIconShapes.ts`, matching each current PNG's silhouette; wire them in `siteTypesConfig.ts` | ✅ Done | Medium | M | E16-1 |
 | E16-4 | E16 | Remove the now-unused PNG assets under `src/assets/` for every converted type, once visually verified against the local-dev seed data | ✅ Done | Low | S | E16-2, E16-3 |
 
+## E17 — AncientData Redesign: Atlas, Records & Pages
+
+| Story ID | Epic | Story | Status | Priority | Size | Dependencies |
+|---|---|---|---|---|---|---|
+| E17-1 | E17 | Add Atlas tap picker: collect every site/road within ~12px of a map click; open directly on a single hit, show a "N features here" picker card on multiple hits | To Do | High | M | E5 |
+| E17-2 | E17 | Add mobile-only marker clustering (Leaflet.markercluster or supercluster); desktop keeps all ~807 markers unclustered | To Do | High | M | E17-1 |
+| E17-3 | E17 | Restyle `LayerPanel` as a short card opened from a slim rail (desktop) / button (phone); replace the flat Historical Maps list with a "Back in time" switch (Today · 1926–61 · 1801–1912 · 16th–18th c.) | To Do | Medium | M | E5-1 |
+| E17-4 | E17 | Add phone-only "Near me": GPS button surfaces the nearest records as a distance-sorted list | To Do | Medium | M | E17-2 |
+| E17-5 | E17 | Redesign the record details surface: 520px side panel (desktop) / bottom sheet (phone) — evidence rows in words, Description lead-in, grouped figures, *Open full page · Zoom to route · Share · Suggest* actions; drop Location text (the map already shows it) | To Do | High | L | E5-4 |
+| E17-6 | E17 | Add the full-page reading mode (`records/CitedText.tsx` + `sidenotes.css`): Location/Description tabs, 680px reading column at 21px Newsreader, references as margin notes, reading time = words ÷ 200 | To Do | High | L | E17-5 |
+| E17-7 | E17 | Add the figure viewer: dark stage, caption + facts beside the image, arrow-key/swipe navigation; `isGeotagged()` still gates "Show on map" (map/photo grouping deferred — see notes below) | To Do | Medium | M | E17-5 |
+| E17-8 | E17 | Redesign Home: headline "Following the roads back in time", eyebrow "Research atlas · Lower Rhine, Meuse & beyond", Back-in-time strip, newest 3 news items | To Do | Medium | M | E5-1 |
+| E17-9 | E17 | Migrate `News.tsx`'s hardcoded array to Markdown content (`news/newsLoader.ts`, `src/content/news/*.md`) with month groups, tags, filter chips, and a lead item | To Do | Medium | M | None |
+| E17-10 | E17 | Redesign the Data page: `recharts` vertical bar chart (sorted, one ink/sage colour for sites; roads shown with their `roadStyles.ts` line style next to the label), table view + CSV download, and a "[X]% of the network is proven on the ground" stat computed client-side from the existing `lengthKmByType` (`type === 'road'` ÷ total, no new backend aggregation) | To Do | Medium | M | E5-4 |
+| E17-11 | E17 | Rework Suggest-a-change: five numbered steps, pick the record by name (search) instead of ID, "What should change?" chips prefixed into `summary` (e.g. `[Course] …`); opening from a record prefills steps 1–2 | To Do | Medium | M | None |
+| E17-12 | E17 | Add Hercules mode: inverse-video menu bar, double-border `.window` chrome, scanlines/vignette (`.crt`), `TypeOut`/`ScanImage` for record text/figures, contours+hatching basemap (`hercules/contours-and-hatching.md`), F1/F2/F3/F9/Esc status-line hints, optional one-time boot screen with real counts; fully inert under `prefers-reduced-motion` | To Do | Medium | L | E5-1, E17-6, E17-7 |
+
+**E17 implementation notes:**
+- Design reference: Claude Design canvas "AncientData — UI redesign" boards; drop-in source files live in `AncientDataWebGIS_FE/docs/redesign/`, handoff notes in `AncientDataWebGIS_FE/docs/ancientdata-redesign-README.md`.
+- Open question A (site certainty) resolved 2026-09-29: no new DB column — certainty is already implicit in the type itself (`tum` vs `ptum`, `castellum` vs `pos_castellum`, etc.); `E5-4` formalizes it as a `certain` flag on the existing `siteTypesConfig.ts` (E10) registry entries.
+- Open question B (figure kind) resolved 2026-09-29 — **deferred**: there is no `kind` column on `MediaAsset` (backend or frontend), and the documented `isGeotagged()` heuristic for guessing map-vs-photo is provisional and counterintuitive. `E17-7` ships without map/photo grouping in the figure strip; only revisit if a real `MediaAsset.kind` enum (`MAP`/`PHOTO`/`DRAWING`) is added later.
+- Open question C (period/date-code lookup, e.g. `R`, `R?`, `ER-150CE`, `hist_rec`) resolved 2026-09-29 — **not yet a story**: this is a real epistemic vocabulary from the literature (dating confidence, and for `hist_rec` specifically, roads only attested via 19th-century historical-reconstruction cartography such as Schneider's, often without surviving physical evidence), but it exists only in the author's working notes today, not in any `Road`/`Site` field — `Road.date`/`cat_date` is free-text prose (e.g. `'2nd century CE'`), and `Site` has no date field at all. Building the README's raw-code-next-to-plain-words display requires a new structured field plus a data-entry/backfill pass, not just a frontend lookup table; out of scope for `E17` until that's separately scoped with the data owner. Ship record dates as the existing free-text prose, without a raw-code badge.
+- Open question D (data-page "proven on the ground" %) resolved 2026-09-29: no new backend aggregation needed — `DashboardService.getSummary()`'s existing `lengthKmByType` (`RoadRepository.getLengthKmByTypeRaw()`) already carries length-by-`type`, and `type` doubles as the evidence field; `E17-10` just filters/divides it client-side.
+
 ---
 
 ## 4) Acceptance Criteria (Per Priority Wave)
@@ -353,9 +379,17 @@ work correctly end-to-end as-is). Full design write-up:
 - Depends on E9: raster/DEM layers slot into the `LayerPanel`'s Physical group and `MapLegend`'s DEM hook rather than a new ad-hoc control.
 
 ### P3 Done Criteria
-- Theme switch works globally and persists.
-- Synthwave mode remains legible for map and text UI.
+- Theme switch (Day/Night/Hercules) works globally and persists across reload.
+- Day and Night both meet ≥4.5:1 body-text contrast; Hercules is legible on both map and text UI.
+- Road evidence (excavated/observed vs traced/reconstructed vs hypothetical vs historical-record-only) and site certainty (filled vs outline) are always stated in words, not colour/style alone.
 - A new site or road type (icon, label, style) can be added or changed by editing one config file/entry, with no other file requiring a matching manual edit. ✅ met (E10)
+
+### E17 Done Criteria
+- Atlas: the tap picker works for every site/road within ~12px of a click; Fairphone 5 pans smoothly with clustering on; images lazy-load with thumbnails.
+- Every panel and the tap picker are operable without a mouse; focus is visible in all three themes.
+- `prefers-reduced-motion` leaves Hercules fully static (no typing, scanning, or blink); no flashing anywhere, and the cursor blinks at 1 Hz when motion is allowed.
+- Map/photo figure grouping and the period/date-code lookup are explicitly deferred per the E17 implementation notes above, not silently dropped from the design doc.
+- News reads from `src/content/news/*.md` via `newsLoader.ts`, not the old hardcoded array in `News.tsx`.
 
 ### E8 Done Criteria
 - Chapters are written as Markdown files under `src/content/book/`, rendered via a dynamic `/book/:slug` route.
